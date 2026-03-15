@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 12 — Multicarrier Modulation & OFDM | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#b47eff;--accent2:#00d4ff;--gold:#ffc940;--green:#00e5a0;--red:#ff4f6e;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .6rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(180,126,255,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(180,126,255,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(180,126,255,.07) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(180,126,255,.1);border:1px solid rgba(180,126,255,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-gr{border-left:3px solid var(--green);}
+.card.bl-r{border-left:3px solid var(--red);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.2);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(180,126,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--accent2);}
+.cmp-box.c3 h5{color:var(--gold);}
+.cmp-box.c4 h5{color:var(--red);}
+.hl{background:linear-gradient(135deg,rgba(180,126,255,.07),rgba(0,212,255,.04));border:1px solid rgba(180,126,255,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(180,126,255,.12);color:var(--accent);border:1px solid rgba(180,126,255,.25);}
+.p-b{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-gr{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1rem 0;font-size:.85rem;}
+.flow-box{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:.45rem .9rem;color:var(--text);}
+.flow-arrow{color:var(--accent);font-size:1rem;}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp,.cmp3{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html" class="active">Ch.12</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 12 · Multicarrier</div>
+  <a href="#mc-intro" class="sb-link">§12 Introduction</a>
+  <a href="#mc-intro" class="sb-link sub">↳ The ISI problem</a>
+  <a href="#mc-intro" class="sb-link sub">↳ Core idea</a>
+  <a href="#mc-intro" class="sb-link sub">↳ Advantages over equalization</a>
+  <a href="#mc-intro" class="sb-link sub">↳ Real-world systems</a>
+  <a href="#mc-intro" class="sb-link sub">↳ Problems with multicarrier</a>
+  <div class="sb-sep"></div>
+  <a href="#mc-data" class="sb-link">§12.1 Data Transmission</a>
+  <a href="#mc-data" class="sb-link sub">↳ Delay spread & Bc</a>
+  <a href="#mc-data" class="sb-link sub">↳ N parallel subsystems</a>
+  <a href="#mc-data" class="sb-link sub">↳ Transmitted signal eq.</a>
+  <a href="#mc-data" class="sb-link sub">↳ Multicarrier receiver</a>
+  <a href="#mc-data" class="sb-link sub">↳ Bandwidth penalty</a>
+  <a href="#mc-data" class="sb-link sub">↳ Example 12.1 & 12.2</a>
+  <div class="sb-sep"></div>
+  <a href="#mc-overlap" class="sb-link">§12.2 Overlapping Subchannels</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Why overlap?</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Orthogonality proof</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Min. freq. spacing 1/TN</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Bandwidth comparison</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Receiver for overlap</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ Example 12.3</a>
+  <a href="#mc-overlap" class="sb-link sub">↳ ICI problem</a>
+  <div class="sb-sep"></div>
+  <a href="#ofdm" class="sb-link">§12.4.3 OFDM</a>
+  <a href="#ofdm" class="sb-link sub">↳ Why IFFT/FFT?</a>
+  <a href="#ofdm" class="sb-link sub">↳ Transmitter flow</a>
+  <a href="#ofdm" class="sb-link sub">↳ IFFT equation</a>
+  <a href="#ofdm" class="sb-link sub">↳ Cyclic prefix</a>
+  <a href="#ofdm" class="sb-link sub">↳ Receiver flow</a>
+  <a href="#ofdm" class="sb-link sub">↳ Y[i] = H[i]·X[i]</a>
+  <a href="#ofdm" class="sb-link sub">↳ Freq. equalization</a>
+  <a href="#ofdm" class="sb-link sub">↳ Zero prefix</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 12 · Andrea Goldsmith</div>
+    <h1>Multicarrier Modulation<br><span>& OFDM</span></h1>
+    <p>From why we split a wideband channel into many narrow ones, to overlapping subcarriers, orthogonality proofs, the IFFT/FFT trick, cyclic prefix, and frequency equalization. Every idea built from zero.</p>
+    <div class="ph-chips">
+      <a href="#mc-intro" class="ph-chip">Intro & Motivation</a>
+      <a href="#mc-data" class="ph-chip">§12.1 Data Transmission</a>
+      <a href="#mc-overlap" class="ph-chip">§12.2 Overlapping</a>
+      <a href="#ofdm" class="ph-chip">§12.4.3 OFDM</a>
+      <a href="#problems" class="ph-chip">Summary</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     §12 INTRODUCTION
+══════════════════════════════════════ -->
+<section class="section" id="mc-intro">
+  <div class="sec-badge"><span class="dot"></span>Chapter 12 — Introduction</div>
+  <h2>Why Multicarrier? — The Problem and the Big Idea</h2>
+  <p class="lead">Before understanding any multicarrier technique, we need to understand the problem it solves — and why the solution of splitting a single fast stream into many slow streams is so powerful.</p>
+
+  <h3>Step 1 — The Core Problem: ISI from Delay Spread</h3>
+  <p>When a wireless signal travels from a transmitter, it takes many different paths — bouncing off buildings, walls, trees, and vehicles. Each copy arrives at the receiver at a slightly different time. This <strong>delay spread</strong> causes the tail of one symbol to overlap the start of the next: <strong>Intersymbol Interference (ISI)</strong>.</p>
+
+  <div class="const-wrap"><pre>
+  Transmitter → direct path (0 µs delay) ─────────────► Receiver
+             → reflected path 1 (5 µs delay) ──────────► Receiver
+             → reflected path 2 (20 µs delay) ─────────► Receiver
+
+  If symbol duration = 10 µs and delay spread = 20 µs:
+  ← Symbol 1 ─→← Symbol 2 ─→← Symbol 3 ─→  (transmitted)
+  ← Sym1 ─→
+       ← delayed Sym1 ─→← delayed Sym1 ─→   (at receiver)
+               ↑↑ overlap ↑↑ overlap ↑↑
+  </pre><div class="const-label">Delay spread causes ISI — previous symbols bleed into current symbol</div></div>
+
+  <h3>Step 2 — Traditional Fix: Equalization (and Why It Becomes Hard)</h3>
+  <p>Equalizers (Chapter 11) try to undo the ISI. But at <strong>high data rates</strong>, symbols are very short — much shorter than the delay spread. The equalizer needs many taps (one per multipath component). With large delay spread and high data rate:</p>
+  <ul class="nice">
+    <li>Equalizer may need 50–100+ taps — very complex</li>
+    <li>Tap weights must be updated as channel changes — difficult tracking</li>
+    <li>High power consumption, large hardware</li>
+  </ul>
+  <div class="hl"><strong>The key insight that motivates multicarrier:</strong> Instead of sending data very fast on <em>one</em> channel and fighting ISI with a complex equalizer, what if we send data <em>slowly</em> on <em>many</em> channels in parallel? Slow data → long symbols → delay spread becomes negligible → no ISI!</div>
+
+  <h3>Step 3 — The Core Idea of Multicarrier Modulation</h3>
+  <p>Divide the total data stream into N smaller streams. Send each stream on a different carrier frequency (subcarrier). Each stream runs at rate R/N — much slower than the original rate R.</p>
+
+  <div class="const-wrap"><pre>
+  Original: 20 Mbps on 1 carrier → symbol duration = tiny → severe ISI
+
+  Multicarrier:
+  20 Mbps
+     ├─ 2 Mbps → Carrier f₁ (subchannel 1)
+     ├─ 2 Mbps → Carrier f₂ (subchannel 2)
+     ├─ 2 Mbps → Carrier f₃ (subchannel 3)
+     │   ...
+     └─ 2 Mbps → Carrier f₁₀ (subchannel 10)
+  10 subchannels × 2 Mbps = 20 Mbps total ← same total rate!
+  But each subchannel has 10× longer symbols → 10× less ISI
+  </pre><div class="const-label">Same total data rate — but each stream is slow enough that ISI becomes negligible</div></div>
+
+  <h3>Step 4 — Subchannels and Orthogonality</h3>
+  <p>Each separate frequency channel is called a <strong>subchannel</strong>. Its carrier is a <strong>subcarrier</strong>. For the subchannels to be separable at the receiver without interfering with each other, they must be <strong>orthogonal</strong>:</p>
+  <div class="fbox">
+    <span class="fb">∫₀^Ts s₁(t)·s₂(t) dt = 0</span>
+    <span class="fl">Two signals are orthogonal if their inner product over the symbol interval is zero → they don't interfere even if spectra overlap</span>
+  </div>
+
+  <h3>Step 5 — How Multicarrier Removes ISI: Time vs Frequency Domain</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Time Domain View</h5>
+      <p>Lower data rate → longer symbol time TN. If TN ≫ delay spread Tm, the delayed copies of a symbol die out before the next symbol begins → negligible ISI.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Frequency Domain View</h5>
+      <p>Narrow subchannel bandwidth BN. If BN &lt; coherence bandwidth Bc, each subchannel experiences <em>flat fading</em> (not frequency-selective) → no ISI from channel frequency variation.</p>
+    </div>
+  </div>
+  <div class="fbox">
+    <span class="fb">BN &lt; Bc ↔ TN ≫ Tm</span>
+    <span class="fl">These two conditions are equivalent — flat fading per subchannel = negligible ISI per subchannel</span>
+  </div>
+
+  <h3>Step 6 — Real-World Systems Using Multicarrier</h3>
+  <table>
+    <tr><th>System</th><th>Technology</th><th>Application</th></tr>
+    <tr><td><span class="pill p-b">WiFi 802.11a/g/n/ac</span></td><td>OFDM</td><td>Wireless LAN</td></tr>
+    <tr><td><span class="pill p-g">4G LTE</span></td><td>OFDM / SC-FDMA</td><td>Mobile broadband</td></tr>
+    <tr><td><span class="pill p-gr">5G NR</span></td><td>OFDM</td><td>Next-gen mobile</td></tr>
+    <tr><td><span class="pill p-a">DSL</span></td><td>DMT (Discrete Multitone)</td><td>Wired broadband</td></tr>
+    <tr><td><span class="pill p-b">Digital TV (Europe)</span></td><td>DVB-T</td><td>Digital broadcast</td></tr>
+    <tr><td><span class="pill p-r">FLASH-OFDM</span></td><td>OFDM</td><td>Mobile wireless broadband</td></tr>
+  </table>
+  <p>Multicarrier is not new — it was first used for military HF radios in the late 1950s and early 1960s. Since around 1990 it has become the dominant technology for high-speed wireless and wired communications.</p>
+
+  <h3>Step 7 — Problems With Multicarrier Systems</h3>
+  <div class="warn">
+    <strong>Multicarrier is not perfect — key challenges:</strong>
+    <ul class="nice" style="margin-top:.5rem;">
+      <li><strong>Frequency offset:</strong> If transmitter and receiver oscillators don't match exactly, subcarriers shift → orthogonality breaks → intercarrier interference (ICI)</li>
+      <li><strong>Timing jitter:</strong> Imperfect synchronisation breaks orthogonality between subcarriers</li>
+      <li><strong>High PAPR (Peak-to-Average Power Ratio):</strong> When many subcarriers add constructively, the signal peak is much higher than the average. Bad for nonlinear power amplifiers — can cause distortion. PAPR of OFDM is significantly higher than single-carrier systems.</li>
+      <li><strong>Spectral inefficiency (simple implementation):</strong> Requires sharp filters or wastes bandwidth between subchannels</li>
+    </ul>
+  </div>
+
+  <h3>Step 8 — Multicarrier vs Single-Carrier: The Debate</h3>
+  <p>Researchers have debated which is better for ISI channels. Some work shows single-carrier + equalization ≈ multicarrier + coding + interleaving at comparable complexity. However:</p>
+  <ul class="nice">
+    <li>At <strong>high data rates</strong> with large delay spread: multicarrier wins — equalizer complexity grows too fast</li>
+    <li><strong>Adaptive loading</strong> (different modulations per subcarrier) significantly boosts multicarrier performance</li>
+    <li>Most modern high-rate systems (WiFi, 4G, 5G) have chosen multicarrier</li>
+  </ul>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §12 Introduction</div>
+    <ol>
+      <li>A wideband system has total bandwidth B = 10 MHz and channel delay spread Tm = 50 µs. (a) What is the original symbol duration without multicarrier? (b) Is this system ISI-free? (c) If we split into N=200 subchannels, what is each subchannel bandwidth and symbol duration? Is it now ISI-free?</li>
+      <li>Explain in your own words why PAPR is higher in OFDM compared to single-carrier. Give a concrete analogy.</li>
+      <li>Name three real products you use that implement OFDM and identify what variant they use.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Ts = 1/B = 1/10×10⁶ = 0.1 µs. (b) Ts = 0.1 µs ≪ Tm = 50 µs → severe ISI, far from ISI-free. (c) BN = 10 MHz/200 = 50 kHz, TN = 1/50,000 = 20 µs. Now TN = 20 µs still equals Tm = 50 µs... so we need more subchannels! Use N = 1000: BN = 10 kHz, TN = 100 µs ≫ 50 µs → ISI-free.</p>
+      <p><strong>2.</strong> OFDM adds many subcarrier signals together. When they all happen to be at their peak simultaneously, the combined signal is N times the individual amplitude. Analogy: imagine 100 people in a room all speaking at the same volume — usually they speak at different times (average is low). But if they all shout simultaneously (peaks align), the combined noise is 100× louder (high peak). The ratio of that rare loud moment to the average is the PAPR. Single-carrier has one wave — its peaks are bounded and predictable.</p>
+      <p><strong>3.</strong> Home WiFi router (802.11n/ac → OFDM with 52 or 108 data subcarriers). LTE mobile phone (LTE → OFDM downlink, 12 subcarriers per resource block). ADSL modem (DSL → DMT with up to 256 downstream tones).</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §12.1 DATA TRANSMISSION
+══════════════════════════════════════ -->
+<section class="section" id="mc-data">
+  <div class="sec-badge"><span class="dot"></span>Section 12.1</div>
+  <h2>Data Transmission Using Multiple Carriers</h2>
+  <p class="lead">The mathematics of simple (non-overlapping) multicarrier modulation. How to choose N, what the transmitted signal looks like, and why this simple version wastes bandwidth.</p>
+
+  <h3>Step 1 — System Parameters</h3>
+  <p>Start with a linearly modulated system:</p>
+  <table>
+    <tr><th>Parameter</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Total data rate</td><td>R</td><td>Bits per second for entire system</td></tr>
+    <tr><td>Total bandwidth</td><td>B</td><td>Total spectrum available</td></tr>
+    <tr><td>Coherence bandwidth</td><td>Bc</td><td>Frequency range with ~same fading · Bc ≈ 1/Tm</td></tr>
+    <tr><td>Delay spread</td><td>Tm</td><td>RMS spread of multipath arrivals</td></tr>
+  </table>
+  <p>Since Bc &lt; B: the channel causes <strong>frequency-selective fading</strong> — different frequencies fade differently. This is the source of ISI.</p>
+
+  <h3>Step 2 — The Multicarrier Solution: N Parallel Subsystems</h3>
+  <p>Break the wideband system into N parallel narrowband systems:</p>
+  <div class="fbox">
+    <span class="fb big">BN = B/N &nbsp;&nbsp;&nbsp; RN ≈ R/N</span>
+    <span class="fl">Each subchannel bandwidth = B/N · Each subchannel data rate ≈ R/N</span>
+  </div>
+  <p>For N large enough that <code>BN ≪ Bc</code>: each subchannel experiences <strong>flat fading</strong> → ISI becomes negligible.</p>
+
+  <h4>Time-Domain Explanation</h4>
+  <p>The symbol time in each subchannel: <code>TN ∝ 1/BN</code>. So <code>BN ≪ Bc</code> implies:</p>
+  <div class="fbox">
+    <span class="fb">TN ≈ 1/BN ≫ 1/Bc ≈ Tm</span>
+    <span class="fl">Symbol duration ≫ delay spread → delayed copies of previous symbol die out before current symbol ends → no ISI</span>
+  </div>
+
+  <h3>Step 3 — The Multicarrier Transmitter</h3>
+  <div class="flow">
+    <div class="flow-box">Bit stream</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Serial → Parallel (N streams)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Modulate each stream (QAM/PSK)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Sum all subcarrier signals</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">s(t) transmitted</div>
+  </div>
+
+  <h4>Symbol Time with Raised Cosine Pulses</h4>
+  <p>Each subchannel uses raised cosine pulse shaping (to reduce ISI and control bandwidth):</p>
+  <div class="fbox">
+    <span class="fb">TN = (1 + β) / BN</span>
+    <span class="fl">β = roll-off factor (0 ≤ β ≤ 1) · β=0 → sinc pulse (ideal, infinite duration) · β=1 → twice the bandwidth</span>
+  </div>
+
+  <h3>Step 4 — The Transmitted Signal Equation</h3>
+  <p>The total transmitted signal is the sum of all N subcarrier signals:</p>
+  <div class="fbox">
+    <span class="fb big">s(t) = Σᵢ₌₀^(N−1) sᵢ · g(t) · cos(2πfᵢt + φᵢ)</span>
+    <span class="fl">Eq. (12.1) · sᵢ = complex symbol on i-th subcarrier · g(t) = pulse shape · fᵢ = i-th subcarrier frequency · φᵢ = phase offset</span>
+  </div>
+
+  <h4>Breaking Down Each Term</h4>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td><code>sᵢ</code></td><td>Complex QAM/PSK symbol — the data being sent on subcarrier i</td></tr>
+    <tr><td><code>g(t)</code></td><td>Pulse shaping filter — controls signal bandwidth and reduces adjacent-channel interference</td></tr>
+    <tr><td><code>cos(2πfᵢt + φᵢ)</code></td><td>The i-th subcarrier — a cosine wave at frequency fᵢ with phase φᵢ</td></tr>
+    <tr><td><code>Σ</code></td><td>Sum over all N subcarriers — the OFDM signal is literally the sum of all modulated subcarriers</td></tr>
+  </table>
+
+  <h4>Subcarrier Frequency Spacing (Non-overlapping case)</h4>
+  <div class="fbox">
+    <span class="fb">fᵢ = f₀ + i·BN, &nbsp; i = 0, 1, ..., N−1</span>
+    <span class="fl">Subcarriers spaced by BN (subchannel bandwidth) so they do not overlap</span>
+  </div>
+
+  <h3>Step 5 — Total Bandwidth and Data Rate</h3>
+  <p>With N non-overlapping subchannels each of bandwidth BN = B/N:</p>
+  <div class="fbox">
+    <span class="fb">Total bandwidth = N × BN = N × (B/N) = B &nbsp;&nbsp;&nbsp; Total rate = N × RN ≈ R</span>
+    <span class="fl">Multicarrier does NOT change total bandwidth or data rate — it only changes HOW data is transmitted</span>
+  </div>
+
+  <h3>Step 6 — The Multicarrier Receiver</h3>
+  <div class="flow">
+    <div class="flow-box">Received signal</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Narrowband filter (isolates each subchannel)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Demodulate each stream</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Parallel → Serial</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Original bit stream</div>
+  </div>
+  <p>Each subchannel experiences flat fading with channel gain: <code>αᵢ = H(fᵢ)</code> — the channel response evaluated at subcarrier frequency fᵢ.</p>
+
+  <h3>Step 7 — Problems With This Simple Design</h3>
+  <div class="card bl-r">
+    <h4>Problem 1 — Bandwidth Penalty from Time Limiting</h4>
+    <p>Ideal raised cosine pulses require <em>infinite duration</em> in time. Real pulses must be time-limited, which causes spectral leakage — adding extra bandwidth ε/TN per subchannel. Total bandwidth with non-overlapping subchannels:</p>
+    <div class="fbox"><span class="fb big">B = N(1 + β + ε) / TN</span><span class="fl">Eq. (12.2) · ε = extra bandwidth factor from time limiting · β = roll-off factor</span></div>
+    <p>This extra (1+β+ε) factor makes the system spectrally inefficient.</p>
+  </div>
+  <div class="card bl-r">
+    <h4>Problem 2 — Near-Ideal Filters Required</h4>
+    <p>To keep non-overlapping subchannels separate, the receiver needs very sharp (near-ideal) lowpass filters — complex and expensive in practice.</p>
+  </div>
+  <div class="card bl-r">
+    <h4>Problem 3 — N Modulators and Demodulators</h4>
+    <p>N=200 subchannels requires 200 separate modulators and 200 demodulators — significant hardware cost, size, and power consumption.</p>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 12.1 — How Many Subchannels? (Textbook)</div>
+    <p><strong>Given:</strong> Total bandwidth B = 1 MHz, delay spread Tm = 20 µs.</p>
+    <p><strong>Step 1 — Coherence bandwidth:</strong> Bc = 1/Tm = 1/20×10⁻⁶ = <strong>50 kHz</strong></p>
+    <p><strong>Step 2 — Choose subchannel BW for flat fading:</strong> BN = 0.1 × Bc = 0.1 × 50 kHz = 5 kHz (rule: BN ≪ Bc)</p>
+    <p><strong>Step 3 — Number of subchannels:</strong> N = B/BN = 1,000,000/5,000 = <strong>200 subchannels</strong></p>
+    <p><strong>For digital FFT implementation</strong> (N must be power of 2): next power of 2 above 200 is <strong>N = 256</strong>.</p>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 12.2 — Total Bandwidth with Non-Overlapping (Textbook)</div>
+    <p><strong>Given:</strong> TN = 0.2 ms, N = 128, β = 1, ε = 0.1</p>
+    <p>Using Eq. (12.2):</p>
+    <p><code>B = N(1+β+ε)/TN = 128 × (1+1+0.1) / 0.0002 = 128 × 2.1 / 0.0002 = 268.8/0.0002 = <strong>1.344 MHz</strong></code></p>
+    <p>We will see in Section 12.2 that overlapping subchannels can reduce this significantly.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §12.1</div>
+    <ol>
+      <li>A multicarrier system has total bandwidth B = 5 MHz and channel delay spread Tm = 10 µs. (a) Find the coherence bandwidth Bc. (b) How many subchannels N are needed for flat fading (use BN = 0.1·Bc)? (c) What is each subchannel data rate if total rate R = 20 Mbps?</li>
+      <li>For N = 64 subchannels, TN = 0.5 ms, β = 0.5, ε = 0.1: Find total bandwidth using Eq. (12.2). How does this compare to the ideal B = N/TN?</li>
+      <li>If a receiver requires N filters (one per subchannel), what is the hardware cost scaling as N doubles? Why is this problematic?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Bc = 1/Tm = 1/10×10⁻⁶ = 100 kHz. (b) BN = 0.1×100 kHz = 10 kHz. N = B/BN = 5,000,000/10,000 = 500. For FFT: N = 512. (c) RN = R/N = 20 Mbps/500 = 40 kbps per subchannel.</p>
+      <p><strong>2.</strong> B = N(1+β+ε)/TN = 64×(1+0.5+0.1)/0.0005 = 64×1.6/0.0005 = 102.4/0.0005 = 204.8 kHz. Ideal B = N/TN = 64/0.0005 = 128 kHz. Overhead = 204.8/128 = 1.6× — the (1+β+ε) factor causes 60% bandwidth waste.</p>
+      <p><strong>3.</strong> Filter count = N, so doubling N doubles hardware. More critically, each filter must be very sharp (high-order) to prevent adjacent channel leakage — complexity per filter also grows. Total cost scales roughly as N² if filter complexity is proportional to its selectivity requirement. For N = 256, this is impractical with analogue filters. This is precisely why OFDM was invented — digital FFT replaces all N filters with one O(N log N) operation.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §12.2 OVERLAPPING SUBCHANNELS
+══════════════════════════════════════ -->
+<section class="section" id="mc-overlap">
+  <div class="sec-badge"><span class="dot"></span>Section 12.2</div>
+  <h2>Multicarrier with Overlapping Subchannels</h2>
+  <p class="lead">The key improvement: let subcarrier spectra overlap while keeping them mathematically orthogonal. This halves the bandwidth requirement and forms the foundation of OFDM.</p>
+
+  <h3>Step 1 — Why Allow Overlapping?</h3>
+  <p>In the simple system (§12.1), subchannels are spaced by BN — their full bandwidth. Much of the spectrum between subchannels is wasted. The insight: we can pack subcarriers much closer together — spacing them by only <code>1/TN</code> instead of BN = (1+β)/TN — as long as we maintain orthogonality.</p>
+
+  <div class="const-wrap"><pre>
+  Non-overlapping (§12.1):        Overlapping (§12.2):
+  |--BN--|--BN--|--BN--|           /\/\/\/\/\/\
+  | Sub1 | Sub2 | Sub3 |         /  \  /  \  /  \
+  |      |      |      |        /    \/    \/    \
+  ─────────────────────         ─────────────────
+  Lots of gaps between          Subcarriers overlap
+  subchannels → wastes          but still orthogonal!
+  bandwidth
+  </pre><div class="const-label">Overlapping subcarriers use spectrum more efficiently</div></div>
+
+  <h3>Step 2 — The Orthogonality Proof</h3>
+  <p>The subcarriers are chosen as: <code>cos(2π(f₀ + i/TN)t + φᵢ)</code> for i = 0, 1, 2, ...</p>
+  <p>To check if subcarrier i and subcarrier j are orthogonal, we compute their inner product over the symbol interval [0, TN]:</p>
+
+  <div class="fbox">
+    <span class="fb">(1/TN) ∫₀^TN cos(2π(f₀+i/TN)t+φᵢ) · cos(2π(f₀+j/TN)t+φⱼ) dt</span>
+  </div>
+
+  <h4>Using the Product-to-Sum Identity</h4>
+  <p>Using <code>cos(A)cos(B) = 0.5cos(A−B) + 0.5cos(A+B)</code>:</p>
+  <div class="card bl-b">
+    <p>The integral splits into two terms:</p>
+    <p><strong>Term 1:</strong> <code>0.5·(1/TN)∫₀^TN cos(2π(i−j)t/TN + φᵢ−φⱼ) dt</code></p>
+    <p><strong>Term 2:</strong> <code>0.5·(1/TN)∫₀^TN cos(2π(2f₀+(i+j)/TN)t + φᵢ+φⱼ) dt</code></p>
+    <p>Term 2 ≈ 0 when <code>f₀·TN ≫ 1</code> (carrier frequency much higher than symbol rate — always true in practice).</p>
+    <p>Term 1 evaluates to: <code>0.5·δ(i−j)</code> — the Kronecker delta!</p>
+    <div class="fbox"><span class="fb big">(1/TN)∫₀^TN cos(...)cos(...) dt ≈ 0.5·δ(i−j)</span><span class="fl">Eq. (12.3) — = 0.5 when i=j (same carrier) · = 0 when i≠j (different carriers) → ORTHOGONAL!</span></div>
+  </div>
+
+  <h3>Step 3 — The Minimum Frequency Spacing for Orthogonality</h3>
+  <div class="hl">
+    <strong>Critical result:</strong> No set of subcarriers with a <em>smaller</em> frequency separation than 1/TN forms an orthogonal set on [0, TN] for arbitrary phase offsets. So:
+    <div style="text-align:center;margin:.8rem 0;font-family:var(--mono);color:var(--accent2);font-size:1.05rem;">Minimum orthogonal spacing = Δf = 1/TN</div>
+    This is the fundamental spacing used in OFDM. It allows maximum spectrum packing while preserving perfect orthogonality.
+  </div>
+
+  <h3>Step 4 — Orthonormal Basis Functions</h3>
+  <p>With appropriate pulse shaping g(t) (such as raised cosine), the complete set of functions:</p>
+  <div class="fbox">
+    <span class="fb">{g(t)·cos(2π(f₀ + i/TN)t + φᵢ) , i = 0, 1, ..., N−1}</span>
+    <span class="fl">Forms an orthonormal basis set on [0, TN] — orthogonal AND each has unit energy</span>
+  </div>
+  <p>Because they form an orthonormal basis: even though the subchannels overlap in spectrum, the transmitted symbols in each subchannel can be <strong>perfectly separated</strong> at the receiver.</p>
+
+  <h3>Step 5 — Bandwidth with Overlapping Subcarriers</h3>
+  <p>Each subchannel bandwidth: <code>BN = (1+β)/TN</code>. Subcarriers are spaced by <code>1/TN</code>. Since BN &gt; 1/TN (for β &gt; 0), subchannels overlap. The extra bandwidth from time-windowing (ε/TN) only affects the first and last subcarriers, not all N. Total bandwidth:</p>
+  <div class="fbox">
+    <span class="fb big">B = (N + β + ε) / TN ≈ N/TN &nbsp; (for large N)</span>
+    <span class="fl">Eq. (12.4) — Compare to non-overlapping: B = N(1+β+ε)/TN. Overlapping removes the (1+β+ε) multiplication!</span>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 12.3 — Overlapping vs Non-Overlapping Bandwidth (Textbook)</div>
+    <p><strong>Same parameters as Example 12.2:</strong> TN = 0.2 ms, N = 128, β = 1, ε = 0.1</p>
+    <p><strong>With overlapping subchannels (Eq. 12.4):</strong></p>
+    <p><code>B = (N + β + ε)/TN = (128 + 1 + 0.1)/0.0002 = 129.1/0.0002 = 645,500 Hz ≈ 645.5 kHz</code></p>
+    <p><strong>Approximation:</strong> B ≈ N/TN = 128/0.0002 = 640 kHz ✓</p>
+    <p><strong>Non-overlapping (from Example 12.2):</strong> B = 1.344 MHz</p>
+    <div class="hl"><strong>Overlapping saves: 1.344 MHz vs 645 kHz → more than 50% bandwidth reduction!</strong> This is why overlapping subcarriers are always used in real OFDM systems.</div>
+  </div>
+
+  <h3>Step 6 — Receiver for Overlapping Subcarriers</h3>
+  <p>Because subchannels overlap, you cannot use a simple bandpass filter to isolate one subchannel. Instead, the receiver uses <strong>correlation detection</strong>: multiply by the i-th subcarrier and integrate over TN.</p>
+
+  <div class="fbox">
+    <span class="fb">ŝᵢ = ∫₀^TN s(t) · g(t) · cos(2πfᵢt + φᵢ) dt</span>
+    <span class="fl">Correlation receiver — multiplies received signal by i-th carrier and integrates over symbol interval</span>
+  </div>
+
+  <h4>Why This Perfectly Recovers sᵢ</h4>
+  <p>Substituting <code>s(t) = Σⱼ sⱼ·g(t)·cos(2πfⱼt+φⱼ)</code> into the receiver integral:</p>
+  <div class="card bl-b">
+    <p>ŝᵢ = Σⱼ sⱼ · ∫₀^TN g²(t)·cos(2πfⱼt+φⱼ)·cos(2πfᵢt+φᵢ) dt</p>
+    <p>Because {g(t)cos(2πfⱼt+φⱼ)} is an orthonormal basis, the integral = δ(j−i)</p>
+    <p>So: <code>ŝᵢ = Σⱼ sⱼ·δ(j−i) = sᵢ</code></p>
+    <div class="fbox"><span class="fb big">ŝᵢ = sᵢ</span><span class="fl">Eq. (12.5-12.6) — The correlation receiver perfectly recovers symbol sᵢ despite all other overlapping subcarriers!</span></div>
+  </div>
+
+  <h4>With Channel and Noise</h4>
+  <p>In a real channel with flat fading gain αᵢ = H(fᵢ) and AWGN noise nᵢ:</p>
+  <div class="fbox">
+    <span class="fb">ŝᵢ = αᵢ·sᵢ + nᵢ &nbsp;&nbsp; where nᵢ has power N₀·BN</span>
+    <span class="fl">Each subchannel is scaled by its flat fading coefficient and corrupted by independent AWGN</span>
+  </div>
+
+  <h3>Step 7 — Sensitivity to Timing and Frequency Offsets (ICI)</h3>
+  <div class="warn">
+    <strong>Critical weakness of overlapping subcarriers:</strong> Since orthogonality depends on the correlation integral being exactly zero for i≠j, any perturbation of the carrier frequencies or symbol timing can destroy this. Even small frequency offsets or timing errors cause <strong>Inter-Carrier Interference (ICI)</strong> — subcarriers bleed into each other. This is why OFDM systems require very accurate frequency synchronisation (often a dedicated synchronisation algorithm in the receiver).
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §12.2</div>
+    <ol>
+      <li>A system has TN = 1 ms, N = 64, β = 0.5, ε = 0.05. Calculate total bandwidth for (a) non-overlapping and (b) overlapping subchannels. What is the bandwidth savings?</li>
+      <li>Verify orthogonality: show that ∫₀^TN cos(2πt/TN)·cos(4πt/TN) dt = 0. (This proves subcarriers i=1 and i=2 are orthogonal.)</li>
+      <li>Why can't a simple bandpass filter be used to isolate one subcarrier in an overlapping OFDM system? What does the receiver use instead, and why does it work?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Non-overlapping: B = N(1+β+ε)/TN = 64×(1+0.5+0.05)/0.001 = 64×1.55/0.001 = 99.2/0.001 = 99,200 Hz ≈ 99.2 kHz. (b) Overlapping: B = (N+β+ε)/TN = (64+0.5+0.05)/0.001 = 64.55/0.001 = 64,550 Hz ≈ 64.55 kHz. Savings = (99.2−64.55)/99.2 ≈ 34.9% bandwidth saved!</p>
+      <p><strong>2.</strong> ∫₀^TN cos(2πt/TN)·cos(4πt/TN) dt. Use product formula: = (1/2)∫cos(2πt/TN)dt + (1/2)∫cos(6πt/TN)dt over [0,TN]. First term: (TN/4π)·[sin(2πt/TN)]₀^TN = (TN/4π)×(sin(2π)−sin(0)) = 0. Second term: similarly = 0. Total = 0 ✓</p>
+      <p><strong>3.</strong> A bandpass filter centred at fᵢ would pass all signals within ±BN/2 of fᵢ. But adjacent subcarriers fᵢ₋₁ and fᵢ₊₁ are only 1/TN away, which is less than BN (since BN = (1+β)/TN &gt; 1/TN). So the filter would pass adjacent subcarriers too → cannot separate them. The correlation receiver works instead: it multiplies by cos(2πfᵢt) and integrates. The product of the desired subcarrier with itself gives a nonzero constant; the product of any other subcarrier (due to the 1/TN spacing) integrates to zero over [0,TN] by the orthogonality property. The receiver exploits orthogonality directly rather than filtering.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §12.4.3 OFDM
+══════════════════════════════════════ -->
+<section class="section" id="ofdm">
+  <div class="sec-badge"><span class="dot"></span>Section 12.4.3</div>
+  <h2>OFDM — Orthogonal Frequency Division Multiplexing</h2>
+  <p class="lead">OFDM is multicarrier modulation implemented efficiently using the IFFT and FFT. Instead of N separate modulators/demodulators, a single digital signal processing operation handles all subcarriers simultaneously.</p>
+
+  <h3>Step 1 — Why OFDM Was the Breakthrough</h3>
+  <div class="why"><div class="wi">🔑</div><div>
+    <strong>The key engineering insight:</strong> The correlation receiver for overlapping subcarriers — multiply received signal by each subcarrier and integrate — is mathematically identical to computing a <strong>Discrete Fourier Transform (DFT)</strong>. Similarly, the transmitter — summing all modulated subcarriers — is identical to computing an <strong>Inverse DFT (IDFT)</strong>. The <strong>Fast Fourier Transform (FFT)</strong> computes the DFT in O(N log N) operations instead of O(N²). So one IFFT at the transmitter replaces N separate modulators, and one FFT at the receiver replaces N separate correlators!
+  </div></div>
+
+  <h3>Step 2 — The OFDM Transmitter: Full Flow</h3>
+  <div class="flow">
+    <div class="flow-box">Input bits</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">QAM symbols X[0]...X[N−1]</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Serial → Parallel</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">IFFT</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Add cyclic prefix</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Parallel → Serial</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">DAC → RF ↑ → transmit</div>
+  </div>
+
+  <h4>Stage 1 — QAM Modulation</h4>
+  <p>Input bits are mapped to complex QAM symbols:</p>
+  <div class="const-wrap"><pre>
+  Bits: 1 0 1 1 0 0 1 0 1 0 1 1 ...
+          ↓ QAM modulator
+  Symbols: X[0]=1+j, X[1]=−1+j, X[2]=1−j, ..., X[N−1]=−1−j</pre>
+    <div class="const-label">X[i] are complex numbers encoding the data bits — each goes onto one subcarrier</div>
+  </div>
+
+  <h4>Stage 2 — Serial to Parallel</h4>
+  <p>The stream X[0], X[1], ..., X[N−1] is split into N parallel branches. <strong>X[i] represents the frequency-domain component (data symbol) for the i-th subcarrier.</strong></p>
+
+  <h4>Stage 3 — IFFT: The Heart of OFDM</h4>
+  <p>The N parallel frequency-domain symbols are converted to N time-domain samples using the Inverse DFT (IFFT algorithm):</p>
+  <div class="fbox">
+    <span class="fb big">x[n] = (1/√N) · Σᵢ₌₀^(N−1) X[i] · e^(j2πni/N), &nbsp; 0 ≤ n ≤ N−1</span>
+    <span class="fl">Eq. (12.21) — IFFT output · x[n] are time samples of the multicarrier signal · n = time index · i = subcarrier index</span>
+  </div>
+
+  <h4>Physical Meaning of the IFFT</h4>
+  <div class="card bl-a">
+    <p>Each term <code>X[i]·e^(j2πni/N)</code> represents symbol X[i] modulated onto subcarrier i (frequency i/TN). The IFFT computes the <em>sum of all N modulated subcarriers</em> in one operation:</p>
+    <p>x[n] = X[0]·e^(j2π·n·0/N) + X[1]·e^(j2π·n·1/N) + ... + X[N−1]·e^(j2π·n·(N−1)/N)</p>
+    <p>This is literally: (sum of N cosine/sine carriers, each weighted by its symbol) — the multicarrier signal! The IFFT generates it all at once without N separate oscillators.</p>
+  </div>
+
+  <h4>Stage 4 — Adding the Cyclic Prefix (CP)</h4>
+  <p>Take the last μ samples of the IFFT output and prepend them to the beginning:</p>
+  <div class="const-wrap"><pre>
+  IFFT output:  x[0]  x[1]  ...  x[N−µ]  x[N−µ+1]  ...  x[N−1]
+                                  └─────────── copy ──────────────┐
+  After CP:    x[N−µ] ... x[N−1] | x[0]  x[1]  ...  x[N−1]
+               ←— cyclic prefix —→ ←────── useful data ──────────→
+  Length:           µ samples      N samples = total N+µ samples sent</pre>
+    <div class="const-label">The cyclic prefix is a copy of the end of the symbol, pasted to the front</div>
+  </div>
+
+  <h4>Why the Cyclic Prefix Is Essential</h4>
+  <div class="why"><div class="wi">🔄</div><div>
+    <strong>The circular convolution trick:</strong> The OFDM receiver uses FFT, which assumes <em>circular</em> convolution. But real channels perform <em>linear</em> convolution — which causes ISI between symbols and destroys subcarrier orthogonality. The cyclic prefix converts linear convolution into circular convolution. Result: after removing the CP and taking the FFT, the channel effect becomes a simple one-tap multiplication per subcarrier: Y[i] = H[i]·X[i].
+    <br><br>
+    CP length μ must be ≥ channel length L (number of multipath taps). As long as μ ≥ L, ISI is completely eliminated.
+  </div></div>
+
+  <h3>Step 3 — Channel Transmission</h3>
+  <p>The transmitted samples x̃[n] pass through the channel with discrete impulse response h[n] and additive noise ν[n]:</p>
+  <div class="fbox">
+    <span class="fb">y[n] = x̃[n] * h[n] + ν[n], &nbsp; −µ ≤ n ≤ N−1</span>
+    <span class="fl">* = convolution · h[n] = discrete-time equivalent lowpass channel impulse response</span>
+  </div>
+
+  <h3>Step 4 — OFDM Receiver: Full Flow</h3>
+  <div class="flow">
+    <div class="flow-box">RF signal → downconvert → ADC</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Remove cyclic prefix (discard first µ samples)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Serial → Parallel</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">FFT</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Y[i] = H[i]·X[i]</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Frequency equalization X̂[i] = Y[i]/H[i]</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Parallel → Serial → QAM demod</div>
+  </div>
+
+  <h4>The Magic of FFT at the Receiver</h4>
+  <p>After removing the cyclic prefix, taking the FFT of the N received samples gives (in the absence of noise):</p>
+  <div class="fbox">
+    <span class="fb big">Y[i] = H[i] · X[i]</span>
+    <span class="fl">Each subcarrier output is simply the transmitted symbol multiplied by the flat fading gain H[i] = H(fᵢ). No ISI between subcarriers!</span>
+  </div>
+  <div class="hl"><strong>This is the most important result in OFDM:</strong> The wideband frequency-selective channel H(f) is decomposed into N independent flat-fading subchannels, each with a simple scalar gain H[i]. No complex equalizer needed — just N single-tap multiplications.</div>
+
+  <h3>Step 5 — Frequency Equalization</h3>
+  <p>To recover the original symbol, divide by the channel gain:</p>
+  <div class="fbox">
+    <span class="fb big">X̂[i] = Y[i] / H[i] = X[i]</span>
+    <span class="fl">Frequency-domain equalization — a single complex division per subcarrier replaces a multi-tap time-domain equalizer</span>
+  </div>
+
+  <h4>The Noise Enhancement Problem in OFDM Equalization</h4>
+  <div class="warn">
+    <strong>Same problem as in Chapter 11!</strong> With noise present: Y[i] = H[i]·X[i] + N[i]. After equalization: X̂[i] = X[i] + N[i]/H[i]. When H[i] is small (deep fade on subcarrier i), the noise term N[i]/H[i] becomes large → noise enhancement. The received SNR on the i-th subcarrier is unchanged by equalisation: SNR[i] = |H[i]|²·Ps/N₀·BN. Better approaches:
+    <ul class="nice" style="margin-top:.5rem;">
+      <li><strong>Precoding:</strong> Modify transmitted symbols before sending</li>
+      <li><strong>Adaptive loading:</strong> Use higher-order QAM on strong subcarriers, lower-order (or skip) on weak subcarriers</li>
+      <li><strong>Coding across subcarriers:</strong> Use error-correcting codes that spread data across many subcarriers so one faded subcarrier doesn't lose critical bits</li>
+    </ul>
+  </div>
+
+  <h3>Step 6 — Zero Prefix: An Alternative to Cyclic Prefix</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Cyclic Prefix (CP)</h5>
+      <p>Prepend copy of last µ samples. Transmits non-zero prefix — uses transmit power for prefix.</p>
+      <p>Prefix power = µ/(N+µ) of total power wasted on prefix.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Zero Prefix (ZP)</h5>
+      <p>Prepend µ zeros. At receiver: add ISI tail from previous symbol back onto current symbol — recreates circular convolution effect.</p>
+      <p>Power saving: N/(µ+N) since prefix requires no power.</p>
+    </div>
+  </div>
+  <p>The zero prefix saves transmit power by factor N/(N+µ) but adds back noise from the received tail by factor (N+µ)/N — these two effects approximately cancel. So <strong>the SNR difference between CP and ZP is negligible</strong>. Zero prefix is sometimes preferred when transmit power is severely constrained.</p>
+
+  <h3>Step 7 — OFDM System Summary</h3>
+  <div class="const-wrap"><pre>
+  OFDM COMPLETE SYSTEM SUMMARY
+  ════════════════════════════════════════════════════════
+  TRANSMITTER:
+  Bits → QAM → S/P → [X[0]...X[N−1]] → IFFT → Add CP → P/S → DAC → RF↑
+
+  CHANNEL:
+  y[n] = x̃[n] * h[n] + ν[n]   (convolution + noise)
+
+  RECEIVER:
+  RF↓ → ADC → Remove CP → S/P → FFT → [Y[0]...Y[N−1]]
+  → Equalization: X̂[i] = Y[i]/H[i] → P/S → QAM demod → Bits
+
+  KEY RESULT: Y[i] = H[i]·X[i]
+  Wideband freq-selective channel → N independent flat-fading channels
+  ════════════════════════════════════════════════════════</pre></div>
+
+  <div class="example">
+    <div class="ex-head">Numerical Example — OFDM Parameters for WiFi 802.11a</div>
+    <p>WiFi 802.11a uses OFDM with: N = 64 subcarriers, 52 used for data (12 null/pilot), BW = 20 MHz, subcarrier spacing = 20MHz/64 = 312.5 kHz, symbol duration TN = 1/312.5kHz ≈ 3.2 µs, cyclic prefix = 0.8 µs (µ = 16 samples).</p>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Meaning</th></tr>
+      <tr><td>N (FFT size)</td><td>64</td><td>Number of subcarriers (total)</td></tr>
+      <tr><td>Data subcarriers</td><td>52</td><td>Subcarriers carrying user data</td></tr>
+      <tr><td>Subcarrier spacing</td><td>312.5 kHz</td><td>= 1/TN = BW/N</td></tr>
+      <tr><td>Symbol duration TN</td><td>3.2 µs</td><td>= 1/(312.5 kHz)</td></tr>
+      <tr><td>CP length</td><td>0.8 µs = 16 samples</td><td>Must exceed delay spread</td></tr>
+      <tr><td>Total OFDM symbol</td><td>4.0 µs</td><td>TN + CP = 3.2 + 0.8</td></tr>
+      <tr><td>Max usable delay spread</td><td>0.8 µs</td><td>CP length ≥ channel length</td></tr>
+      <tr><td>Modulations used</td><td>BPSK to 64-QAM</td><td>Adaptive per subchannel!</td></tr>
+    </table>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §12.4.3 OFDM</div>
+    <ol>
+      <li>An OFDM system has N=256 subcarriers, total bandwidth B=10 MHz, and cyclic prefix length µ=32 samples. (a) What is the subcarrier spacing? (b) What is the useful symbol duration TN? (c) What channel delay spread can it handle? (d) What fraction of time is "wasted" on the cyclic prefix?</li>
+      <li>After FFT in the receiver, Y[i] = H[i]·X[i] + N[i]. If H[3] = 0.1 (deep fade), X[3] = 1+j (QPSK symbol), N[3] is AWGN with power σ²=0.01, find: (a) received symbol Y[3], (b) equalised symbol X̂[3] = Y[3]/H[3], (c) noise power after equalization, (d) SNR before and after equalization on this subcarrier.</li>
+      <li>Explain why Y[i] = H[i]·X[i] (not a sum involving all X[j]) after the cyclic prefix is removed and FFT is taken. What role does the cyclic prefix play in enabling this simple result?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Subcarrier spacing = B/N = 10MHz/256 = 39.0625 kHz. (b) TN = 1/spacing = 1/39,062.5 = 25.6 µs. (c) Max delay spread = CP duration = µ/B = 32/10×10⁶ = 3.2 µs. Must have Tm ≤ 3.2 µs. (d) CP overhead = µ/(N+µ) = 32/(256+32) = 32/288 ≈ 11.1% of time on CP.</p>
+      <p><strong>2.</strong> (a) Y[3] = H[3]·X[3] + N[3] = 0.1×(1+j) + N[3] = 0.1+0.1j + N[3]. (b) X̂[3] = Y[3]/H[3] = (0.1+0.1j+N[3])/0.1 = (1+j) + N[3]/0.1 = (1+j) + 10·N[3]. (c) Noise after EQ = N[3]/0.1 → power = σ²/|H[3]|² = 0.01/0.01 = 1. (d) SNR before EQ: |H[3]|²·Ps/σ² = 0.01×(|1+j|²/2)/0.01 = 1. SNR after EQ: |X[3]|²/(noise power after EQ) = |1+j|²/(2×1) = 2/2 = 1. Same! Equalization doesn't change SNR — it removes channel distortion but scales noise by same factor.</p>
+      <p><strong>3.</strong> Without CP: the received signal is a linear convolution of x[n] with h[n]. When we take the FFT of a linearly-convolved signal, we don't get Y[i]=H[i]X[i] — we get a complicated mix of all subcarriers (ISI). With CP: prepending a copy of the last µ samples converts the channel's boundary conditions so the convolution becomes circular (like x[n] is repeated periodically). The FFT of a circularly-convolved signal is exactly the product of FFTs: FFT{x⊛h} = FFT{x}·FFT{h} = X[i]·H[i]. The CP "tricks" the FFT into seeing circular instead of linear convolution, enabling the clean Y[i]=H[i]X[i] per-subcarrier result.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SUMMARY
+══════════════════════════════════════ -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 12 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Coherence bandwidth</td><td>Bc ≈ 1/Tm</td></tr>
+    <tr><td>Flat fading condition</td><td>BN &lt; Bc (equivalently TN &gt; Tm)</td></tr>
+    <tr><td>Subchannel bandwidth</td><td>BN = B/N</td></tr>
+    <tr><td>Subchannel data rate</td><td>RN ≈ R/N</td></tr>
+    <tr><td>Symbol time (raised cosine)</td><td>TN = (1+β)/BN</td></tr>
+    <tr><td>Transmitted signal</td><td>s(t) = Σᵢ sᵢ·g(t)·cos(2πfᵢt+φᵢ)</td></tr>
+    <tr><td>Subcarrier frequency (non-overlap)</td><td>fᵢ = f₀ + i·BN</td></tr>
+    <tr><td>Bandwidth (non-overlapping)</td><td>B = N(1+β+ε)/TN</td></tr>
+    <tr><td>Orthogonality condition result</td><td>(1/TN)∫cos(...)cos(...)dt = 0.5·δ(i−j)</td></tr>
+    <tr><td>Minimum orthogonal spacing</td><td>Δf = 1/TN</td></tr>
+    <tr><td>Bandwidth (overlapping)</td><td>B = (N+β+ε)/TN ≈ N/TN</td></tr>
+    <tr><td>Channel gain per subchannel</td><td>αᵢ = H(fᵢ)</td></tr>
+    <tr><td>IFFT (OFDM transmitter)</td><td>x[n] = (1/√N)·Σ X[i]·e^(j2πni/N)</td></tr>
+    <tr><td>Received sample</td><td>y[n] = x̃[n]*h[n] + ν[n]</td></tr>
+    <tr><td>FFT result (key OFDM result)</td><td>Y[i] = H[i]·X[i]</td></tr>
+    <tr><td>Frequency equalization</td><td>X̂[i] = Y[i]/H[i]</td></tr>
+    <tr><td>ZP power saving</td><td>N/(N+µ)</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 12 Complete Coverage</h4>
+    <div class="prog-row"><span>Core motivation: ISI problem, single-carrier limitations, multicarrier concept</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.1 Delay spread, coherence bandwidth, N parallel subsystems, Eq. (12.1, 12.2)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.1 Transmitter/receiver structure, bandwidth penalty, three problems of simple design</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.1 Example 12.1 (number of subchannels) and Example 12.2 (total bandwidth)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.2 Why overlap, orthogonality proof Eq. (12.3), minimum spacing 1/TN</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.2 Overlapping bandwidth Eq. (12.4), correlation receiver, ŝᵢ derivation Eq. (12.5-12.6)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.2 Example 12.3, ICI sensitivity to timing/frequency offsets</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.4.3 OFDM motivation — IFFT replaces N modulators, FFT replaces N correlators</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.4.3 IFFT equation (12.21), full transmitter and receiver flows</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.4.3 Cyclic prefix — why needed, how it converts linear to circular convolution</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.4.3 Y[i]=H[i]X[i], frequency equalization, noise enhancement, better alternatives</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§12.4.3 Zero prefix — power saving, noise trade-off, SNR equivalence</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>Real-world OFDM: WiFi 802.11a parameters, LTE, 5G, DSL, DVB-T</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 12 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

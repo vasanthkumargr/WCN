@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — Digital Modulation Performance | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#00d4ff;--gold:#ffc940;--green:#00e5a0;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(8,12,20,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;height:52px;
+}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{
+  color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.06em;
+  text-transform:uppercase;padding:.3rem .6rem;border-radius:4px;transition:all .15s;
+}
+.nav-links a:hover{color:var(--accent);background:rgba(0,212,255,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{
+  width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;
+  overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);
+  padding:1rem .75rem;
+}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{
+  display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);
+  text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;
+}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(0,212,255,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+
+/* PAGE HERO */
+.page-hero{
+  padding:5rem 2rem 3.5rem;
+  background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(0,212,255,.06) 0%,transparent 65%),var(--bg);
+  border-bottom:1px solid var(--border);position:relative;overflow:hidden;
+}
+.page-hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),
+    repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);
+  pointer-events:none;
+}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{
+  display:inline-block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);
+  color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;
+}
+.page-hero h1{
+  font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;
+  line-height:1.15;margin-bottom:.8rem;color:#fff;
+}
+.page-hero h1 span{
+  background:linear-gradient(120deg,var(--accent),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{
+  background:var(--card);border:1px solid var(--border);color:var(--muted);
+  padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;
+}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+
+/* SECTIONS */
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:var(--card);border:1px solid var(--border);
+  padding:.25rem .7rem;border-radius:20px;font-size:.66rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;
+}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--gold);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-gr{border-left:3px solid var(--green);}
+.card.bl-r{border-left:3px solid var(--red);}
+.fbox{
+  background:#04080f;border:1px solid var(--border);border-radius:9px;
+  padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;
+  font-family:var(--mono);color:var(--accent);position:relative;
+}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.25rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.2);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--purple);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(180,126,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--gold);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--red);}
+.hl{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(255,201,64,.04));border:1px solid rgba(0,212,255,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--green);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-c{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.p-gr{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html" class="active">Chapter 6</a>
+    <a href="chapter10.html">Chapter 10</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 6</div>
+  <a href="#s61" class="sb-link">§6.1 AWGN Channels</a>
+  <a href="#s61" class="sb-link sub">↳ SNR & Eb/N₀</a>
+  <a href="#s61" class="sb-link sub">↳ AWGN & Noise</a>
+  <a href="#s61" class="sb-link sub">↳ M-ary & Gray Coding</a>
+  <div class="sb-sep"></div>
+  <a href="#bpsk" class="sb-link">§6.1.2 BPSK & QPSK</a>
+  <a href="#bpsk" class="sb-link sub">↳ dmin derivation</a>
+  <a href="#bpsk" class="sb-link sub">↳ Pb = Q(√2γb)</a>
+  <a href="#bpsk" class="sb-link sub">↳ QPSK symbol error</a>
+  <div class="sb-sep"></div>
+  <a href="#mpsk" class="sb-link">§6.1.3 MPSK</a>
+  <a href="#mpsk" class="sb-link sub">↳ Constellation</a>
+  <a href="#mpsk" class="sb-link sub">↳ Nearest Neighbor</a>
+  <a href="#mpsk" class="sb-link sub">↳ Example 6.2</a>
+  <div class="sb-sep"></div>
+  <a href="#mqam" class="sb-link">§6.1.4 MPAM & MQAM</a>
+  <a href="#mqam" class="sb-link sub">↳ MPAM formula</a>
+  <a href="#mqam" class="sb-link sub">↳ MQAM as 2×PAM</a>
+  <a href="#mqam" class="sb-link sub">↳ Example 6.3</a>
+  <div class="sb-sep"></div>
+  <a href="#fsk" class="sb-link">§6.1.5 FSK & CPFSK</a>
+  <a href="#fsk" class="sb-link sub">↳ Pb = Q(√γb)</a>
+  <a href="#fsk" class="sb-link sub">↳ CPFSK / memory</a>
+  <div class="sb-sep"></div>
+  <a href="#approx" class="sb-link">§6.1.6 General Approx.</a>
+  <a href="#diffmod" class="sb-link">§6.1.7 Differential</a>
+  <a href="#altq" class="sb-link">§6.2 Craig's Alt-Q</a>
+  <div class="sb-sep"></div>
+  <a href="#fading" class="sb-link">§6.3 Fading</a>
+  <a href="#outage" class="sb-link sub">↳ 6.3.1 Outage</a>
+  <a href="#avgber" class="sb-link sub">↳ 6.3.2 Avg BER</a>
+  <a href="#avgber" class="sb-link sub">↳ Nakagami</a>
+  <div class="sb-sep"></div>
+  <a href="#cheatsheet" class="sb-link">📋 BER Cheat Sheet</a>
+  <a href="#problems" class="sb-link">✏️ Final Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 6 · Andrea Goldsmith</div>
+    <h1>Digital Modulation<br><span>Performance over Wireless</span></h1>
+    <p>Every BER formula derived from scratch — BPSK to MQAM, AWGN to Rayleigh fading. Explained like you've never seen this before.</p>
+    <div class="ph-chips">
+      <a href="#s61" class="ph-chip">AWGN</a>
+      <a href="#bpsk" class="ph-chip">BPSK/QPSK</a>
+      <a href="#mpsk" class="ph-chip">MPSK</a>
+      <a href="#mqam" class="ph-chip">MPAM/MQAM</a>
+      <a href="#fsk" class="ph-chip">FSK</a>
+      <a href="#altq" class="ph-chip">Alt-Q</a>
+      <a href="#fading" class="ph-chip">Fading</a>
+      <a href="#outage" class="ph-chip">Outage</a>
+      <a href="#cheatsheet" class="ph-chip">Cheat Sheet</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── §6.1 AWGN ── -->
+<section class="section" id="s61">
+  <div class="sec-badge"><span class="dot"></span>Section 6.1</div>
+  <h2>AWGN Channels — Starting from Zero</h2>
+  <p class="lead">Before any formula, we need to understand: what are we sending? What breaks it? And how do we measure performance?</p>
+
+  <h3>The Signal, Noise, and AWGN</h3>
+  <p>When your phone sends a message, it converts data into a radio wave: <code>s(t)</code>. On the way to the receiver, random noise <code>n(t)</code> gets added. So the receiver actually sees:</p>
+  <div class="fbox"><span class="fb">r(t) = s(t) + n(t)</span><span class="fl">Received = Signal + Noise — the fundamental wireless equation</span></div>
+  <p><strong>AWGN</strong> stands for <strong>Additive White Gaussian Noise</strong>:</p>
+  <table>
+    <tr><th>Word</th><th>Meaning</th></tr>
+    <tr><td><span class="pill p-c">Additive</span></td><td>Noise adds to the signal</td></tr>
+    <tr><td><span class="pill p-g">White</span></td><td>Equal noise power at all frequencies (like white light)</td></tr>
+    <tr><td><span class="pill p-gr">Gaussian</span></td><td>Noise values follow a bell curve — most values near zero, large values rare</td></tr>
+  </table>
+  <p>The noise <code>n(t)</code> has mean zero and power spectral density (PSD) = N₀/2.</p>
+
+  <h3>Signal-to-Noise Ratio (SNR) and Eb/N₀</h3>
+  <div class="why"><div class="wi">📊</div><div><strong>Why SNR?</strong> If signal is strong and noise is small, communication works well. SNR measures that ratio. But SNR alone isn't a fair comparison across different modulations — Eb/N₀ is.</div></div>
+  <div class="fbox"><span class="fb">SNR = Pr / (N₀·B)</span><span class="fl">Received power / (noise density × bandwidth) · If bandwidth of complex envelope = B, then noise power = N₀·B</span></div>
+  <div class="fbox"><span class="fb big">γb = Eb/N₀ &nbsp;&nbsp; γs = Es/N₀</span><span class="fl">SNR per bit (γb) and per symbol (γs) — the universal performance metrics · For raised cosine pulses (Ts=1/B): SNR = Es/N₀</span></div>
+
+  <h4>Bit Energy vs Symbol Energy</h4>
+  <table>
+    <tr><th>Quantity</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Energy per bit</td><td><strong>Eb</strong></td><td>Energy used to send 1 bit (Joules)</td></tr>
+    <tr><td>Energy per symbol</td><td><strong>Es</strong></td><td>Energy per symbol — Es = Eb·log₂M for M-ary</td></tr>
+    <tr><td>Noise density</td><td><strong>N₀</strong></td><td>Noise power per Hz (W/Hz)</td></tr>
+  </table>
+  <div class="fbox"><span class="fb">γb ≈ γs / log₂M</span><span class="fl">SNR per bit = SNR per symbol ÷ bits per symbol (with Gray coding)</span></div>
+
+  <h3>M-ary Modulation and Gray Coding</h3>
+  <p>Modern systems send multiple bits per symbol. M = number of symbols, log₂M = bits per symbol.</p>
+  <table>
+    <tr><th>Modulation</th><th>M</th><th>Bits/Symbol</th></tr>
+    <tr><td>BPSK</td><td>2</td><td>1</td></tr>
+    <tr><td>QPSK</td><td>4</td><td>2</td></tr>
+    <tr><td>16-QAM</td><td>16</td><td>4</td></tr>
+    <tr><td>64-QAM</td><td>64</td><td>6</td></tr>
+  </table>
+  <p><strong>Gray coding</strong>: arrange symbols so neighboring symbols differ by only 1 bit. Result: 1 symbol error → only 1 bit error.</p>
+  <div class="fbox"><span class="fb">Pb ≈ Ps / log₂M</span><span class="fl">Bit error probability ≈ symbol error probability ÷ bits/symbol (Gray coding assumed)</span></div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.1</div>
+    <ol>
+      <li>For 16-QAM, if γs = 20 dB, find γb in dB.</li>
+      <li>Received power = 50 mW, B = 200 kHz, N₀ = 10⁻⁹ W/Hz. Find SNR.</li>
+      <li>Why is Eb/N₀ preferred over SNR when comparing BPSK vs 64-QAM?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γb = 20 − 10·log₁₀(4) = 20 − 6 = 14 dB</p>
+      <p><strong>2.</strong> N = 10⁻⁹ × 200×10³ = 2×10⁻⁴ W. SNR = 50×10⁻³ / 2×10⁻⁴ = 250 ≈ 24 dB</p>
+      <p><strong>3.</strong> SNR = P/(N₀B) depends on bandwidth. BPSK and 64-QAM use different bandwidths, so SNR isn't fair. Eb/N₀ normalises per bit of information — bandwidth-independent comparison.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.1.2 BPSK/QPSK ── -->
+<section class="section" id="bpsk">
+  <div class="sec-badge"><span class="dot"></span>Section 6.1.2</div>
+  <h2>Error Probability for BPSK and QPSK</h2>
+  <p class="lead">Step-by-step derivation of the most important BER formula in all of wireless communications.</p>
+
+  <h3>BPSK — Two Signals, One Bit</h3>
+  <p>BPSK sends bit 0 as <code>s₁(t) = +Ag(t)cos(2πfct)</code> and bit 1 as <code>s₂(t) = −Ag(t)cos(2πfct)</code>. Same waveform, phase differs by 180°.</p>
+  <div class="const-wrap"><pre>  ←— −√Eb ──────── 0 ──────── +√Eb —→
+        bit 1      ↑       bit 0
+               decision
+               boundary
+  dmin = 2A = 2√Eb</pre><div class="const-label">Decision: received value > 0 → bit 0, < 0 → bit 1</div></div>
+
+  <h4>Deriving the BER Formula</h4>
+  <p><strong>Step 1</strong> — From signal space theory: <code>Pb = Q(dmin / √(2N₀))</code></p>
+  <p><strong>Step 2</strong> — Minimum distance: <code>dmin = 2A</code></p>
+  <p><strong>Step 3</strong> — Relate A to Eb: <code>Eb = ∫A²g²(t)cos²(2πfct)dt = A²</code> → so <code>A = √Eb</code></p>
+  <p><strong>Step 4</strong> — Substitute:</p>
+  <div class="fbox"><span class="fb big">Pb(BPSK) = Q(√(2Eb/N₀)) = Q(√(2γb))</span><span class="fl">★ The most important BPSK formula — memorise this</span></div>
+
+  <div class="example">
+    <div class="ex-head">Example — BPSK at γb = 10 dB</div>
+    <p>γb = 10^(10/10) = 10. BER = Q(√20) = Q(4.47) ≈ 3.9×10⁻⁶. About 4 bits per million are wrong — fine for voice!</p>
+  </div>
+
+  <h3>QPSK — Two Bits Per Symbol</h3>
+  <p>QPSK splits the signal into I (in-phase) and Q (quadrature) branches. Each branch is independently BPSK. With perfect phase recovery, the branches are orthogonal → each has the same BER as BPSK.</p>
+  <div class="fbox"><span class="fb big">Pb(QPSK) = Q(√(2γb))</span><span class="fl">★ Same as BPSK — even though QPSK sends 2× the data! Es = 2Eb → γs = 2γb</span></div>
+  <div class="why"><div class="wi">🤯</div><div><strong>Why same BER?</strong> QPSK energy splits between two orthogonal dimensions. Each dimension behaves exactly like BPSK with the same Eb. You get 2× data rate for FREE in terms of BER.</div></div>
+  <div class="fbox"><span class="fb">Ps(QPSK) = 1 − (1 − Q(√(2γb)))² = 1 − (1 − Q(√γs))²</span><span class="fl">Symbol error: error if either I or Q branch makes an error</span></div>
+  <p>Nearest neighbor approximation: <code>Ps ≈ 2Q(√γs)</code>. With Gray coding: <code>Pb ≈ Ps/2</code>.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 6.1 — QPSK at γb = 7 dB (Textbook)</div>
+    <p>γb = 10^(0.7) = 5.012. Pb = Q(√10.024) = <strong>7.726×10⁻⁴</strong>. Ps = 1−(1−7.726×10⁻⁴)² = <strong>1.545×10⁻³</strong>. Gray approx: Pb ≈ Ps/2 = 7.723×10⁻⁴ ✓. Nearest neighbour (γs=10.024): Ps ≈ 2Q(√10.024) = 1.545×10⁻³ ✓</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.1.2</div>
+    <ol>
+      <li>Calculate BPSK BER at γb = 8 dB. (Q(3.55) ≈ 1.93×10⁻⁴)</li>
+      <li>For QPSK at γb = 10 dB, find exact Ps and Pb via Gray coding.</li>
+      <li>If Pb = 10⁻³ is required for BPSK, find the minimum γb in dB. (Q(3.09) ≈ 10⁻³)</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γb=10^0.8=6.31. BER=Q(√12.62)=Q(3.55)≈1.93×10⁻⁴</p>
+      <p><strong>2.</strong> γb=10, γs=20. Ps=1−(1−Q(4.47))²≈7.8×10⁻⁶. Pb≈3.9×10⁻⁶</p>
+      <p><strong>3.</strong> Q(√(2γb))=10⁻³→√(2γb)=3.09→γb=4.77→6.78 dB</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.1.3 MPSK ── -->
+<section class="section" id="mpsk">
+  <div class="sec-badge"><span class="dot"></span>Section 6.1.3</div>
+  <h2>Error Probability for MPSK</h2>
+  <p class="lead">M symbols equally spaced on a circle. As M increases, symbols crowd together — and errors increase.</p>
+
+  <h3>M-PSK Constellation</h3>
+  <p>Symbols: <code>si1 = A·cos(2π(i−1)/M)</code>, <code>si2 = A·sin(2π(i−1)/M)</code>. All on a circle, radius A. Symbol energy Es = A², so γs = A²/N₀.</p>
+  <div class="const-wrap"><pre>8-PSK (M=8, 3 bits/symbol):
+         •
+    •         •
+  •               •    All 8 points on circle,
+    •         •        spaced 360°/8 = 45° apart.
+         •</pre></div>
+  <p>An error occurs when noise rotates the received signal outside its angular decision slice (±π/M). For M>4, the exact Ps integral has no closed form — we use approximations.</p>
+
+  <h3>Minimum Distance and Nearest Neighbour Approx</h3>
+  <div class="fbox"><span class="fb">dmin = 2A·sin(π/M)</span><span class="fl">Distance between adjacent symbols on the circle · As M↑, sin(π/M)↓ → symbols get closer → more errors</span></div>
+  <div class="fbox"><span class="fb big">Ps ≈ 2Q(√(2γs)·sin(π/M))</span><span class="fl">★ Key MPSK formula · With Gray coding: Pb ≈ Ps/log₂M</span></div>
+
+  <div class="example">
+    <div class="ex-head">Example 6.2 — 8-PSK vs 16-PSK at γb = 15 dB (Textbook)</div>
+    <p>γb = 31.62. <strong>8-PSK:</strong> γs = 3×31.62 = 94.87. Ps ≈ 2Q(√189.74 × sin(π/8)) = 1.355×10⁻⁷. Pb = Ps/3 = 4.52×10⁻⁸.</p>
+    <p><strong>16-PSK:</strong> γs = 4×31.62 = 126.49. Ps ≈ 2Q(√252.98 × sin(π/16)) = 1.916×10⁻³. Pb = Ps/4 = 4.79×10⁻⁴.</p>
+    <div class="hl"><strong>16-PSK Pb is ~10,000× worse than 8-PSK!</strong> More symbols on the same circle → closer spacing → noise causes more errors.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.1.3</div>
+    <ol>
+      <li>Find Ps and Pb for 8-PSK at γb = 10 dB using the nearest-neighbour approximation.</li>
+      <li>With A=1, find dmin for BPSK, QPSK, and 8-PSK. Which has the largest dmin?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γb=10, γs=30. Ps≈2Q(√60·sin(π/8))=2Q(7.746×0.383)=2Q(2.965)≈3.03×10⁻³. Pb=3.03×10⁻³/3≈1.01×10⁻³.</p>
+      <p><strong>2.</strong> BPSK: 2sin(π/2)=2. QPSK: 2sin(π/4)=√2≈1.414. 8-PSK: 2sin(π/8)≈0.765. BPSK has the largest dmin → lowest BER at same energy.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.1.4 MPAM/MQAM ── -->
+<section class="section" id="mqam">
+  <div class="sec-badge"><span class="dot"></span>Section 6.1.4</div>
+  <h2>Error Probability for MPAM and MQAM</h2>
+  <p class="lead">QAM uses both amplitude AND phase — giving much more efficient use of signal space than PSK.</p>
+
+  <h3>MPAM — Amplitude Levels</h3>
+  <p>Constellation: <code>Aᵢ = (2i−1−M)d</code>, i=1..M. Inner points have 2 neighbours; outer points have 1. Average symbol energy: Ēs = (M²−1)d²/3.</p>
+  <div class="fbox"><span class="fb big">Ps = 2(M−1)/M · Q(√(6γ̄s/(M²−1)))</span><span class="fl">Equation (6.21) — MPAM symbol error in terms of average SNR</span></div>
+
+  <h3>MQAM — Amplitude + Phase</h3>
+  <p>Square M-QAM (M=L²) = two independent L-PAM systems on I and Q axes. Each axis gets half the energy.</p>
+  <div class="fbox"><span class="fb">Ps,branch = 2(√M−1)/√M · Q(√(3γ̄s/(M−1)))</span><span class="fl">Equation (6.22) — per-branch error (note factor 3, not 6)</span></div>
+  <div class="fbox"><span class="fb">Ps = 1 − (1 − Ps,branch)²</span><span class="fl">Equation (6.23) — exact MQAM symbol error</span></div>
+  <div class="fbox"><span class="fb big">Ps ≈ 4Q(√(3γ̄s/(M−1)))</span><span class="fl">Equation (6.24) — nearest-neighbour approximation (4 neighbours for inner points)</span></div>
+
+  <div class="example">
+    <div class="ex-head">Example 6.3 — 16-QAM vs 16-PSK at γb = 15 dB (Textbook)</div>
+    <p>γs = 4×31.62 = 126.49. <strong>16-QAM exact:</strong> Ps = 7.37×10⁻⁷. <strong>Nearest-neighbour:</strong> Ps ≈ 9.82×10⁻⁷.</p>
+    <p><strong>16-PSK (from Ex. 6.2):</strong> Ps = 1.916×10⁻³ — roughly 4 orders of magnitude worse!</p>
+    <div class="hl"><strong>Why QAM wins:</strong> PSK uses only phase (1D circle). QAM uses amplitude + phase (2D grid). Same energy → larger minimum distance → fewer errors.</div>
+  </div>
+  <p>Practical note: MQAM needs both phase and amplitude estimates at the receiver. Channel gain is obtained via <strong>pilot symbols</strong>; amplitude scaling is called <strong>AGC (Automatic Gain Control)</strong>. Imperfect estimates cause extra errors.</p>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.1.4</div>
+    <ol>
+      <li>For 4-PAM at γ̄s = 20 dB, find Ps using Eq. (6.21).</li>
+      <li>For 64-QAM at γb = 20 dB, find Ps (nearest-neighbour). Compare with 64-PSK.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γ̄s=100, M=4. Ps=1.5·Q(√(600/15))=1.5·Q(6.32)≈2.8×10⁻¹⁰</p>
+      <p><strong>2.</strong> γb=100, γs=600. 64-QAM: Ps≈4Q(√(3×600/63))=4Q(5.35)≈1.7×10⁻⁷. 64-PSK: Ps≈2Q(√1200·sin(π/64))≈2Q(34.64×0.049)=2Q(1.70)≈0.09. QAM is astronomically better.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.1.5 FSK ── -->
+<section class="section" id="fsk">
+  <div class="sec-badge"><span class="dot"></span>Section 6.1.5</div>
+  <h2>Error Probability for FSK and CPFSK</h2>
+  <p class="lead">FSK changes frequency instead of phase or amplitude. Simpler receiver, but less power-efficient than PSK.</p>
+
+  <h3>Binary FSK</h3>
+  <p>Bit 0 → frequency f₁, bit 1 → frequency f₂. Signal: <code>sᵢ(t) = A√(2/Tb)·cos(2πfᵢt)</code>. Eb = A², so γb = A²/N₀.</p>
+  <p>Coherent detector computes <code>z = s₁+n₁ − s₂−n₂</code>. Error when noise overcomes signal. Since n₁−n₂ has variance N₀ (sum of two N₀/2 variances):</p>
+  <div class="fbox"><span class="fb big">Pb(FSK) = Q(√γb)</span><span class="fl">Equation (6.31) — Compare: BPSK has Q(√(2γb)) → BPSK is 3 dB better than FSK</span></div>
+  <p>For <strong>noncoherent MFSK</strong> (receiver doesn't know phase): <code>Ps = Σₘ(−1)^(m+1)·C(M−1,m)·(1/(m+1))·exp(−mγs/(m+1))</code></p>
+
+  <h3>CPFSK</h3>
+  <p>Regular FSK has abrupt phase jumps at symbol boundaries. <strong>CPFSK</strong> makes frequency change smoothly — phase is continuous. Used in Bluetooth (GFSK), GSM (GMSK). CPFSK has <em>memory</em> (current phase depends on all previous phases), making error analysis complex — must work over multiple symbols, not just one.</p>
+
+  <h3>§6.1.6 — General Approximation for Coherent Modulations</h3>
+  <div class="fbox" id="approx"><span class="fb big">Ps(γs) ≈ αM · Q(√(βM·γs))</span><span class="fl">Eq. (6.33) · αM = number of nearest neighbours · βM = distance-to-energy constant</span></div>
+  <table>
+    <tr><th>Modulation</th><th>αM</th><th>βM</th></tr>
+    <tr><td>BPSK</td><td>1</td><td>2</td></tr>
+    <tr><td>QPSK</td><td>2</td><td>1</td></tr>
+    <tr><td>MPSK</td><td>2</td><td>2sin²(π/M)</td></tr>
+    <tr><td>MQAM</td><td>4</td><td>3/(M−1)</td></tr>
+    <tr><td>FSK</td><td>1</td><td>1</td></tr>
+  </table>
+  <div class="fbox"><span class="fb">Pb(γb) ≈ α̂M · Q(√(β̂M·γb))</span><span class="fl">Eq. (6.34) · α̂M = αM/log₂M · β̂M = (log₂M)·βM</span></div>
+
+  <h3 id="diffmod">§6.1.7 — Differential Modulation</h3>
+  <p>Differential modulation encodes information in the <strong>phase difference</strong> between consecutive symbols — no carrier phase recovery needed. The receiver computes <code>r(k)·r*(k−1)</code> to extract phase difference.</p>
+  <div class="why"><div class="wi">⚠️</div><div><strong>3 dB penalty:</strong> Differential detection is affected by noise from TWO consecutive symbols (current and previous). Noise power doubles → ~3 dB worse than coherent detection.</div></div>
+  <div class="fbox"><span class="fb big">Pb(DPSK) = (1/2)·e^(−γb)</span><span class="fl">Eq. (6.40) — Clean closed form for DPSK BER</span></div>
+  <table>
+    <tr><th>Modulation</th><th>BER</th><th>Type</th></tr>
+    <tr><td>BPSK</td><td>Q(√(2γb))</td><td>Coherent</td></tr>
+    <tr><td>QPSK</td><td>Q(√(2γb))</td><td>Coherent</td></tr>
+    <tr><td>DPSK</td><td>(1/2)e^(−γb)</td><td>Differential</td></tr>
+    <tr><td>Binary FSK</td><td>Q(√γb)</td><td>Coherent</td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.1.5–6.1.7</div>
+    <ol>
+      <li>At γb = 10 dB, compare BER for BPSK (coherent) and DPSK. What is the dB penalty?</li>
+      <li>Find α̂M and β̂M for 16-QAM using the general formulas. Then compute Pb at γb = 15 dB.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γb=10. BPSK: Q(√20)=Q(4.47)≈3.9×10⁻⁶. DPSK: 0.5×e⁻¹⁰=2.27×10⁻⁵. DPSK is ~6× worse ≈ 3 dB penalty.</p>
+      <p><strong>2.</strong> M=16, αM=4, βM=3/15=0.2. α̂M=4/4=1. β̂M=4×0.2=0.8. γb=31.62. Pb≈Q(√(0.8×31.62))=Q(√25.3)=Q(5.03)≈2.4×10⁻⁷.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.2 Alt-Q ── -->
+<section class="section" id="altq">
+  <div class="sec-badge"><span class="dot"></span>Section 6.2</div>
+  <h2>Alternate Q-Function Representation</h2>
+  <p class="lead">Craig's 1991 discovery: rewrite Q(z) with a finite integral — making BER averaging over fading channels analytically tractable.</p>
+
+  <h3>Why Standard Q(z) Is Awkward</h3>
+  <div class="fbox"><span class="fb">Q(z) = ∫_z^∞ (1/√(2π))·e^(−x²/2) dx</span><span class="fl">Lower limit depends on z · upper limit is ∞ · no closed-form solution for most operations</span></div>
+  <p>Especially difficult when we need E[Q(√(2γ))] over random γ in fading channels.</p>
+
+  <h3>Craig's Alternate Form (1991)</h3>
+  <div class="fbox"><span class="fb big">Q(z) = (1/π) ∫₀^(π/2) exp(−z²/(2sin²φ)) dφ, &nbsp; z > 0</span><span class="fl">Eq. (6.43) — Fixed limits [0, π/2] · independent of z · Gaussian in z → easy to average!</span></div>
+  <p>Application to BPSK: <code>Pb = (1/π)∫₀^(π/2) exp(−γb/sin²φ) dφ</code> (Eq. 6.44)</p>
+  <p>Exact MPSK error (no approximation!): <code>Ps = (1/π)∫₀^((M−1)π/M) exp(−g·γs/sin²φ) dφ</code> where g = sin²(π/M) (Eq. 6.45)</p>
+
+  <div class="hl"><strong>Why it matters for fading:</strong> Using Craig's form, E[Q(√(2γ))] = (1/π)∫₀^(π/2) E[exp(−γ/sin²φ)] dφ. The inner expectation is the MGF of γ — which has simple closed forms for Rayleigh, Rician, and Nakagami distributions. This unlocks closed-form average BER for all common fading models.</div>
+</section>
+
+<!-- ── §6.3 FADING ── -->
+<section class="section" id="fading">
+  <div class="sec-badge"><span class="dot"></span>Section 6.3</div>
+  <h2>Fading — When SNR Goes Random</h2>
+  <p class="lead">In real wireless, signal strength fluctuates randomly. This section shows how that changes performance — often catastrophically.</p>
+
+  <h3>What is Fading?</h3>
+  <p>In AWGN, γs is constant. In wireless, received power varies due to <strong>shadowing</strong> (large obstacles) and <strong>multipath fading</strong> (multiple reflected paths add constructively or destructively). γs becomes a random variable with distribution pγs(γ).</p>
+  <div class="analogy"><strong>🏙️ Urban canyon:</strong> Walking between skyscrapers, your call arrives via direct path AND building reflections. Sometimes they add (clear call), sometimes cancel (call drops). Moving a few centimeters can change signal strength dramatically!</div>
+
+  <h3>Three Performance Metrics</h3>
+  <table>
+    <tr><th>Metric</th><th>Definition</th><th>Use when</th></tr>
+    <tr><td><span class="pill p-r">Outage Prob.</span></td><td>P(γs &lt; γ₀)</td><td>Slow fading (Tc ≫ Ts) — deep fades affect many symbols</td></tr>
+    <tr><td><span class="pill p-c">Average BER</span></td><td>∫Ps(γ)·p(γ)dγ</td><td>Fast fading (Tc ≈ Ts) — coding can help</td></tr>
+    <tr><td><span class="pill p-g">Combined</span></td><td>Avg BER some % of time</td><td>Mixed shadowing + fast fading</td></tr>
+  </table>
+
+  <h3>Rayleigh Fading SNR Distribution</h3>
+  <p>In Rayleigh fading (no line-of-sight), signal amplitude r is Rayleigh distributed. After change of variables, the instantaneous SNR γ follows an exponential distribution:</p>
+  <div class="fbox"><span class="fb big">pγ(γ) = (1/γ̄)·e^(−γ/γ̄), &nbsp; γ ≥ 0</span><span class="fl">Eq. (6.56) — Exponential PDF of instantaneous SNR · γ̄ = average SNR</span></div>
+</section>
+
+<!-- ── §6.3.1 OUTAGE ── -->
+<section class="section" id="outage">
+  <div class="sec-badge"><span class="dot"></span>Section 6.3.1</div>
+  <h2>Outage Probability</h2>
+  <p class="lead">When the channel fades so deeply the link becomes completely unusable — that's an outage. The outage probability directly measures system reliability.</p>
+
+  <div class="fbox"><span class="fb big">Pout = P(γ &lt; γ₀) = 1 − e^(−γ₀/γ̄s)</span><span class="fl">Eq. (6.46, 6.47) — Rayleigh fading outage probability · γ₀ = minimum SNR for acceptable performance</span></div>
+  <div class="fbox"><span class="fb">γ̄s = −γ₀ / ln(1 − Pout)</span><span class="fl">Eq. (6.48) — Required average SNR for target outage</span></div>
+  <div class="fbox"><span class="fb">Fd = −10·log[−ln(1 − Pout)]</span><span class="fl">Fade margin in dB — extra SNR needed above γ₀ to guarantee 100·(1−Pout)% reliability</span></div>
+
+  <div class="example">
+    <div class="ex-head">Example 6.4 — Required SNR for BPSK, 95% Coverage (Textbook)</div>
+    <p>Target: Pb &lt; 10⁻⁴ for 95% of locations. BPSK in AWGN at 10⁻⁴ needs γ₀ = 8.5 dB.</p>
+    <p>Pout = 0.05: γ̄b = −10^0.85 / ln(0.95) = 10.85/0.0513 = <strong>21.4 dB</strong>.</p>
+    <div class="hl"><strong>8.5 dB needed in AWGN, 21.4 dB needed in Rayleigh fading — 12.9 dB penalty just to combat fading!</strong></div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.3.1</div>
+    <ol>
+      <li>Rayleigh channel, γ̄s = 20 dB. Find outage probability for γ₀ = 15 dB and γ₀ = 10 dB.</li>
+      <li>Need Pb ≤ 10⁻³ (BPSK, γ₀ ≈ 6.8 dB) for 99% of locations. Find required γ̄b in dB.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γ̄=100. γ₀=31.62: Pout=1−e^(−0.316)=27.1%. γ₀=10: Pout=1−e^(−0.1)=9.5%.</p>
+      <p><strong>2.</strong> γ₀=4.79. γ̄=−4.79/ln(0.99)=4.79/0.01005=476.6 → 26.8 dB.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §6.3.2 AVG BER ── -->
+<section class="section" id="avgber">
+  <div class="sec-badge"><span class="dot"></span>Section 6.3.2</div>
+  <h2>Average Probability of Error</h2>
+  <p class="lead">When fading changes every symbol, we average BER over all channel states. The result — BER falls only linearly with SNR, not exponentially. This is the central tragedy of fading.</p>
+
+  <div class="fbox"><span class="fb big">P̄s = ∫₀^∞ Ps(γ)·pγs(γ) dγ</span><span class="fl">Eq. (6.50) — Average BER = AWGN BER at each γ, weighted by how likely that γ is</span></div>
+
+  <h3>Key Results in Rayleigh Fading</h3>
+  <table>
+    <tr><th>Modulation</th><th>Exact</th><th>High-SNR Approx.</th></tr>
+    <tr><td>BPSK</td><td>(1/2)[1−√(γ̄b/(1+γ̄b))]</td><td><strong>≈ 1/(4γ̄b)</strong></td></tr>
+    <tr><td>Binary FSK</td><td>(1/2)[1−√(γ̄b/(2+γ̄b))]</td><td><strong>≈ 1/(4γ̄b)</strong></td></tr>
+    <tr><td>DPSK</td><td>1/(2(1+γ̄b))</td><td><strong>≈ 1/(2γ̄b)</strong></td></tr>
+    <tr><td>General M-ary</td><td>—</td><td><strong>≈ αM/(2βM·γ̄s)</strong></td></tr>
+  </table>
+
+  <div class="warn"><strong>The Critical Result — Exponential vs Linear:</strong><br>
+  AWGN: BER ~ e^(−γb) → <em>exponential decay</em>. Double SNR → BER drops by orders of magnitude.<br>
+  Rayleigh Fading: BER ~ 1/γ̄b → <em>linear decay</em>. Double SNR → BER only halves.<br>
+  At 10 dB SNR: AWGN BER ≈ 3.9×10⁻⁶, Fading BER ≈ 2.5×10⁻² — fading is ~6000× worse!</div>
+
+  <div class="example">
+    <div class="ex-head">The Famous Comparison (Figure 6.1 from Textbook)</div>
+    <table>
+      <tr><th>Target BER</th><th>Required SNR — AWGN</th><th>Required SNR — Rayleigh</th><th>Penalty</th></tr>
+      <tr><td>10⁻³</td><td>~8 dB</td><td>~24 dB</td><td><strong>16 dB</strong></td></tr>
+      <tr><td>10⁻⁴</td><td>~8.5 dB</td><td>~30 dB</td><td><strong>21.5 dB</strong></td></tr>
+    </table>
+  </div>
+
+  <h3>Nakagami Fading</h3>
+  <table>
+    <tr><th>m value</th><th>Channel</th><th>BER performance</th></tr>
+    <tr><td>m = 1</td><td>Rayleigh (worst case)</td><td>Worst BER</td></tr>
+    <tr><td>m > 1</td><td>Lighter fading</td><td>Better BER</td></tr>
+    <tr><td>m → ∞</td><td>No fading (AWGN)</td><td>Best — matches AWGN curve</td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §6.3.2</div>
+    <ol>
+      <li>Find average BPSK BER in Rayleigh fading at γ̄b = 20 dB (exact and approximation). Compare to AWGN BPSK at same SNR.</li>
+      <li>What γ̄b (dB) is needed for BPSK in Rayleigh to achieve P̄b = 10⁻³? Compare to AWGN requirement.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γ̄b=100. Exact: (1/2)[1−√(100/101)]=(1/2)(0.005)=0.0025. Approx: 1/400=0.0025 ✓. AWGN at 20 dB: Q(√200)≈0. Fading BER = 0.0025 vs AWGN ≈ 0 — fading is catastrophically worse.</p>
+      <p><strong>2.</strong> 1/(4γ̄b)=10⁻³ → γ̄b=250 → 24 dB. AWGN needs only ~6.8 dB. Fading requires 17 dB extra power!</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── CHEAT SHEET ── -->
+<section class="section" id="cheatsheet">
+  <div class="sec-badge"><span class="dot"></span>Reference</div>
+  <h2>Complete BER Cheat Sheet</h2>
+  <h3>AWGN BER Formulas</h3>
+  <table>
+    <tr><th>Modulation</th><th>Pb (Bit Error)</th><th>Ps (Symbol Error)</th></tr>
+    <tr><td>BPSK</td><td><strong>Q(√(2γb))</strong></td><td>same</td></tr>
+    <tr><td>QPSK</td><td><strong>Q(√(2γb))</strong></td><td>1−(1−Q(√γs))²</td></tr>
+    <tr><td>MPSK</td><td>≈Ps/log₂M</td><td><strong>≈2Q(√(2γs)·sin(π/M))</strong></td></tr>
+    <tr><td>MPAM</td><td>≈Ps/log₂M</td><td><strong>2(M−1)/M·Q(√(6γ̄s/(M²−1)))</strong></td></tr>
+    <tr><td>MQAM</td><td>≈Ps/log₂M</td><td><strong>≈4Q(√(3γ̄s/(M−1)))</strong></td></tr>
+    <tr><td>FSK</td><td><strong>Q(√γb)</strong></td><td>same</td></tr>
+    <tr><td>DPSK</td><td><strong>(1/2)e^(−γb)</strong></td><td>—</td></tr>
+  </table>
+  <h3>Fading Formulas</h3>
+  <table>
+    <tr><th>Metric</th><th>Formula</th><th>Approx (high SNR)</th></tr>
+    <tr><td>Outage (Rayleigh)</td><td colspan="2"><strong>Pout = 1 − e^(−γ₀/γ̄s)</strong></td></tr>
+    <tr><td>Required SNR</td><td colspan="2"><strong>γ̄s = −γ₀/ln(1−Pout)</strong></td></tr>
+    <tr><td>BPSK avg BER</td><td>(1/2)[1−√(γ̄b/(1+γ̄b))]</td><td><strong>≈ 1/(4γ̄b)</strong></td></tr>
+    <tr><td>DPSK avg BER</td><td>1/(2(1+γ̄b))</td><td><strong>≈ 1/(2γ̄b)</strong></td></tr>
+    <tr><td>Craig's Q</td><td colspan="2">Q(z) = (1/π)∫₀^(π/2) exp(−z²/2sin²φ) dφ</td></tr>
+  </table>
+</section>
+
+<!-- ── FINAL PROBLEMS ── -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Comprehensive</div>
+  <h2>Chapter 6 — Final Practice Problems</h2>
+
+  <div class="problem">
+    <div class="prob-head">Set A — AWGN</div>
+    <ol>
+      <li>Compare required Eb/N₀ (dB) for BPSK, 8-PSK, and 16-QAM to achieve Pb ≤ 10⁻⁵ in AWGN. Q(4.42) ≈ 10⁻⁵.</li>
+      <li>For 64-QAM at γb = 25 dB: find γs, Ps (nearest-neighbour), and Pb (Gray coding).</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> BPSK: √(2γb)=4.42 → γb=9.77 → 9.9 dB. 8-PSK needs ~14 dB. 16-QAM needs ~17–18 dB. BPSK always needs least power.</p>
+      <p><strong>2.</strong> γs=6×316=1896. Ps≈4Q(√(3×1896/63))=4Q(9.5)≈0. Pb≈0. At 25 dB, 64-QAM is essentially error-free in AWGN!</p>
+    </div></details>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Set B — Fading and Design</div>
+    <ol>
+      <li>A mobile user is in Rayleigh fading with γ̄b = 18 dB. Does BPSK achieve Pb ≤ 10⁻³? If not, what γ̄b is needed?</li>
+      <li>A 5G cell needs γ₀ = 12 dB and Pout = 2%. Find required γ̄ in dB.</li>
+      <li>Compare power penalty of Rayleigh fading vs AWGN for BPSK at Pb = 10⁻⁴.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γ̄b=63.1. P̄b≈1/(4×63.1)=3.96×10⁻³ > 10⁻³. Fails! Need: 1/(4γ̄b)=10⁻³ → γ̄b=250 → 24 dB.</p>
+      <p><strong>2.</strong> γ₀=15.85. γ̄=−15.85/ln(0.98)=−15.85/(−0.0202)=784.6 → 28.9 dB.</p>
+      <p><strong>3.</strong> AWGN: Q(√(2γb))=10⁻⁴ → γb≈6.9 → 8.4 dB. Fading: 1/(4γ̄b)=10⁻⁴ → γ̄b=2500 → 34 dB. Penalty = 34−8.4 = 25.6 dB — over 350× more power!</p>
+    </div></details>
+  </div>
+
+  <div class="card bl-gr" style="margin-top:2rem;">
+    <h4>✅ Chapter 6 Coverage</h4>
+    <div class="prog-row"><span>§6.1 AWGN, SNR, Eb/N₀, M-ary, Gray coding</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.1.2 BPSK & QPSK full derivation + examples</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.1.3 MPSK constellation + nearest-neighbour</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.1.4 MPAM & MQAM — all equations</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.1.5–6.1.7 FSK, CPFSK, General Approx, Differential</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.2 Craig's Alternate Q-Function</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.3.1 Outage Probability + Fade Margin</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§6.3.2 Average BER + Nakagami + Linear vs Exponential</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 6 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe&&secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

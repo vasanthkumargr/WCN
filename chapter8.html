@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 — Coding for Wireless Channels | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#ff4f6e;--accent2:#00d4ff;--gold:#ffc940;--green:#00e5a0;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .55rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(255,79,110,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(255,79,110,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(255,79,110,.07) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(255,79,110,.1);border:1px solid rgba(255,79,110,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-gr{border-left:3px solid var(--green);}
+.card.bl-p{border-left:3px solid var(--purple);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(255,79,110,.04);border:1px solid rgba(255,79,110,.18);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(255,79,110,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--accent2);}
+.cmp-box.c3 h5{color:var(--gold);}
+.cmp-box.c4 h5{color:var(--green);}
+.hl{background:linear-gradient(135deg,rgba(255,79,110,.07),rgba(0,212,255,.04));border:1px solid rgba(255,79,110,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--gold);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent2);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(255,79,110,.12);color:var(--accent);border:1px solid rgba(255,79,110,.25);}
+.p-b{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-gr{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+.p-p{background:rgba(180,126,255,.12);color:var(--purple);border:1px solid rgba(180,126,255,.25);}
+.xor-table{font-family:var(--mono);font-size:.85rem;}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter8.html" class="active">Ch.8</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html">Ch.12</a>
+    <a href="chapter14.html">Ch.14</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 8 · Coding</div>
+  <a href="#coding-intro" class="sb-link">§8.1 Overview of Code Design</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Why coding exists</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Higher-dimensional space</a>
+  <a href="#coding-intro" class="sb-link sub">↳ AWGN vs fading channels</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Burst errors & interleaving</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Pb, Pbl, coding gain</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Waterfall & error floor</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Channel capacity curve</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Rate vs bandwidth trade-off</a>
+  <a href="#coding-intro" class="sb-link sub">↳ Hamming vs Euclidean dist.</a>
+  <div class="sb-sep"></div>
+  <a href="#block-codes" class="sb-link">§8.2 Linear Block Codes</a>
+  <a href="#block-codes" class="sb-link sub">↳ Parity check intuition</a>
+  <a href="#block-codes" class="sb-link sub">↳ (n,k) block code</a>
+  <a href="#block-codes" class="sb-link sub">↳ Code rate Rc = k/n</a>
+  <a href="#block-codes" class="sb-link sub">↳ Linear property (XOR)</a>
+  <a href="#block-codes" class="sb-link sub">↳ Vector space Bⁿ, subspace</a>
+  <a href="#block-codes" class="sb-link sub">↳ Example 8.1 subspaces</a>
+  <a href="#block-codes" class="sb-link sub">↳ Hamming distance</a>
+  <a href="#block-codes" class="sb-link sub">↳ Weight & XOR trick</a>
+  <a href="#block-codes" class="sb-link sub">↳ dmin: detect & correct rules</a>
+  <a href="#block-codes" class="sb-link sub">↳ Visual circle analogy</a>
+  <div class="sb-sep"></div>
+  <a href="#generator" class="sb-link">§8.2.2 Generator Matrix</a>
+  <a href="#generator" class="sb-link sub">↳ Why a matrix?</a>
+  <a href="#generator" class="sb-link sub">↳ Ci = Ui · G</a>
+  <a href="#generator" class="sb-link sub">↳ Systematic form G = [Ik|P]</a>
+  <a href="#generator" class="sb-link sub">↳ Parity bit formulas</a>
+  <a href="#generator" class="sb-link sub">↳ Example 8.2: (7,4) code</a>
+  <div class="sb-sep"></div>
+  <a href="#conv-codes" class="sb-link">§8.3 Convolutional Codes</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Block vs convolutional</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Shift register encoder</a>
+  <a href="#conv-codes" class="sb-link sub">↳ (n,k,K) parameters</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Constraint length</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Output equations</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Encoder state</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Trellis diagram</a>
+  <a href="#conv-codes" class="sb-link sub">↳ Example 8.7</a>
+  <div class="sb-sep"></div>
+  <a href="#viterbi" class="sb-link">§8.3.3 Viterbi Algorithm</a>
+  <a href="#viterbi" class="sb-link sub">↳ ML decoding problem</a>
+  <a href="#viterbi" class="sb-link sub">↳ Path metrics</a>
+  <a href="#viterbi" class="sb-link sub">↳ Survivor path</a>
+  <a href="#viterbi" class="sb-link sub">↳ Common stem</a>
+  <a href="#viterbi" class="sb-link sub">↳ Decoding delay 5K</a>
+  <a href="#viterbi" class="sb-link sub">↳ M0/M1/M2 convention</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 8 · Andrea Goldsmith</div>
+    <h1>Coding for<br><span>Wireless Channels</span></h1>
+    <p>From why we add redundancy, to parity check bits, block codes, generator matrices, convolutional codes, trellis diagrams, and the Viterbi algorithm. Every concept built from absolute zero.</p>
+    <div class="ph-chips">
+      <a href="#coding-intro" class="ph-chip">§8.1 Overview</a>
+      <a href="#block-codes" class="ph-chip">§8.2 Block Codes</a>
+      <a href="#generator" class="ph-chip">Generator Matrix</a>
+      <a href="#conv-codes" class="ph-chip">§8.3 Conv. Codes</a>
+      <a href="#viterbi" class="ph-chip">Viterbi</a>
+      <a href="#problems" class="ph-chip">Summary</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     §8.1 OVERVIEW
+══════════════════════════════════════ -->
+<section class="section" id="coding-intro">
+  <div class="sec-badge"><span class="dot"></span>Section 8.1 — Overview</div>
+  <h2>Why Coding? — The Problem and the Big Idea</h2>
+  <p class="lead">Before any formula, understand the problem coding solves. A single bit flip can corrupt an image, crash a download, or drop a call. Coding is how we make digital communication reliable.</p>
+
+  <h3>Step 1 — The Problem: Bit Errors</h3>
+  <p>When data travels through a wireless channel, the signal gets disturbed by noise, interference, fading, and multipath reflections. Some bits arrive wrong:</p>
+  <div class="const-wrap"><pre>
+  Sent:     1 0 1 1 0 1 1 0
+  Received: 1 0 1 0 0 1 1 0
+                  ↑
+              bit flipped by noise</pre>
+    <div class="const-label">A bit error — one noise spike changed a 1 to a 0. The receiver has no way to know.</div>
+  </div>
+  <p>Without coding: the receiver has no idea an error occurred. With coding: the receiver can detect and often correct the error automatically, without asking for a retransmission.</p>
+
+  <h3>Step 2 — What Coding Does: Adding Redundancy</h3>
+  <p>Instead of sending raw bits, we add <strong>extra bits</strong> (redundancy) that carry no new information but allow the receiver to detect or correct errors:</p>
+  <div class="const-wrap"><pre>
+  Original data:   1 0 1 1        (4 bits)
+  After encoding:  1 0 1 1 1 0 1  (7 bits — 3 parity bits added)
+                            ↑↑↑
+                         redundancy</pre>
+    <div class="const-label">The extra 3 bits carry error-correction information, not data</div>
+  </div>
+
+  <h3>Step 3 — The Deep Idea: Higher-Dimensional Signal Space</h3>
+  <div class="why"><div class="wi">📐</div><div>
+    <strong>Why does coding work?</strong> Think of digital symbols as points in space. In BPSK, there are 2 points (−1 and +1) — close together. Noise can push the received signal to the wrong point. Coding moves to a <em>higher-dimensional</em> space where valid codewords are farther apart. Noise must be much stronger to cause an error.
+  </div></div>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Without Coding</h5>
+      <p>● ─── ● ─── ● ─── ●<br>Points are close together. Small noise → error.</p>
+    </div>
+    <div class="cmp-box c4">
+      <h5>With Coding</h5>
+      <p>●  ─────  ●  ─────  ●<br>Points spread farther apart. Noise must be much larger to cause error.</p>
+    </div>
+  </div>
+
+  <h3>Step 4 — Two Types of Wireless Channels</h3>
+  <table>
+    <tr><th>Channel</th><th>Noise behaviour</th><th>Error pattern</th><th>Coding approach</th></tr>
+    <tr><td><span class="pill p-b">AWGN</span></td><td>Constant random Gaussian noise</td><td>Scattered, random, independent errors</td><td>Maximise Euclidean distance between codewords</td></tr>
+    <tr><td><span class="pill p-a">Fading</span></td><td>Signal strength varies — sometimes very weak (deep fade)</td><td>Burst errors — many consecutive bits wrong during deep fade</td><td>AWGN code + interleaving; maximise Hamming distance</td></tr>
+  </table>
+
+  <h3>Step 5 — Why AWGN Codes Fail in Fading</h3>
+  <div class="warn">
+    <strong>The burst error problem:</strong> Most AWGN codes are designed to correct a few scattered errors. But during a deep fade, hundreds of consecutive bits may be lost — far more than the code can correct.
+  </div>
+  <div class="const-wrap"><pre>
+  AWGN errors (correctable):  1 0 X 1 0 1 X 0 1 0 X 1
+                                    ↑       ↑       ↑
+                              scattered, independent errors
+
+  Fading burst errors:        1 0 X X X X X X X 0 1 0
+                                    ↑↑↑↑↑↑↑↑↑
+                              many consecutive errors — code cannot correct</pre>
+    <div class="const-label">X = bit error. Burst errors overwhelm error correction capability.</div>
+  </div>
+
+  <h3>Step 6 — The Solution: Interleaving</h3>
+  <p>Interleaving shuffles bits before transmission so that consecutive bits in the original message end up far apart in the transmitted stream. After a burst fade, when bits are de-interleaved, the burst is spread out into scattered errors that the code can handle.</p>
+  <div class="const-wrap"><pre>
+  Original bits:   A B C D E F G H
+  After interleave: A E B F C G D H
+                    ↑   ↑   ↑   ↑
+                  A and E are now separated by 3 positions
+
+  A deep fade kills: A E B F → positions 1,2,3,4
+  After de-interleave: A _ _ _ E _ _ _  ← errors spread out!
+                      Only 1 error per group → code can correct!</pre>
+    <div class="const-label">Interleaving converts burst errors into scattered errors that AWGN codes can handle</div>
+  </div>
+  <div class="hl"><strong>Key result:</strong> Coding + interleaving for fading channels provides <em>diversity gain</em> equal to the minimum Hamming distance of the code — exactly like antenna diversity in Chapter 7.</div>
+
+  <h3>Step 7 — Performance Metrics</h3>
+  <table>
+    <tr><th>Metric</th><th>Symbol</th><th>Meaning</th><th>Used for</th></tr>
+    <tr><td>Bit Error Probability</td><td>Pb</td><td>Prob. a single bit is decoded incorrectly</td><td>Continuous data streams</td></tr>
+    <tr><td>Block Error Probability</td><td>Pbl</td><td>Prob. ≥1 bit in a block is wrong (= Packet Error Rate)</td><td>Packet/block data systems</td></tr>
+  </table>
+
+  <h3>Step 8 — Coding Gain</h3>
+  <div class="card bl-b">
+    <p><strong>Coding gain</strong> = how much SNR (dB) can be reduced while maintaining the same Pb. It tells you how much the code improves performance.</p>
+    <div class="fbox"><span class="fb big">Coding gain (dB) = SNR_uncoded − SNR_coded at same Pb</span><span class="fl">Example: achieving Pb=10⁻⁶ takes SNR=10 dB without coding but only 7 dB with coding → coding gain = 3 dB</span></div>
+    <p>Important: coding gain increases as Pb decreases. At high error rates (Pb ≈ 10⁻²), coding gain is negligible or even negative. At low error rates (Pb ≈ 10⁻⁶), coding gain can be several dB.</p>
+  </div>
+
+  <h3>Step 9 — The Waterfall Curve and Error Floor</h3>
+  <div class="const-wrap"><pre>
+  Error
+  Prob    Uncoded
+  10⁻¹   ──────
+  10⁻²       ─────
+  10⁻³           ──────── Coded (waterfall)     ─ ─ Error floor
+  10⁻⁴                ────────
+  10⁻⁵                     ─────────────
+  10⁻⁶                           ─────
+            └─────────────────────────────────── SNR (dB)</pre>
+    <div class="const-label">Waterfall region: rapid BER improvement with SNR · Error floor: some codes (turbo) stop improving at high SNR</div>
+  </div>
+  <p><strong>Waterfall region:</strong> SNR above a certain threshold → BER drops steeply. Small increase in SNR → huge improvement. <strong>Error floor:</strong> occurs in turbo codes — at high SNR, the BER curve flattens because rare minimum-distance error events dominate.</p>
+
+  <h3>Step 10 — Channel Capacity as the Ultimate Benchmark</h3>
+  <div class="fbox">
+    <span class="fb big">C = B · log₂(1 + SNR)</span>
+    <span class="fl">Shannon capacity — the theoretical maximum data rate · No code can exceed this · The capacity curve shows the best ANY code can achieve</span>
+  </div>
+  <p>The capacity curve in Figure 8.1 represents the ideal — probability of error goes to zero at rates up to capacity. Real codes (turbo, LDPC) come very close to this limit.</p>
+
+  <h3>Step 11 — The Rate vs Bandwidth Trade-off</h3>
+  <div class="card bl-g">
+    <p>A code that maps k bits → n bits has <strong>code rate Rc = k/n</strong>. This costs either:</p>
+    <ul class="nice">
+      <li><strong>Reduced data rate:</strong> if bandwidth is fixed, information rate = (k/n)·Rb</li>
+      <li><strong>Expanded bandwidth:</strong> if data rate is fixed, bandwidth must increase by n/k to fit the extra coded bits</li>
+    </ul>
+    <p><strong>Exception:</strong> Coded modulation (Section 8.7) uses a joint code+modulation design to get coding gain without bandwidth expansion — a major practical advantage.</p>
+  </div>
+
+  <h3>Step 12 — Two Key Distance Metrics</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Euclidean Distance (AWGN)</h5>
+      <p>Geometric distance between signal points in continuous space. AWGN codes maximise Euclidean distance. Determines coding gain in AWGN channels.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Hamming Distance (Fading)</h5>
+      <p>Number of bit positions where two codewords differ. Fading codes maximise Hamming distance. Diversity order = minimum Hamming distance.</p>
+    </div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §8.1</div>
+    <ol>
+      <li>A code achieves Pb = 10⁻⁵ at SNR = 8 dB. Without coding the same Pb needs SNR = 13 dB. What is the coding gain? At what Pb would you expect the coding gain to be larger or smaller?</li>
+      <li>Explain why interleaving alone does not correct errors — you still need an error-correcting code. What exactly does each component do?</li>
+      <li>A (7,4) block code transmits at a channel rate of Rs = 14,000 symbols/sec. What is the information rate Rb?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Coding gain = 13 − 8 = 5 dB. Coding gain is larger at lower Pb (e.g., 10⁻⁸) and smaller (possibly negative) at higher Pb (e.g., 10⁻²). At low SNR the redundant bits spread energy over more symbols without enough SNR benefit.</p>
+      <p><strong>2.</strong> Interleaving only rearranges bits — it converts burst errors into scattered errors. It does not add any redundancy. The error-correcting code provides the redundancy (extra bits) that allows scattered errors to be corrected. Without the code, de-interleaved bits still contain errors — just scattered ones. Without interleaving, the code receives a burst it cannot correct.</p>
+      <p><strong>3.</strong> Rc = k/n = 4/7. Rb = Rc × Rs = (4/7) × 14,000 = 8,000 bits/sec.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §8.2 LINEAR BLOCK CODES
+══════════════════════════════════════ -->
+<section class="section" id="block-codes">
+  <div class="sec-badge"><span class="dot"></span>Section 8.2 — Linear Block Codes</div>
+  <h2>Linear Block Codes — From Parity to Power</h2>
+  <p class="lead">Block codes start from the simplest idea — a single parity check bit — and extend it into a powerful, systematic framework for detecting and correcting multiple errors.</p>
+
+  <h3>Step 1 — The Parity Bit: The Simplest Code</h3>
+  <p>A single parity bit is added to a block of data bits. It indicates whether the number of 1s is odd or even:</p>
+  <div class="const-wrap"><pre>
+  Data: 1 0 1 1  (three 1s — odd)
+  Even parity → add 1 to make total 1s even
+  Transmitted: 1 0 1 1 1  (four 1s — even ✓)
+
+  If receiver gets: 1 0 0 1 1  (three 1s — odd)
+  Expected even → 🚨 error detected!</pre>
+    <div class="const-label">Parity detects 1 error but cannot correct it — and misses 2 simultaneous errors</div>
+  </div>
+  <p><strong>Limitation:</strong> parity detects errors but cannot correct them, and it misses even numbers of errors. Linear block codes extend this idea to use <em>multiple</em> parity bits for both detection and correction.</p>
+
+  <h3>Step 2 — The (n, k) Block Code</h3>
+  <div class="fbox">
+    <span class="fb big">(n, k) block code: k information bits → n coded bits (codeword)</span>
+    <span class="fl">n − k = parity bits added · Code rate Rc = k/n · Example: (7,4) code: 4 data bits → 7 bit codeword (3 parity bits)</span>
+  </div>
+  <table>
+    <tr><th>Parameter</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Information bits</td><td>k</td><td>Actual data bits — what we want to send</td></tr>
+    <tr><td>Coded bits (codeword length)</td><td>n</td><td>Total transmitted bits including redundancy</td></tr>
+    <tr><td>Parity bits</td><td>n − k</td><td>Redundancy added for error detection/correction</td></tr>
+    <tr><td>Code rate</td><td>Rc = k/n</td><td>Fraction of transmitted bits that carry actual information</td></tr>
+    <tr><td>Valid codewords</td><td>2^k</td><td>One codeword for each possible k-bit message</td></tr>
+    <tr><td>Total possible n-bit sequences</td><td>2^n</td><td>Only 2^k are valid codewords — the rest signal an error</td></tr>
+  </table>
+
+  <h3>Step 3 — What Makes a Code "Linear"?</h3>
+  <p>A block code is <strong>linear</strong> if: the XOR (mod-2 sum) of any two valid codewords is also a valid codeword.</p>
+  <div class="const-wrap"><pre>
+  Mod-2 addition (XOR):
+  0 ⊕ 0 = 0    0 ⊕ 1 = 1    1 ⊕ 0 = 1    1 ⊕ 1 = 0
+  (like regular addition but drop the carry)
+
+  Example codewords: C1 = 101  C2 = 011
+  C1 ⊕ C2 = 101
+            011
+            ---
+            110
+  If 110 is also a valid codeword → code is LINEAR ✓</pre>
+    <div class="const-label">Linearity means: XOR of any two codewords = another codeword</div>
+  </div>
+
+  <h3>Step 4 — Vector Space Bⁿ and Subspaces</h3>
+  <p>All binary strings of length n form a set called <strong>Bⁿ</strong>. Example: B³ = {000, 001, 010, 011, 100, 101, 110, 111} — all 8 three-bit strings.</p>
+  <p>A <strong>subspace</strong> of Bⁿ must satisfy two conditions:</p>
+  <ul class="nice">
+    <li>Condition 1: Must contain the all-zero vector (000...0)</li>
+    <li>Condition 2: Must be closed under XOR — if two vectors are in the set, their XOR must also be in the set</li>
+  </ul>
+  <p>A linear (n,k) block code is a subspace of Bⁿ with exactly 2^k elements.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 8.1 — Checking Subspaces (Textbook)</div>
+    <p>For B³, which sets are subspaces?</p>
+    <table>
+      <tr><th>Set</th><th>Members</th><th>Has 000?</th><th>Closed under XOR?</th><th>Subspace?</th></tr>
+      <tr><td>A1</td><td>{000, 001, 100, 101}</td><td>✓</td><td>✓ (e.g. 001⊕100=101 ∈ A1)</td><td><span class="pill p-gr">✓ Yes</span></td></tr>
+      <tr><td>A2</td><td>{000, 100, 110, 111}</td><td>✓</td><td>✗ (110⊕111=001 ∉ A2)</td><td><span class="pill p-a">✗ No</span></td></tr>
+      <tr><td>A3</td><td>{001, 100, 101}</td><td>✗ missing 000</td><td>✗ (001⊕001=000 ∉ A3)</td><td><span class="pill p-a">✗ No</span></td></tr>
+    </table>
+  </div>
+
+  <h3>Step 5 — Hamming Distance</h3>
+  <div class="card bl-b">
+    <h4>Definition</h4>
+    <p>The Hamming distance d(Ci, Cj) between two codewords = the number of bit positions where they differ.</p>
+    <div class="fbox"><span class="fb">dᵢⱼ = Σₗ (Cᵢ(l) ⊕ Cⱼ(l))</span><span class="fl">Eq. (8.1) — count the positions where the XOR is 1 (i.e., where bits differ)</span></div>
+    <p><strong>Example:</strong> Ci = 00101, Cj = 10011</p>
+    <div class="const-wrap"><pre>
+  C1:  0  0  1  0  1
+  C2:  1  0  0  1  1
+  XOR: 1  0  1  1  0
+        ↑     ↑  ↑
+  3 positions differ → d(C1,C2) = 3</pre></div>
+  </div>
+
+  <h3>Step 6 — Codeword Weight</h3>
+  <p>The <strong>weight</strong> w(Ci) of a codeword = the number of 1-bits in it.</p>
+  <p>Example: w(00101) = 2, w(10011) = 3.</p>
+  <div class="hl">
+    <strong>★ Key shortcut — Distance = Weight of XOR:</strong><br>
+    <code>d(Ci, Cj) = w(Ci ⊕ Cj)</code><br>
+    Why? XOR produces 1 exactly at positions where bits differ. Counting those 1s = counting differences = Hamming distance.
+    <br><br>
+    <strong>★ For linear codes: dmin = minimum weight of all non-zero codewords.</strong><br>
+    Because Ci ⊕ Cj is always another codeword (linear property), and its weight = d(Ci, Cj).
+  </div>
+
+  <h3>Step 7 — Minimum Distance dmin: The Core Parameter</h3>
+  <div class="fbox">
+    <span class="fb big">dmin = min_{i≠0} d(C₀, Cᵢ) = minimum weight among all non-zero codewords</span>
+    <span class="fl">Eq. (8.3) — the smallest separation between any two valid codewords · Larger dmin = better error protection</span>
+  </div>
+
+  <h4>Error Detection Capability</h4>
+  <p>Why does dmin determine detection? If dmin = 3, any two codewords differ in at least 3 positions. Noise must flip at least 3 bits to transform one valid codeword into another. If ≤2 bits flip, the result is not a valid codeword → receiver detects error.</p>
+  <div class="fbox">
+    <span class="fb">Detectable errors = dmin − 1</span>
+  </div>
+
+  <h4>Error Correction Capability</h4>
+  <p>The receiver uses <em>nearest codeword decoding</em> — it picks the valid codeword closest to what was received. If errors flip t bits, the received word is t away from the correct codeword. As long as t &lt; dmin/2, the correct codeword is still closer than any other:</p>
+  <div class="fbox">
+    <span class="fb big">t = ⌊(dmin − 1) / 2⌋</span>
+    <span class="fl">Maximum number of errors the code can CORRECT · ⌊ ⌋ = floor (round down)</span>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Worked Example — dmin = 3</div>
+    <p>Valid codewords: 00000 and 11100. Distance = 3, so dmin = 3.</p>
+    <p><strong>Detection:</strong> Can detect 3−1 = 2 errors. Sending 00000, if 2 bits flip → 00011 (not a valid codeword → detected).</p>
+    <p><strong>Correction:</strong> t = ⌊(3−1)/2⌋ = 1. Sending 00000, if 1 bit flips → 00010. Distance to 00000 = 1, distance to 11100 = 4. Closest → 00000 → correct!</p>
+    <p><strong>Failure case:</strong> 3 errors → 00000 → 11100. This IS a valid codeword. Receiver cannot detect the error.</p>
+  </div>
+
+  <h3>Step 8 — Visual Intuition: Safety Circles</h3>
+  <div class="const-wrap"><pre>
+  Each codeword has a "safety circle" of radius t around it.
+  Any received word inside the circle → decoded as that codeword.
+
+       Codeword A          Codeword B
+            ○                   ○
+          ○●○               ○●○
+            ○                   ○
+          radius = t          radius = t
+
+  For correction to work:  circles must NOT overlap
+  Non-overlapping requires: 2t < dmin  → t < dmin/2  → t = ⌊(dmin−1)/2⌋</pre>
+    <div class="const-label">If circles overlap, receiver cannot decide which codeword to correct to</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §8.2 Block Codes</div>
+    <ol>
+      <li>A (15,11) block code: (a) How many parity bits? (b) What is the code rate? (c) If Rs = 15,000 symbols/sec, what is the information rate?</li>
+      <li>Given codewords: 0000000, 1110100, 0011101, 1101001. (a) Compute the weight of each non-zero codeword. (b) Find dmin. (c) How many errors can this code detect? Correct?</li>
+      <li>Verify linearity: XOR any two codewords from Q2 and check if the result is also a valid codeword. Show two examples.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) n−k = 15−11 = 4 parity bits. (b) Rc = 11/15 ≈ 0.733. (c) Rb = Rc×Rs = (11/15)×15,000 = 11,000 bits/sec.</p>
+      <p><strong>2.</strong> Weights: 0000000→0, 1110100→3, 0011101→3, 1101001→3. Minimum non-zero weight = 3 → dmin = 3. Detect: 3−1 = 2 errors. Correct: ⌊(3−1)/2⌋ = 1 error.</p>
+      <p><strong>3.</strong> 1110100 ⊕ 0011101 = 1101001 ✓ (in the set). 1110100 ⊕ 1101001 = 0011101 ✓ (in the set). Both results are valid codewords → confirms linearity.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §8.2.2 GENERATOR MATRIX
+══════════════════════════════════════ -->
+<section class="section" id="generator">
+  <div class="sec-badge"><span class="dot"></span>Section 8.2.2 — Generator Matrix</div>
+  <h2>Generator Matrix — The Encoding Machine</h2>
+  <p class="lead">Instead of specifying how to compute each coded bit separately, the generator matrix packages the entire encoding rule into one compact matrix equation.</p>
+
+  <h3>Step 1 — Why We Need a Matrix</h3>
+  <p>For a (7,4) code we need a rule converting 4 bits into 7 bits. We could write 7 separate equations, one for each output bit. But that's messy. Instead, one matrix equation handles everything:</p>
+  <div class="fbox">
+    <span class="fb big">Ci = Ui · G</span>
+    <span class="fl">Eq. (8.5) · Ui = information vector (1×k) · G = generator matrix (k×n) · Ci = codeword (1×n) · All arithmetic is mod-2</span>
+  </div>
+
+  <h3>Step 2 — Structure of G</h3>
+  <div class="const-wrap"><pre>
+  G is a k×n matrix:
+  ┌ g₁₁  g₁₂  ...  g₁ₙ ┐   ← row g₁
+  │ g₂₁  g₂₂  ...  g₂ₙ │   ← row g₂
+  │  .    .         .   │
+  └ gₖ₁  gₖ₂  ...  gₖₙ ┘   ← row gₖ
+
+  k rows (one per information bit)
+  n columns (one per coded bit)
+  All entries are 0 or 1 (binary)</pre>
+    <div class="const-label">Each row is a basis vector — codewords are linear combinations of the rows</div>
+  </div>
+  <p>Any codeword can be written as: <code>Ci = ui1·g1 + ui2·g2 + ... + uik·gk</code> (mod-2 linear combination of rows). This is why the code is called a linear code. The rows must be linearly independent so rank(G) = k, ensuring 2^k distinct codewords.</p>
+
+  <h3>Step 3 — Systematic Form G = [Ik | P]</h3>
+  <p>Most practical codes use a <strong>systematic</strong> generator matrix — the first k columns form the identity matrix, so the original information bits appear unchanged in the first k positions of the codeword:</p>
+  <div class="fbox">
+    <span class="fb big">G = [Iₖ | P]</span>
+    <span class="fl">Eq. (8.8) · Iₖ = k×k identity matrix · P = k×(n−k) parity matrix · Codeword = [u₁...uₖ | p₁...p_{n-k}]</span>
+  </div>
+  <div class="const-wrap"><pre>
+  For (7,4) code: k=4, n=7, n-k=3
+
+  G = [I₄ | P] =
+  ┌ 1 0 0 0 | p₁₁ p₁₂ p₁₃ ┐
+  │ 0 1 0 0 | p₂₁ p₂₂ p₂₃ │
+  │ 0 0 1 0 | p₃₁ p₃₂ p₃₃ │
+  └ 0 0 0 1 | p₄₁ p₄₂ p₄₃ ┘
+  └────────┘└─────────────┘
+  Identity I₄    Parity P
+
+  Codeword: Ci = [u₁ u₂ u₃ u₄ | p₁ p₂ p₃]
+                 └info bits──┘└parity bits┘</pre></div>
+
+  <h3>Step 4 — Computing Parity Bits</h3>
+  <div class="fbox">
+    <span class="fb">pⱼ = u₁·p₁ⱼ + u₂·p₂ⱼ + ... + uₖ·pₖⱼ &nbsp;&nbsp; (mod-2)</span>
+    <span class="fl">Eq. (8.10) · Each parity bit is an XOR of selected information bits · Which bits to XOR is determined by the j-th column of P</span>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 8.2 — (7,4) Code Generator Matrix (Textbook)</div>
+    <p>Given generator matrix:</p>
+    <div class="const-wrap"><pre>
+  G = ┌ 1 0 0 0 | 1 1 0 ┐
+      │ 0 1 0 0 | 1 0 1 │
+      │ 0 0 1 0 | 0 0 1 │
+      └ 0 0 0 1 | 0 1 0 ┘
+
+  Parity matrix P (right side):
+  P = ┌ 1 1 0 ┐
+      │ 1 0 1 │
+      │ 0 0 1 │
+      └ 0 1 0 ┘</pre></div>
+    <p><strong>Reading parity bit formulas from P columns:</strong></p>
+    <table>
+      <tr><th>Parity bit</th><th>Column of P used</th><th>Formula (rows with 1)</th></tr>
+      <tr><td>p₁ (col 1 of P)</td><td>[1,1,0,0]</td><td>p₁ = u₁⊕u₂</td></tr>
+      <tr><td>p₂ (col 2 of P)</td><td>[1,0,0,1]</td><td>p₂ = u₁⊕u₄</td></tr>
+      <tr><td>p₃ (col 3 of P)</td><td>[0,1,1,0]</td><td>p₃ = u₂⊕u₃</td></tr>
+    </table>
+    <p><strong>Encoding U = [1 0 1 1]:</strong></p>
+    <ul class="nice">
+      <li>p₁ = u₁⊕u₂ = 1⊕0 = <strong>1</strong></li>
+      <li>p₂ = u₁⊕u₄ = 1⊕1 = <strong>0</strong></li>
+      <li>p₃ = u₂⊕u₃ = 0⊕1 = <strong>1</strong></li>
+    </ul>
+    <p><strong>Codeword: C = [1 0 1 1 1 0 1]</strong> — 4 information bits + 3 parity bits.</p>
+    <p><strong>Hardware:</strong> Implemented with a shift register + XOR gates. Information bits clock through; XOR gates compute parity bits; both are sent in sequence.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §8.2.2 Generator Matrix</div>
+    <ol>
+      <li>Using the (7,4) generator matrix from Example 8.2, encode U = [1 1 0 0]. Show each parity bit calculation and write the final 7-bit codeword.</li>
+      <li>Encode U = [0 1 1 1] using the same G. Then verify linearity: XOR the codewords for U=[1000] (hint: it's the first row of G) and U=[0100] (second row) — is the result a valid codeword?</li>
+      <li>Why must the rows of G be linearly independent? What would go wrong if two rows were identical?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> u=[1,1,0,0]. p₁=1⊕1=0. p₂=1⊕0=1. p₃=1⊕0=1. Codeword: [1 1 0 0 0 1 1].</p>
+      <p><strong>2.</strong> u=[0,1,1,1]. p₁=0⊕1=1. p₂=0⊕1=1. p₃=1⊕1=0. Codeword: [0 1 1 1 1 1 0]. Row 1 of G = [1 0 0 0 1 1 0]. Row 2 = [0 1 0 0 1 0 1]. XOR: [1 1 0 0 0 1 1] — same as U=[1,1,0,0] codeword computed above ✓ Linear!</p>
+      <p><strong>3.</strong> If two rows were identical (dependent), then two different information vectors would produce the same codeword. E.g. U=[1,0,...] and U=[0,1,...] would map to the same C — we couldn't decode which message was sent. Linear independence guarantees a unique codeword for each of the 2^k messages.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §8.3 CONVOLUTIONAL CODES
+══════════════════════════════════════ -->
+<section class="section" id="conv-codes">
+  <div class="sec-badge"><span class="dot"></span>Section 8.3 — Convolutional Codes</div>
+  <h2>Convolutional Codes — Memory and Continuous Encoding</h2>
+  <p class="lead">Unlike block codes that encode fixed blocks independently, convolutional codes have memory — each output depends not just on the current input but on previous inputs too. This makes them more powerful and better suited to wireless channels.</p>
+
+  <h3>Step 1 — Block Code vs Convolutional Code</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Block Code</h5>
+      <p>Data split into fixed k-bit blocks. Each block encoded independently. Current output depends only on current k bits. No memory.</p>
+      <p><code>1011 | 1100 | 0110</code><br>↓ &nbsp;↓ &nbsp;↓ (independent)</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Convolutional Code</h5>
+      <p>Continuous bit stream. Each output depends on current input AND previous inputs stored in shift register. Has memory.</p>
+      <p><code>1 → 0 → 1 → 1 → 0</code><br>Each affects multiple future outputs</p>
+    </div>
+  </div>
+
+  <h3>Step 2 — The Shift Register Encoder</h3>
+  <p>A convolutional encoder uses a <strong>K-stage shift register</strong>. Each clock cycle: one new input bit enters Stage 1, all existing bits shift right by one stage, and n output bits are computed from XOR combinations of the stage contents.</p>
+  <div class="const-wrap"><pre>
+  Input → [S1] → [S2] → [S3]
+              ↘   ↓↗↘   ↙
+            XOR adders
+           ↓        ↓        ↓
+           C1       C2       C3
+
+  S1 = current input bit
+  S2 = previous input bit
+  S3 = input from 2 steps ago
+  State = {S2, S3} (contents of memory stages)</pre>
+    <div class="const-label">The shift register "remembers" the last K−1 input bits</div>
+  </div>
+
+  <h3>Step 3 — Code Parameters (n, k, K)</h3>
+  <table>
+    <tr><th>Parameter</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td>Output bits per step</td><td>n</td><td>Number of coded bits produced per input group</td></tr>
+    <tr><td>Input bits per step</td><td>k</td><td>Number of information bits consumed per step</td></tr>
+    <tr><td>Shift register stages</td><td>K</td><td>Number of memory stages (constraint length in bytes)</td></tr>
+    <tr><td>Code rate</td><td>Rc = k/n</td><td>Same definition as block codes</td></tr>
+    <tr><td>Constraint length</td><td>kK bits</td><td>Number of input bits that can influence one output bit</td></tr>
+    <tr><td>Number of encoder states</td><td>2^(K−1)</td><td>All possible contents of the K−1 memory stages</td></tr>
+  </table>
+
+  <h3>Step 4 — Textbook Example: n=3, k=1, K=3</h3>
+  <p>One input bit at a time (k=1). Three stages: S1 (current input), S2, S3. Three output bits computed as:</p>
+  <div class="fbox">
+    <span class="fb">C1 = S1 &nbsp;&nbsp;&nbsp; C2 = S1 ⊕ S2 ⊕ S3 &nbsp;&nbsp;&nbsp; C3 = S1 ⊕ S3</span>
+    <span class="fl">All additions mod-2 (XOR) · Rate Rc = 1/3 · States: 2^(3−1) = 4 possible states (S2S3 ∈ {00,01,10,11})</span>
+  </div>
+
+  <h4>Step-by-Step Encoding Example</h4>
+  <p>Input U = 1, 0, 1 (start with all-zero state S2S3=00):</p>
+  <div class="const-wrap"><pre>
+  Step 1: Input bit = 1 → S1=1, S2=0, S3=0
+    C1 = 1
+    C2 = 1 ⊕ 0 ⊕ 0 = 1
+    C3 = 1 ⊕ 0 = 1
+    Output: 111 · New state S2S3 = S1S2 = 10
+
+  Step 2: Input bit = 0 → S1=0, S2=1, S3=0
+    C1 = 0
+    C2 = 0 ⊕ 1 ⊕ 0 = 1
+    C3 = 0 ⊕ 0 = 0
+    Output: 010 · New state S2S3 = 01
+
+  Step 3: Input bit = 1 → S1=1, S2=0, S3=1
+    C1 = 1
+    C2 = 1 ⊕ 0 ⊕ 1 = 0
+    C3 = 1 ⊕ 1 = 0
+    Output: 100 · New state S2S3 = 10
+
+  Full encoded output: 111 010 100</pre>
+    <div class="const-label">3 input bits → 9 output bits · Rate 1/3</div>
+  </div>
+
+  <h3>Step 5 — Encoder State</h3>
+  <p>The <strong>encoder state</strong> = contents of the memory stages (all stages except S1, which is the current input). With k=1 and K=3: state = S2S3. Since each can be 0 or 1, there are 2^(K−1) = 4 possible states: {00, 01, 10, 11}.</p>
+  <p>The state changes every clock cycle: when input S1 enters Stage 1, the old S2 becomes S3, and S1 becomes S2. So new state = old {S1, S2}.</p>
+
+  <h3>Step 6 — Trellis Diagram</h3>
+  <p>The trellis diagram is the key tool for visualising (and decoding) convolutional codes. It shows every possible state transition over time:</p>
+  <div class="const-wrap"><pre>
+  States:    t0    t1    t2    t3    t4
+  S2S3=00:   ●─────●─────●─────●─────●
+             │     │          │
+  S2S3=01:   ●─────●─────●─────●─────●
+             │                  │
+  S2S3=10:   ●─────●─────●─────●─────●
+                         │     │
+  S2S3=11:   ●─────●─────●─────●─────●
+
+  ─── solid line = input bit 0
+  --- dashed line = input bit 1
+  Label on each transition = output bits C1C2C3
+
+  Example transitions from state 00:
+  Input 0 → stay at 00, output 000
+  Input 1 → go to 10, output 111</pre>
+    <div class="const-label">Each path through the trellis corresponds to one possible input sequence and its encoded output</div>
+  </div>
+
+  <h4>Key Trellis Properties</h4>
+  <ul class="nice">
+    <li>2^(K−1) rows (one per state) = 4 rows for K=3</li>
+    <li>Each state has 2^k outgoing paths = 2 paths (for k=1: one for input 0, one for input 1)</li>
+    <li>Trellis reaches steady state at time t_K — from t_K onward, it repeats identically</li>
+    <li>Initial state is always 00 (all-zero shift register)</li>
+  </ul>
+
+  <div class="example">
+    <div class="ex-head">Example 8.7 — Trellis Tracing (Textbook)</div>
+    <p>Initial state S = S2S3 = 01. Input U = 0, 1, 1. Find state sequence and output C.</p>
+    <table>
+      <tr><th>Time</th><th>State S2S3</th><th>Input S1</th><th>Output C1C2C3</th><th>Next state</th></tr>
+      <tr><td>t2</td><td>01</td><td>0 (solid)</td><td>C1=0, C2=0⊕1⊕0=1, C3=0⊕0=0 → <strong>011</strong></td><td>00</td></tr>
+      <tr><td>t3</td><td>00</td><td>1 (dashed)</td><td>C1=1, C2=1⊕0⊕0=1, C3=1⊕0=1 → <strong>111</strong></td><td>10</td></tr>
+      <tr><td>t4</td><td>10</td><td>1 (dashed)</td><td>C1=1, C2=1⊕1⊕0=0, C3=1⊕0=1 → <strong>101</strong></td><td>11</td></tr>
+    </table>
+    <p>Full output: <strong>011 111 101</strong>. State sequence: 01 → 00 → 10 → 11.</p>
+  </div>
+
+  <h3>Step 7 — The M0/M1/M2 Convention Confusion (Clarified)</h3>
+  <div class="card bl-g">
+    <h4>Why Different Books Show Different Trellis Diagrams</h4>
+    <p>This confuses almost everyone. The answer: both are correct — they use different conventions for labelling the shift register.</p>
+    <div class="cmp">
+      <div class="cmp-box c2">
+        <h5>Convention A (Goldsmith / most books)</h5>
+        <p>Input → M0 → M1 → M2<br>State = M1M2 (last two stages)<br>State 00 is leftmost column in trellis</p>
+      </div>
+      <div class="cmp-box c1">
+        <h5>Convention B (some other books)</h5>
+        <p>M2 ← M1 ← M0 ← Input<br>State = M0M1 (first two stages)<br>Shift direction reversed</p>
+      </div>
+    </div>
+    <p>The physical encoder is identical. Only the state labelling changes. State 01 in Convention A corresponds to state 10 in Convention B. <strong>For exams: always follow your textbook's convention.</strong> Goldsmith uses S2S3 as state.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §8.3 Convolutional Codes</div>
+    <ol>
+      <li>For the n=3, k=1, K=3 encoder with C1=S1, C2=S1⊕S2⊕S3, C3=S1⊕S3: encode input U = 1,1,0,0 starting from state 00. Show each step (state, input, output, next state).</li>
+      <li>For the same encoder, starting from state 10: what is the output for input U = 0,1? Show state transitions.</li>
+      <li>A convolutional code has k=1, K=5. (a) How many encoder states? (b) How many paths enter/leave each node? (c) What is the constraint length?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Start S2S3=00.<br>t1: input=1, S1=1,S2=0,S3=0 → C1=1,C2=1,C3=1 → output 111, new state=10.<br>t2: input=1, S1=1,S2=1,S3=0 → C1=1,C2=0,C3=1 → output 101, new state=11.<br>t3: input=0, S1=0,S2=1,S3=1 → C1=0,C2=0⊕1⊕1=0,C3=0⊕1=1 → output 001, new state=01.<br>t4: input=0, S1=0,S2=0,S3=1 → C1=0,C2=0⊕0⊕1=1,C3=0⊕1=1 → output 011, new state=00.<br>Full output: 111 101 001 011.</p>
+      <p><strong>2.</strong> Start S2S3=10.<br>t: input=0, S1=0,S2=1,S3=0 → C1=0,C2=0⊕1⊕0=1,C3=0⊕0=0 → output 010, new state=01.<br>t+1: input=1, S1=1,S2=0,S3=1 → C1=1,C2=1⊕0⊕1=0,C3=1⊕1=0 → output 100, new state=10.<br>Output: 010 100.</p>
+      <p><strong>3.</strong> (a) States = 2^(K−1) = 2^4 = 16 states. (b) k=1 so 2^1=2 paths enter and 2 paths leave each node. (c) Constraint length = kK = 1×5 = 5 bits.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §8.3.3 VITERBI ALGORITHM
+══════════════════════════════════════ -->
+<section class="section" id="viterbi">
+  <div class="sec-badge"><span class="dot"></span>Section 8.3.3 — Viterbi Algorithm</div>
+  <h2>Viterbi Algorithm — Efficient Maximum Likelihood Decoding</h2>
+  <p class="lead">The Viterbi algorithm is one of the most important algorithms in all of digital communications. It decodes convolutional codes optimally while keeping complexity manageable. Used in 2G/3G, WiFi, satellite links, and deep space.</p>
+
+  <h3>Step 1 — The Decoding Problem</h3>
+  <p>The receiver gets a noisy version of the encoded sequence. It must find the most likely transmitted input sequence — this is called <strong>Maximum Likelihood (ML) decoding</strong>.</p>
+  <div class="const-wrap"><pre>
+  Transmitted: 111 010 100
+  Received:    110 010 101   ← 2 bit errors due to noise
+
+  Question: which input sequence most likely produced "110 010 101"?
+
+  Brute force: try all 2^N possible input sequences, encode each,
+  compare with received, pick closest.
+  For N=100 bits → 2^100 ≈ 10^30 possibilities → IMPOSSIBLE.</pre>
+    <div class="const-label">Brute force ML decoding is computationally infeasible for any practical sequence length</div>
+  </div>
+
+  <h3>Step 2 — The Key Insight Behind Viterbi</h3>
+  <div class="why"><div class="wi">💡</div><div>
+    <strong>The Viterbi insight:</strong> Consider all paths through the trellis that pass through a specific node N. The best complete path through N must use the best partial path <em>up to</em> N. So: at every node, keep only the single best incoming path (the <strong>survivor</strong>) and discard the rest. This reduces the number of paths from exponential to just 2^(K−1) survivors at each time step.
+  </div></div>
+
+  <h3>Step 3 — Path Metrics</h3>
+  <p>Each transition in the trellis has a <strong>branch metric</strong> — how well the expected output matches the received bits. The most common metric is the <strong>Hamming distance</strong> (number of differing bits):</p>
+  <div class="const-wrap"><pre>
+  Trellis transition predicts output: 111
+  Received bits at this step:          110
+  XOR:                                 001 → 1 bit different
+
+  Branch metric = 1 (one error)
+
+  Path metric = sum of all branch metrics along the path
+  Lower path metric = better match to received sequence</pre></div>
+
+  <h3>Step 4 — Survivor Selection at Every Node</h3>
+  <div class="const-wrap"><pre>
+  At node N, three paths arrive with partial metrics:
+  Path 1: metric = 2  ← SURVIVOR (lowest = best match)
+  Path 2: metric = 5  ← discard
+  Path 3: metric = 3  ← discard
+
+  Keep Path 1. Discard Path 2 and Path 3 permanently.
+  Continue only Path 1 forward from node N.</pre>
+    <div class="const-label">This is the Viterbi survivor selection — the core step of the algorithm</div>
+  </div>
+  <p>After each time step, there are exactly 2^(K−1) surviving paths — one for each possible encoder state. This is manageable!</p>
+
+  <h3>Step 5 — The Complete Viterbi Algorithm</h3>
+  <div class="const-wrap"><pre>
+  VITERBI ALGORITHM
+  ═══════════════════════════════════════════════════
+  Initialise:
+    All states except 00 have metric = ∞
+    State 00 has metric = 0
+
+  For each received symbol group at time t:
+    1. For each state s:
+       a. Compute branch metric for each of the 2^k
+          incoming transitions
+       b. Add branch metric to partial path metric of
+          the incoming path
+       c. Keep the path with LOWEST total metric
+          → this is the survivor for state s
+       d. Record which predecessor gave the survivor
+
+  After all symbols:
+    Trace back through survivor paths from the
+    final state → recover the most likely input bits
+  ═══════════════════════════════════════════════════</pre>
+    <div class="const-label">Complexity: 2^(K−1) states × 2^k comparisons per state per step = O(2^K) per symbol</div>
+  </div>
+
+  <h3>Step 6 — Common Stem and Decoding Delay</h3>
+  <p>The decoder cannot output a decision immediately — future received bits might change which path has the best metric. The decoder waits until all surviving paths share a <strong>common stem</strong>: a common history back to some point in the trellis. That point can be safely decoded.</p>
+  <div class="const-wrap"><pre>
+  Survivor paths at time tk+3:
+  Path A: ─ 0 1 ─ 0 ─ 1
+  Path B: ─ 0 1 ─ 1 ─ 0
+  Path C: ─ 0 1 ─ 0 ─ 0
+                ↑
+         Common stem: first two steps are "0 1" for ALL paths
+         → safely decode: output bits for step 0,1 are correct!</pre></div>
+  <p>To avoid variable delays, the Viterbi decoder is typically modified to decide on the branch from <strong>n ≥ 5K steps ago</strong>. This is a good approximation to exact ML decoding for practical codes.</p>
+  <div class="fbox">
+    <span class="fb">Practical decoding depth: n ≥ 5K steps back</span>
+    <span class="fl">For K=3: decide on branches 15+ steps back · For K=7 (common in GSM): 35+ steps · Trade-off: larger depth = more accurate but more memory and latency</span>
+  </div>
+
+  <h3>Step 7 — Complexity Analysis</h3>
+  <table>
+    <tr><th>Metric</th><th>Viterbi</th><th>Brute Force ML</th></tr>
+    <tr><td>Surviving paths at each step</td><td>2^(K−1)</td><td>All 2^N</td></tr>
+    <tr><td>Computations per step</td><td>2^k per state = 2^K total</td><td>2^N total</td></tr>
+    <tr><td>Memory required</td><td>2^(K−1) paths × decoding depth</td><td>All 2^N paths</td></tr>
+    <tr><td>For K=7 (GSM)</td><td>64 survivors — manageable</td><td>2^N — impossible</td></tr>
+  </table>
+  <div class="hl"><strong>Why practical codes use small K:</strong> Complexity grows exponentially with K. Typical values: K=3 to 9. GSM uses K=5 and K=6. Turbo codes use K=4. For K&gt;9, Viterbi becomes impractically complex and reduced-state decoders are used instead.</div>
+
+  <div class="example">
+    <div class="ex-head">Mini Viterbi Example (n=3, k=1, K=3)</div>
+    <p>Received: 110 010. Start state = 00. All other states initially have metric ∞.</p>
+    <p><strong>Step t1 — received 110:</strong><br>
+    From state 00: input=0 predicts 000 → metric=d(110,000)=2; input=1 predicts 111 → metric=d(110,111)=1<br>
+    State 00 survivor: came from 00 via input=0, metric=2. State 10 survivor: came from 00 via input=1, metric=1.</p>
+    <p><strong>Step t2 — received 010:</strong><br>
+    Update metrics for all reachable states. Keep survivor at each state. Continue until end of trellis, then traceback to recover input bits.</p>
+    <div class="hl">The traceback from minimum-metric final state gives the decoded input sequence — the ML estimate of what was transmitted.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §8.3.3 Viterbi</div>
+    <ol>
+      <li>For the n=3, k=1, K=3 encoder: what are the predicted outputs for all 4 states with input 0, and all 4 states with input 1? (Complete the 8 entries for one trellis step — you'll use this as a lookup table for Viterbi.)</li>
+      <li>Received sequence: 000 111 starting from state 00. Using Viterbi with Hamming distance metric, trace the survivors for each state after step t1. Which state has the lowest metric?</li>
+      <li>A convolutional code has K=7. (a) How many survivor paths does Viterbi maintain? (b) What decoding depth is recommended (n ≥ 5K)? (c) Compare memory requirements to K=3.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> State 00, input 0: S1=0,S2=0,S3=0 → C1=0,C2=0,C3=0 → 000. State 01, input 0: S1=0,S2=0,S3=1 → C1=0,C2=0⊕0⊕1=1,C3=0⊕1=1 → 011. State 10, input 0: S1=0,S2=1,S3=0 → C1=0,C2=0⊕1⊕0=1,C3=0⊕0=0 → 010. State 11, input 0: S1=0,S2=1,S3=1 → C1=0,C2=0⊕1⊕1=0,C3=0⊕1=1 → 001. Input 1: State 00→111, 01→100, 10→101, 11→110.</p>
+      <p><strong>2.</strong> Step t1 received 000. From state 00: input=0 predicts 000 → metric=0; input=1 predicts 111 → metric=3. State 00 survivor (from 00,input=0, metric=0). State 10 survivor (from 00,input=1, metric=3). State 01 and 11: metric=∞ (unreachable yet). Lowest metric state = 00 with metric 0.</p>
+      <p><strong>3.</strong> (a) 2^(K−1) = 2^6 = 64 survivors. (b) Depth ≥ 5×7 = 35 steps. (c) K=3: 2^2=4 survivors × 15 steps = 60 path units of memory. K=7: 64 survivors × 35 steps = 2240 path units — 37× more memory.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 8 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Block code notation</td><td>(n,k): k info bits → n coded bits</td></tr>
+    <tr><td>Code rate</td><td>Rc = k/n</td></tr>
+    <tr><td>Information rate</td><td>Rb = Rc × Rs = (k/n)·Rs</td></tr>
+    <tr><td>Valid codewords</td><td>2^k (selected from 2^n possible)</td></tr>
+    <tr><td>Linear property</td><td>Ci ⊕ Cj = another valid codeword</td></tr>
+    <tr><td>Hamming distance</td><td>d(Ci,Cj) = number of differing bit positions</td></tr>
+    <tr><td>Distance via weight</td><td>d(Ci,Cj) = w(Ci ⊕ Cj)</td></tr>
+    <tr><td>Minimum distance (linear)</td><td>dmin = min weight of all non-zero codewords</td></tr>
+    <tr><td>Error detection</td><td>Detects up to dmin−1 errors</td></tr>
+    <tr><td>Error correction</td><td>Corrects up to t = ⌊(dmin−1)/2⌋ errors</td></tr>
+    <tr><td>Generator matrix encoding</td><td>Ci = Ui · G &nbsp; (mod-2)</td></tr>
+    <tr><td>Systematic generator matrix</td><td>G = [Ik | P]</td></tr>
+    <tr><td>Systematic codeword</td><td>Ci = [u1...uk | p1...p(n-k)]</td></tr>
+    <tr><td>Parity bit formula</td><td>pj = u1·p1j ⊕ u2·p2j ⊕ ... ⊕ uk·pkj</td></tr>
+    <tr><td>Conv. code rate</td><td>Rc = k/n</td></tr>
+    <tr><td>Conv. constraint length</td><td>kK bits</td></tr>
+    <tr><td>Conv. encoder states</td><td>2^(K−1)</td></tr>
+    <tr><td>Viterbi survivors</td><td>2^(K−1) at each trellis step</td></tr>
+    <tr><td>Viterbi decoding depth</td><td>n ≥ 5K steps back</td></tr>
+    <tr><td>Shannon capacity (benchmark)</td><td>C = B·log₂(1+SNR)</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 8 Complete Coverage</h4>
+    <div class="prog-row"><span>§8.1 Why coding, higher-dimensional space, bit error vs burst error</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.1 Pb, Pbl, coding gain, waterfall curve, error floor, channel capacity benchmark</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.1 Rate vs bandwidth trade-off, coded modulation, Euclidean vs Hamming distance</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.1 Interleaving — converts burst errors to scattered, provides diversity in fading</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2 Parity bit, (n,k) code, code rate, linearity property, XOR addition</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2.1 Vector space Bⁿ, subspace conditions, Example 8.1 (A1/A2/A3)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2.1 Hamming distance, codeword weight, d=w(Ci⊕Cj) shortcut, dmin</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2.1 dmin−1 detection, ⌊(dmin−1)/2⌋ correction, safety circle analogy</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2.2 Generator matrix G, Ci=UiG, systematic form G=[Ik|P], parity bit formulas</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.2.2 Example 8.2: (7,4) code — full encoding of U=[1011], hardware implementation</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.3 Convolutional vs block codes, shift register, (n,k,K), constraint length</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.3 Output equations, encoder state, trellis diagram, steady state, Example 8.7</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.3 M0/M1/M2 convention debate — both correct, just different labelling conventions</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§8.3.3 Viterbi: ML decoding, path metric, survivor selection, common stem, decoding delay 5K</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 8 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

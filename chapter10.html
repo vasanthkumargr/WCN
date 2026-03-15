@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 10 — MIMO Systems | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#ffc940;--accent2:#00d4ff;--green:#00e5a0;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .6rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(255,201,64,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(255,201,64,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(255,201,64,.06) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(255,201,64,.1);border:1px solid rgba(255,201,64,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-gr{border-left:3px solid var(--green);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.25rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--accent);font-style:normal;}
+.why{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.2);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--purple);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(180,126,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent2);}
+.cmp-box.c2 h5{color:var(--accent);}
+.hl{background:linear-gradient(135deg,rgba(255,201,64,.07),rgba(0,212,255,.04));border:1px solid rgba(255,201,64,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--green);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-c{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--accent);border:1px solid rgba(255,201,64,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html">Chapter 6</a>
+    <a href="chapter10.html" class="active">Chapter 10</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 10 · MIMO</div>
+  <a href="#mimo-intro" class="sb-link">§10.1 MIMO Model</a>
+  <a href="#mimo-intro" class="sb-link sub">↳ SISO → MIMO</a>
+  <a href="#mimo-intro" class="sb-link sub">↳ y = Hx + n</a>
+  <a href="#mimo-csi" class="sb-link sub">↳ CSIT / CSIR / ZMSW</a>
+  <a href="#mimo-ml" class="sb-link sub">↳ ML Decoding</a>
+  <div class="sb-sep"></div>
+  <a href="#mimo-svd" class="sb-link">§10.2 Parallel Decomp.</a>
+  <a href="#mimo-svd" class="sb-link sub">↳ SVD: H = UΣVᴴ</a>
+  <a href="#mimo-precoding" class="sb-link sub">↳ Precoding & Shaping</a>
+  <a href="#mimo-svd" class="sb-link sub">↳ ỹ = Σx̃ + ñ</a>
+  <a href="#mimo-ex1" class="sb-link sub">↳ Example 10.1</a>
+  <div class="sb-sep"></div>
+  <a href="#mimo-cap" class="sb-link">§10.3 MIMO Capacity</a>
+  <a href="#mimo-cap" class="sb-link sub">↳ Mutual Information</a>
+  <a href="#mimo-cap" class="sb-link sub">↳ Gaussian input optimal</a>
+  <a href="#mimo-cap" class="sb-link sub">↳ Capacity formula</a>
+  <div class="sb-sep"></div>
+  <a href="#mimo-wf" class="sb-link">§10.3.1 Water-Filling</a>
+  <a href="#mimo-wf" class="sb-link sub">↳ Degrees of freedom</a>
+  <a href="#mimo-wf" class="sb-link sub">↳ Pi/P formula</a>
+  <a href="#mimo-wf" class="sb-link sub">↳ Example 10.2</a>
+  <a href="#mimo-simo" class="sb-link sub">↳ SIMO / MISO</a>
+  <div class="sb-sep"></div>
+  <a href="#mimo-uniform" class="sb-link">§10.3 No CSIT</a>
+  <a href="#mimo-uniform" class="sb-link sub">↳ Uniform power</a>
+  <a href="#mimo-outage" class="sb-link sub">↳ Outage capacity</a>
+  <a href="#mimo-linear" class="sb-link sub">↳ Linear growth</a>
+  <a href="#mimo-snr" class="sb-link sub">↳ Low vs High SNR</a>
+  <div class="sb-sep"></div>
+  <a href="#mimo-problems" class="sb-link">✏️ Final Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 10 · Andrea Goldsmith</div>
+    <h1>Multiple Antennas &<br><span>MIMO Systems</span></h1>
+    <p>From single antennas to MIMO magic. SVD decomposition, channel capacity, water-filling power allocation, and why MIMO makes 5G possible.</p>
+    <div class="ph-chips">
+      <a href="#mimo-intro" class="ph-chip">MIMO Model</a>
+      <a href="#mimo-svd" class="ph-chip">SVD</a>
+      <a href="#mimo-cap" class="ph-chip">Capacity</a>
+      <a href="#mimo-wf" class="ph-chip">Water-Filling</a>
+      <a href="#mimo-uniform" class="ph-chip">No CSIT</a>
+      <a href="#mimo-linear" class="ph-chip">Linear Growth</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── §10.1 MIMO MODEL ── -->
+<section class="section" id="mimo-intro">
+  <div class="sec-badge"><span class="dot"></span>Section 10.1</div>
+  <h2>Narrowband MIMO Model</h2>
+  <p class="lead">Why multiple antennas? What do they give us? And how do we write the math for a system with many transmitters and receivers?</p>
+
+  <h3>From SISO to MIMO</h3>
+  <p>Traditional systems have 1 transmit + 1 receive antenna: <span class="pill p-c">SISO</span>. MIMO = Multiple Input Multiple Output.</p>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Multiplexing Gain</h5>
+      <p>Send multiple independent data streams simultaneously. Higher data rate, no extra bandwidth needed.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>Diversity Gain</h5>
+      <p>If one path fades, others stay strong. Improves reliability. (Chapter 7.)</p>
+    </div>
+  </div>
+  <div class="why"><div class="wi">🚀</div><div><strong>Why MIMO created excitement:</strong> Winters, Foschini, Foschini &amp; Gans, and Telatar showed spectral efficiency increases remarkably with multiple antennas — the pioneering works that sparked the MIMO revolution.</div></div>
+
+  <h3>The Core MIMO Equation</h3>
+  <div class="fbox"><span class="fb big">y = Hx + n</span><span class="fl">The fundamental MIMO system model</span></div>
+  <div class="const-wrap"><pre>Dimensions:
+  y  [Mr×1] = received signal vector
+  H  [Mr×Mt] = channel gain matrix
+  x  [Mt×1] = transmitted signal vector
+  n  [Mr×1] = noise vector
+
+Example (Mt=3, Mr=2):
+  y₁ = h₁₁x₁ + h₁₂x₂ + h₁₃x₃ + n₁
+  y₂ = h₂₁x₁ + h₂₂x₂ + h₂₃x₃ + n₂
+  ↑ Every Rx antenna sees a MIX of ALL Tx signals!</pre><div class="const-label">hᵢⱼ = channel gain from transmit antenna j to receive antenna i</div></div>
+
+  <h4>Noise and Power</h4>
+  <p>Noise: complex Gaussian, mean 0, covariance σ²·I<sub>Mr</sub> (σ² = N₀/2). Normalise σ²=1 so ρ = P/σ² = average SNR per receive antenna.</p>
+  <div class="fbox"><span class="fb">Tr(Rx) = ρ &nbsp;&nbsp; where Rx = E[xxᴴ]</span><span class="fl">Power constraint — total transmit power equals ρ · Trace = sum of diagonal = total power</span></div>
+
+  <h3 id="mimo-csi">Channel State Information (CSI)</h3>
+  <table>
+    <tr><th>Type</th><th>Meaning</th><th>How obtained</th></tr>
+    <tr><td><span class="pill p-c">CSIR</span></td><td>Receiver knows H</td><td>Pilot sequences — easy, almost always assumed</td></tr>
+    <tr><td><span class="pill p-g">CSIT</span></td><td>Transmitter knows H</td><td>Feedback from Rx OR channel reciprocity — harder</td></tr>
+    <tr><td><span class="pill p-r">No CSI</span></td><td>Neither side knows H</td><td>Use statistical model</td></tr>
+  </table>
+  <div class="card bl-a">
+    <h4>ZMSW Model</h4>
+    <p>When channel is unknown: <strong>Zero Mean Spatially White</strong> — each hᵢⱼ ~ CN(0,1), i.i.d. This is the Rayleigh fading model. No spatial bias, no correlation.</p>
+    <p><strong>Circularly symmetric</strong>: distribution is unchanged by rotation in complex plane. Implies mean=0, real and imaginary parts i.i.d.</p>
+  </div>
+
+  <h3 id="mimo-ml">ML Decoding Complexity</h3>
+  <p>Signals mix at the receiver. Optimal detection = Maximum Likelihood: try all possible transmitted combinations. Complexity = |X|^Mt — exponential!</p>
+  <div class="warn"><strong>Problem:</strong> Mt=4, 16-QAM (|X|=16) → 16⁴ = 65,536 combinations per received vector. Typically prohibitive. If H is known at transmitter, complexity is dramatically reduced (next section).</div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §10.1</div>
+    <ol>
+      <li>A 4×3 MIMO: how many Tx and Rx antennas? Maximum rank of H?</li>
+      <li>Mt=4, QPSK (|X|=4): what is ML complexity? Why is this problematic?</li>
+      <li>Why is CSIR easier to obtain than CSIT in a real mobile system?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> H is Mr×Mt=4×3 → Mr=4 Rx, Mt=3 Tx. Max rank = min(3,4)=3.</p>
+      <p><strong>2.</strong> 4⁴=256 combinations per vector. Real-time mobile systems can't evaluate 256 candidates per symbol — much worse with more antennas.</p>
+      <p><strong>3.</strong> Receiver sees y=Hx+n. By sending known pilot symbols (x known), it solves for H directly. Transmitter would need H sent back via feedback (adding delay, error, bandwidth overhead) or require channel reciprocity (TDD only).</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §10.2 SVD ── -->
+<section class="section" id="mimo-svd">
+  <div class="sec-badge"><span class="dot"></span>Section 10.2</div>
+  <h2>Parallel Decomposition of the MIMO Channel</h2>
+  <p class="lead">Convert one messy mixed MIMO channel into several clean independent pipes using SVD. This is where MIMO becomes truly powerful.</p>
+
+  <h3>The Key Idea — Multiplexing Gain</h3>
+  <p>A MIMO channel can be transformed into <strong>R<sub>H</sub> independent parallel SISO channels</strong>. Sending R<sub>H</sub> independent streams → R<sub>H</sub>× data rate of SISO.</p>
+  <div class="fbox"><span class="fb">Multiplexing Gain = R_H = rank of H ≤ min(Mt, Mr)</span><span class="fl">The number of independent parallel channels you can create</span></div>
+
+  <h3>Singular Value Decomposition (SVD)</h3>
+  <div class="fbox"><span class="fb big">H = U Σ Vᴴ</span><span class="fl">Eq. (10.2) — Every matrix can be decomposed this way</span></div>
+  <table>
+    <tr><th>Matrix</th><th>Size</th><th>Property</th><th>Role</th></tr>
+    <tr><td><strong>U</strong></td><td>Mr×Mr</td><td>UᴴU = I (unitary)</td><td>Receiver rotation</td></tr>
+    <tr><td><strong>Σ</strong></td><td>Mr×Mt</td><td>Diagonal, σᵢ ≥ 0</td><td>Channel strengths</td></tr>
+    <tr><td><strong>V</strong></td><td>Mt×Mt</td><td>VᴴV = I (unitary)</td><td>Transmitter rotation</td></tr>
+  </table>
+  <div class="const-wrap"><pre>Σ = [σ₁  0   0 ]
+    [0   σ₂  0 ]    σᵢ = √λᵢ (λᵢ = eigenvalue of HHᴴ)
+    [0   0   σ₃]    R_H nonzero singular values</pre><div class="const-label">Singular values reveal how strong each parallel channel is</div></div>
+  <p><strong>Full rank (rich scattering):</strong> R<sub>H</sub> = min(Mt,Mr) — maximum parallel channels. <strong>Low rank (correlated/LOS):</strong> R<sub>H</sub> can drop to 1 even with many antennas.</p>
+
+  <h3 id="mimo-precoding">Transmit Precoding + Receiver Shaping</h3>
+  <div class="cmp">
+    <div class="cmp-box c1"><h5>Tx Precoding</h5><p>Transmit <code>x = V·x̃</code> instead of x̃ directly. Aligns signal with eigen-directions of H.</p></div>
+    <div class="cmp-box c2"><h5>Rx Shaping</h5><p>Compute <code>ỹ = Uᴴ·y</code>. Separates the mixed signals into independent streams.</p></div>
+  </div>
+
+  <h4>Full Derivation</h4>
+  <div class="card bl-b">
+    <p>Start: y = Hx + n &nbsp;→&nbsp; substitute x=Vx̃: y = H(Vx̃) + n</p>
+    <p>Use H=UΣVᴴ: y = UΣVᴴVx̃ + n &nbsp;→&nbsp; since VᴴV=I: y = UΣx̃ + n</p>
+    <p>Multiply by Uᴴ: ỹ = UᴴUΣx̃ + Uᴴn &nbsp;→&nbsp; since UᴴU=I:</p>
+    <div class="fbox"><span class="fb big">ỹ = Σ·x̃ + ñ &nbsp;&nbsp; where ñ = Uᴴn</span><span class="fl">Σ is diagonal → ỹᵢ = σᵢ·x̃ᵢ + ñᵢ — each equation is INDEPENDENT!</span></div>
+    <p><strong>Noise property:</strong> Uᴴ is unitary → it preserves the distribution of n. So n and ñ are identically distributed — the transformation doesn't harm noise statistics.</p>
+  </div>
+  <div class="const-wrap"><pre>After SVD:
+  x̃₁ ──[σ₁]── ỹ₁   (independent SISO, gain σ₁)
+  x̃₂ ──[σ₂]── ỹ₂   (independent SISO, gain σ₂)
+  x̃₃ ──[σ₃]── ỹ₃   (independent SISO, gain σ₃)
+  No interference between streams!</pre></div>
+  <p><strong>Benefits:</strong> R<sub>H</sub>× data rate vs SISO; ML decoding complexity becomes LINEAR in R<sub>H</sub> (not exponential!).</p>
+
+  <div class="example" id="mimo-ex1">
+    <div class="ex-head">Example 10.1 — Finding Parallel Channels (Textbook)</div>
+    <div class="const-wrap"><pre>H = [0.1  0.3  0.7]
+    [0.5  0.4  0.1]
+    [0.2  0.6  0.8]</pre></div>
+    <table>
+      <tr><th>Channel</th><th>σᵢ</th><th>Gain σᵢ²</th><th>Quality</th></tr>
+      <tr><td>1</td><td>1.3333</td><td>1.778</td><td>Strong ✓</td></tr>
+      <tr><td>2</td><td>0.5129</td><td>0.263</td><td>Moderate</td></tr>
+      <tr><td>3</td><td>0.0965</td><td>0.0093</td><td>Very weak ⚠️</td></tr>
+    </table>
+    <p>R<sub>H</sub>=3 → 3 parallel independent channels. Channel 3 is very weak → high error probability or near-zero capacity. Water-filling will allocate it zero power.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §10.2</div>
+    <ol>
+      <li>3×3 full-rank MIMO. How many parallel channels? Multiplexing gain vs SISO?</li>
+      <li>Why does multiplying noise by Uᴴ not change its statistics? What property ensures this?</li>
+      <li>A 4×4 channel has rank 2 (antenna correlation). Max multiplexing gain? What does this mean for data rate?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> R_H=3. Can send 3 independent streams → 3× SISO data rate.</p>
+      <p><strong>2.</strong> Unitary matrix preserves vector length and distribution. If n~CN(0,I), Uᴴn~CN(0,UᴴIU)=CN(0,I) — identical. Key: UᴴU=I preserves covariance.</p>
+      <p><strong>3.</strong> Max gain=2. Only 2 independent streams even with 4 antennas. Data rate=2× SISO. Two degrees of freedom lost — physical spacing and rich scattering are critical.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §10.3 CAPACITY ── -->
+<section class="section" id="mimo-cap">
+  <div class="sec-badge"><span class="dot"></span>Section 10.3</div>
+  <h2>MIMO Channel Capacity</h2>
+  <p class="lead">What is the absolute maximum data rate over a MIMO channel? Shannon's mutual information gives the answer.</p>
+
+  <h3>What is Channel Capacity?</h3>
+  <p><strong>Shannon capacity</strong> = maximum data rate with arbitrarily small BER. Below capacity → reliable. Above capacity → unavoidable errors.</p>
+  <p>For static channels with CSIR, capacity = maximum mutual information over all input distributions:</p>
+  <div class="fbox"><span class="fb">C = max_{p(x)} I(X;Y) = max_{p(x)} [H(Y) − H(Y|X)]</span><span class="fl">Eq. (10.5) · H(Y) = entropy of output · H(Y|X) = H(n) = noise entropy (fixed)</span></div>
+  <p>Since H(Y|X) = H(n) is fixed, maximising I(X;Y) ≡ maximising H(Y) — the randomness in the received signal.</p>
+
+  <h4>Output Covariance Matrix</h4>
+  <div class="fbox"><span class="fb">Ry = H·Rx·Hᴴ + I_{Mr}</span><span class="fl">Eq. (10.6) · Rx = E[xxᴴ] = input covariance · I term = unit noise power</span></div>
+
+  <h4>Gaussian Input is Optimal</h4>
+  <div class="hl"><strong>Key theorem:</strong> Among all vectors with given covariance, Gaussian distribution maximises entropy. So optimal input x must be Zero-Mean Circularly Symmetric Complex Gaussian (ZMCSCG). This maximises H(Y) and hence capacity.</div>
+
+  <h4>Mutual Information Formula</h4>
+  <div class="fbox"><span class="fb big">I(X;Y) = B·log₂·det(I_{Mr} + H·Rx·Hᴴ)</span><span class="fl">Eq. (10.7) — First derived by Foschini &amp; Gans and Telatar. det captures all parallel channel gains as a product.</span></div>
+
+  <h4>MIMO Capacity Formula</h4>
+  <div class="fbox"><span class="fb big">C = max_{Rx: Tr(Rx)=ρ} B·log₂·det(I_{Mr} + H·Rx·Hᴴ)</span><span class="fl">Eq. (10.8) — Optimise over all input covariance matrices satisfying the power constraint</span></div>
+
+  <div class="card bl-gr">
+    <h4>Connection to SVD</h4>
+    <p>Using SVD of H, this simplifies to a sum of SISO capacities:</p>
+    <div class="fbox"><span class="fb">C ≈ Σᵢ B·log₂(1 + SNRᵢ)</span><span class="fl">MIMO capacity = SUM of individual parallel channel capacities</span></div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §10.3</div>
+    <ol>
+      <li>2×2 MIMO with H=I₂ (identity), Rx=(ρ/2)I₂, B=1 Hz. Find I(X;Y) using Eq. (10.7). Compare to SISO.</li>
+      <li>4 parallel channels with SNRs 20 dB, 15 dB, 10 dB, 0 dB. Find total capacity (B=1 Hz each). Compare to SISO with same total power.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> HRxHᴴ=(ρ/2)I₂. I+HRxHᴴ=(1+ρ/2)I₂. det=(1+ρ/2)². I(X;Y)=B·log₂((1+ρ/2)²)=2B·log₂(1+ρ/2). Twice the SISO capacity at half per-channel SNR!</p>
+      <p><strong>2.</strong> C=log₂(101)+log₂(32.6)+log₂(11)+log₂(2)=6.66+5.03+3.46+1=16.15 b/s/Hz. SISO with same total power ρ=142.6: C=log₂(143.6)=7.17. MIMO gives 2.25× more capacity!</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §10.3.1 WATER-FILLING ── -->
+<section class="section" id="mimo-wf">
+  <div class="sec-badge"><span class="dot"></span>Section 10.3.1 — CSIT Known</div>
+  <h2>Channel Known at Transmitter: Water-Filling</h2>
+  <p class="lead">When the transmitter knows H, it can intelligently distribute power across channels. The optimal strategy has a beautiful physical analogy.</p>
+
+  <h3>Capacity with CSIT + CSIR</h3>
+  <div class="fbox"><span class="fb big">C = max_{ρᵢ: Σρᵢ≤ρ} Σᵢ B·log₂(1 + σᵢ²·ρᵢ)</span><span class="fl">Eq. (10.9) — Sum of parallel SISO capacities with optimised power ρᵢ · R_H = degrees of freedom</span></div>
+  <p>Define per-channel SNR at full power: <code>γᵢ = σᵢ²·ρ = σᵢ²·P/σ²</code></p>
+  <div class="fbox"><span class="fb">C = max_{Pᵢ: ΣPᵢ≤P} Σ B·log₂(1 + Pᵢ·γᵢ/P)</span><span class="fl">Eq. (10.10) · High SNR: capacity grows linearly with R_H · Low SNR: put all power on strongest channel</span></div>
+
+  <h3>Water-Filling Solution</h3>
+  <div class="fbox"><span class="fb big">Pᵢ/P = (1/γ₀ − 1/γᵢ) if γᵢ ≥ γ₀, else 0</span><span class="fl">Eq. (10.11) · γ₀ = cutoff "water level" · Channels weaker than γ₀ get ZERO power</span></div>
+
+  <div class="card bl-a">
+    <h4>Why "Water-Filling"?</h4>
+    <div class="const-wrap"><pre>Water Level = 1/γ₀
+────────────────────────
+     ████        ████
+     ████  ████  ████
+████ ████  ████  ████
+ Ch1   Ch2   Ch3   Ch4
+(best)(mid)(weak)(dead)
+  ↑more  ↑some ↑little ↑none
+
+Base height = 1/γᵢ (inverse of channel quality)
+Pour water (total power P) to level 1/γ₀.
+Channels with high bases (weak) get no water!</pre></div>
+    <ul class="nice">
+      <li>Strong channels (large γᵢ) get more power</li>
+      <li>Weak channels get less power</li>
+      <li>Very weak channels (γᵢ &lt; γ₀) get zero power — wasteful to use them</li>
+    </ul>
+  </div>
+
+  <div class="fbox"><span class="fb big">C = Σ_{i: γᵢ≥γ₀} B·log₂(γᵢ/γ₀)</span><span class="fl">Eq. (10.12) — Only active channels contribute</span></div>
+
+  <div class="example" id="mimo-ex2">
+    <div class="ex-head">Example 10.2 — Water-Filling (Textbook): ρ=10 dB, B=1 Hz</div>
+    <p>From Example 10.1: σ₁=1.3333, σ₂=0.5129, σ₃=0.0965. γᵢ = 10·σᵢ²:</p>
+    <table>
+      <tr><th>Channel</th><th>γᵢ</th><th>1/γᵢ</th></tr>
+      <tr><td>1</td><td>17.777</td><td>0.0563</td></tr>
+      <tr><td>2</td><td>2.631</td><td>0.380</td></tr>
+      <tr><td>3</td><td>0.093</td><td>10.74</td></tr>
+    </table>
+    <p><strong>Try 3 channels:</strong> 3/γ₀ = 1+0.0563+0.380+10.74 = 12.175 → γ₀=0.246. But γ₃=0.093 &lt; 0.246 → <strong>Ch3 gets no power!</strong></p>
+    <p><strong>Redo with 2 channels:</strong> 2/γ₀ = 1+0.0563+0.380 = 1.436 → <strong>γ₀=1.392</strong>. Check: γ₂=2.631 &gt; 1.392 ✓</p>
+    <p>P₁/P = 1/1.392−1/17.777 = 0.718−0.056 = <strong>0.662</strong>. P₂/P = 1/1.392−1/2.631 = 0.718−0.380 = <strong>0.338</strong>. P₃/P = 0.</p>
+    <p>C = log₂(17.777/1.392) + log₂(2.631/1.392) = 3.674+0.919 = <strong>4.59 bits/s/Hz</strong></p>
+  </div>
+
+  <h3 id="mimo-simo">SIMO and MISO</h3>
+  <table>
+    <tr><th>System</th><th>Config</th><th>Gain type</th><th>Capacity</th></tr>
+    <tr><td><span class="pill p-c">SIMO</span></td><td>1 Tx, Mr Rx</td><td>Diversity+Array (no multiplexing)</td><td>B·log₂(1+ρ||h||²)</td></tr>
+    <tr><td><span class="pill p-g">MISO</span></td><td>Mt Tx, 1 Rx</td><td>Diversity+Array (no multiplexing)</td><td>B·log₂(1+ρ||h||²)</td></tr>
+  </table>
+  <p>With full CSI, all antennas combine coherently like <strong>MRC</strong>. Optimal weight: c = hᴴ/||h||. Better effective SNR — but no data rate multiplication.</p>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §10.3.1 Water-Filling</div>
+    <ol>
+      <li>3 parallel channels: γ₁=10, γ₂=4, γ₃=0.5. Total ρ=1. Apply water-filling: find γ₀, power fractions, and capacity (B=1 Hz).</li>
+      <li>At very high SNR, water-filling allocates nearly equal power. Why does equal power become optimal at high SNR?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Try 3: 3/γ₀=1+0.1+0.25+2=3.35→γ₀=0.896. γ₃=0.5&lt;0.896→drop ch3. Try 2: 2/γ₀=1+0.1+0.25=1.35→γ₀=1.481. P₁/P=1/1.481−1/10=0.575. P₂/P=1/1.481−1/4=0.425. C=log₂(10/1.481)+log₂(4/1.481)=2.755+1.432=4.19 b/s/Hz.</p>
+      <p><strong>2.</strong> At high SNR, log₂(1+SNR)≈log₂(SNR). Capacity differences between equal and optimal allocation vanish logarithmically. Jensen's inequality penalty becomes negligible. The marginal value of extra power on a strong channel equals the marginal value on a weaker one when both are already at high SNR.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ── §10.3 NO CSIT ── -->
+<section class="section" id="mimo-uniform">
+  <div class="sec-badge"><span class="dot"></span>Section 10.3 — No CSIT</div>
+  <h2>Channel Unknown at Transmitter: Uniform Power</h2>
+  <p class="lead">The most common real-world scenario: receiver knows H, transmitter doesn't. Surprisingly, MIMO still delivers remarkable capacity gains.</p>
+
+  <h3>The Strategy: Equal Power on Every Antenna</h3>
+  <div class="why"><div class="wi">⚖️</div><div><strong>Intuition:</strong> No channel knowledge → no reason to favour any antenna. ZMSW model has no bias. Equal power is optimal for ZMSW channels — proven by Telatar [4].</div></div>
+  <div class="fbox"><span class="fb big">Rx = (ρ/Mt)·I_{Mt}</span><span class="fl">Equal power allocation input covariance · Each antenna gets ρ/Mt · Signals are uncorrelated</span></div>
+  <div class="fbox"><span class="fb">I(x;y) = Σᵢ₌₁^{R_H} B·log₂(1 + γᵢ/Mt)</span><span class="fl">Eq. (10.13) · γᵢ = σᵢ²·ρ · Each channel gets 1/Mt of total power — no per-channel optimisation</span></div>
+
+  <h3 id="mimo-outage">Capacity with Outage</h3>
+  <p>Without CSIT, capacity is a <strong>random variable</strong> — it changes with every channel realisation H. The transmitter doesn't know which rate to use. Solution: pick rate R, accept some probability of failure.</p>
+  <div class="fbox"><span class="fb">Pout = P(B·log₂·det(I + (ρ/Mt)·HHᴴ) &lt; R)</span><span class="fl">Eq. (10.14) — Probability that channel can't support rate R · Depends on eigenvalue distribution of HHᴴ</span></div>
+  <div class="analogy"><strong>Analogy:</strong> Driving on an unknown road — you pick a speed (rate) before seeing the conditions (channel). Too fast on a bad road → crash (outage). Outage probability = how often that happens.</div>
+
+  <h3 id="mimo-linear">The Main Result: Linear Capacity Growth</h3>
+  <p>Using the Law of Large Numbers for random matrices (as Mt → ∞):</p>
+  <div class="fbox"><span class="fb">(1/Mt)·HHᴴ → I_{Mr} &nbsp;&nbsp; as Mt → ∞</span><span class="fl">Eq. (10.15) — Large antenna count → channel matrix converges to a scaled identity</span></div>
+  <div class="fbox"><span class="fb big">C → M·B·log₂(1 + ρ) &nbsp;&nbsp; where M = min(Mt, Mr)</span><span class="fl">★ MIMO capacity grows LINEARLY with number of antennas — even without CSIT!</span></div>
+
+  <div class="hl"><strong>★ The Most Important MIMO Result:</strong> Even without channel knowledge at the transmitter, MIMO capacity grows linearly with M = min(Mt,Mr). Doubling antennas → doubles capacity. No extra bandwidth, no extra power — just more antennas. This is why MIMO is in every 4G/5G/WiFi system.</div>
+
+  <div class="example">
+    <div class="ex-head">Capacity Scaling in Practice</div>
+    <table>
+      <tr><th>System</th><th>M</th><th>Capacity (ρ=10 dB, B=10 MHz)</th></tr>
+      <tr><td>SISO (1×1)</td><td>1</td><td>~34.6 Mbps</td></tr>
+      <tr><td>2×2 MIMO</td><td>2</td><td>~69.2 Mbps</td></tr>
+      <tr><td>4×4 MIMO</td><td>4</td><td>~138.4 Mbps</td></tr>
+      <tr><td>8×8 MIMO</td><td>8</td><td>~276.8 Mbps</td></tr>
+      <tr><td>Massive MIMO (64×64)</td><td>64</td><td>~2.2 Gbps</td></tr>
+    </table>
+  </div>
+
+  <h3 id="mimo-snr">Low SNR vs High SNR</h3>
+  <div class="cmp">
+    <div class="cmp-box c1"><h5>High SNR</h5><p>Capacity limited by degrees of freedom. More antennas → more parallel channels → linear growth: C ∝ M = min(Mt,Mr). Transmit antennas very valuable.</p></div>
+    <div class="cmp-box c2"><h5>Low SNR</h5><p>System is collecting energy. Capacity scales only with receive antennas, INDEPENDENT of Mt. Spreading power over Mt antennas or concentrating in 1 gives same result.</p></div>
+  </div>
+
+  <h4>Demodulation Without CSIT</h4>
+  <p>Without precoding (x=Vx̃), signals remain interfering at the receiver. ML complexity stays exponential: |X|^Mt. Main practical challenge of MIMO without CSIT — managing decoding complexity through algorithms like sphere decoding or linear detectors (ZF, MMSE).</p>
+
+  <h4>Non-Ideal Channels</h4>
+  <ul class="nice">
+    <li><strong>Nonzero mean (strong LOS):</strong> Uniform power is suboptimal — spatial bias should be exploited</li>
+    <li><strong>Non-identity covariance (correlated antennas):</strong> Some directions stronger — equal power wastes resources</li>
+    <li><strong>Dominant direction:</strong> <strong>Beamforming</strong> (Section 10.4) achieves capacity — focuses power like a spotlight</li>
+  </ul>
+</section>
+
+<!-- ── FINAL PROBLEMS ── -->
+<section class="section" id="mimo-problems">
+  <div class="sec-badge"><span class="dot"></span>Comprehensive</div>
+  <h2>Chapter 10 — Final Practice Problems</h2>
+
+  <div class="problem">
+    <div class="prob-head">Set A — SVD + Capacity</div>
+    <ol>
+      <li>2×2 MIMO: σ₁=2, σ₂=0.5, ρ=8 dB=6.31, B=1 Hz. (a) Find γ₁, γ₂. (b) Apply water-filling — which channels get power? (c) Find capacity with water-filling. (d) Find capacity with uniform power. (e) What is the gain from knowing H?</li>
+      <li>Capacity scaling: N×N MIMO at ρ=10 dB, B=1 Hz. Find C for N=1,2,4,8 using C≈N·log₂(1+ρ). At what N does C exceed 20 bits/s/Hz?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> γ₁=4×6.31=25.24. γ₂=0.25×6.31=1.578. (b) Try 2: 2/γ₀=1+1/25.24+1/1.578=1.673→γ₀=1.195. Both γ₁,γ₂&gt;γ₀ ✓. P₁/P=1/1.195−1/25.24=0.797. P₂/P=1/1.195−1/1.578=0.203. (c) C=log₂(25.24/1.195)+log₂(1.578/1.195)=4.40+0.40=4.80 b/s/Hz. (d) Uniform: I=log₂(1+25.24/2)+log₂(1+1.578/2)=log₂(13.62)+log₂(1.789)=3.77+0.84=4.61. (e) WF gain: 4.80−4.61=0.19 b/s/Hz (~4%). Modest gain — WF matters more when channel gains are very unequal.</p>
+      <p><strong>2.</strong> ρ=10. N=1: 3.46. N=2: 6.92. N=4: 13.84. N=8: 27.68. N=6: 20.76 → at N=6 capacity exceeds 20 b/s/Hz. Linear growth confirmed.</p>
+    </div></details>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Set B — CSI Impact and Design</div>
+    <ol>
+      <li>3×3 MIMO: γ₁=15, γ₂=3, γ₃=0.3, ρ=1. (a) Water-filling capacity. (b) Uniform power capacity. (c) Capacity loss from not having CSIT.</li>
+      <li>At very low SNR (ρ=−10 dB=0.1), a 4×4 MIMO is used. Compare: (a) MIMO capacity ≈ M·ρ/ln2. (b) 1×4 SIMO. Are they similar? Why?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Try 3: 3/γ₀=1+1/15+1/3+1/0.3=4.73→γ₀=0.634. γ₃=0.3&lt;0.634→drop. Try 2: 2/γ₀=1+0.067+0.333=1.4→γ₀=1.43. P₁=0.632, P₂=0.366. C=log₂(15/1.43)+log₂(3/1.43)=3.39+1.07=4.46. (b) Uniform: Σlog₂(1+γᵢ/3)=log₂(6)+log₂(2)+log₂(1.1)=2.585+1+0.137=3.72. (c) Loss=4.46−3.72=0.74 b/s/Hz (~20%). Larger gap when channel gains are very unequal.</p>
+      <p><strong>2.</strong> (a) MIMO: 4×0.1/ln2≈0.577 b/s/Hz. (b) SIMO 1×4, ||h||²≈4 (4 unit channels): C=log₂(1+0.1×4)=log₂(1.4)≈0.485 b/s/Hz. Very similar! At low SNR, system focuses on energy collection — spreading power over Mt Tx antennas is equivalent to 1 Tx antenna. Receive diversity matters, transmit diversity barely helps.</p>
+    </div></details>
+  </div>
+
+  <div class="card bl-gr" style="margin-top:2rem;">
+    <h4>✅ Chapter 10 Coverage</h4>
+    <div class="prog-row"><span>§10.1 MIMO model, y=Hx+n, CSIT/CSIR/ZMSW, ML complexity</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§10.2 SVD H=UΣVᴴ, precoding, shaping, ỹ=Σx̃+ñ, Ex. 10.1</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§10.3 Mutual information, Gaussian input optimal, capacity formula</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§10.3.1 Water-filling Pi/P formula, Ex. 10.2, SIMO/MISO</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§10.3 Uniform power, outage capacity, linear growth, low/high SNR</span><span style="color:var(--green)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 10 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

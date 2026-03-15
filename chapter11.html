@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 11 — Equalization | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#00e5a0;--accent2:#00d4ff;--gold:#ffc940;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .6rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(0,229,160,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(0,229,160,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(0,229,160,.06) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-r{border-left:3px solid var(--red);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.2);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--purple);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(180,126,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--red);}
+.cmp-box.c3 h5{color:var(--gold);}
+.hl{background:linear-gradient(135deg,rgba(0,229,160,.07),rgba(0,212,255,.04));border:1px solid rgba(0,229,160,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(0,229,160,.12);color:var(--accent);border:1px solid rgba(0,229,160,.25);}
+.p-b{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.p-p{background:rgba(180,126,255,.12);color:var(--purple);border:1px solid rgba(180,126,255,.25);}
+.flow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:1rem 0;font-size:.85rem;}
+.flow-box{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:.45rem .9rem;color:var(--text);}
+.flow-arrow{color:var(--accent);font-size:1rem;}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html" class="active">Ch.11</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 11 · Equalization</div>
+  <a href="#isi-intro" class="sb-link">§11 Intro — ISI & Delay Spread</a>
+  <a href="#isi-intro" class="sb-link sub">↳ Multipath & ISI</a>
+  <a href="#isi-intro" class="sb-link sub">↳ When ISI is serious</a>
+  <a href="#isi-intro" class="sb-link sub">↳ High data rate problem</a>
+  <a href="#isi-intro" class="sb-link sub">↳ Tx-side solutions</a>
+  <a href="#isi-intro" class="sb-link sub">↳ Training & tracking</a>
+  <div class="sb-sep"></div>
+  <a href="#noise-enhance" class="sb-link">§11.1 Noise Enhancement</a>
+  <a href="#noise-enhance" class="sb-link sub">↳ Y(f) = S(f)H(f)+N(f)</a>
+  <a href="#noise-enhance" class="sb-link sub">↳ Heq = 1/H(f)</a>
+  <a href="#noise-enhance" class="sb-link sub">↳ Spectral null problem</a>
+  <a href="#noise-enhance" class="sb-link sub">↳ Example 11.1</a>
+  <div class="sb-sep"></div>
+  <a href="#eq-types" class="sb-link">§11.2 Equalizer Types</a>
+  <a href="#eq-types" class="sb-link sub">↳ Linear Equalizers</a>
+  <a href="#eq-types" class="sb-link sub">↳ DFE</a>
+  <a href="#eq-types" class="sb-link sub">↳ MLSE</a>
+  <a href="#eq-types" class="sb-link sub">↳ SBS vs Sequence Est.</a>
+  <a href="#eq-types" class="sb-link sub">↳ Transversal vs Lattice</a>
+  <a href="#eq-types" class="sb-link sub">↳ LMS / RLS algorithms</a>
+  <div class="sb-sep"></div>
+  <a href="#folded" class="sb-link">§11.3 Folded Spectrum</a>
+  <a href="#folded" class="sb-link sub">↳ End-to-end system</a>
+  <a href="#folded" class="sb-link sub">↳ y[n] = three terms</a>
+  <a href="#folded" class="sb-link sub">↳ ISI-free condition</a>
+  <a href="#folded" class="sb-link sub">↳ Folded spectrum def.</a>
+  <a href="#folded" class="sb-link sub">↳ Example 11.2</a>
+  <a href="#sinc-deep" class="sb-link sub">↳ sinc, rect & why zeros</a>
+  <div class="sb-sep"></div>
+  <a href="#linear-eq" class="sb-link">§11.4 Linear Equalizers</a>
+  <a href="#linear-eq" class="sb-link sub">↳ Transversal filter</a>
+  <a href="#zf" class="sb-link sub">↳ ZF Equalizer</a>
+  <a href="#zf" class="sb-link sub">↳ Noise in ZF</a>
+  <a href="#zf" class="sb-link sub">↳ FIR approximation</a>
+  <a href="#zf" class="sb-link sub">↳ Example 11.3</a>
+  <a href="#mmse" class="sb-link sub">↳ MMSE Equalizer</a>
+  <div class="sb-sep"></div>
+  <a href="#dfe" class="sb-link">§7.7 DFE (Rappaport)</a>
+  <a href="#dfe" class="sb-link sub">↳ Why DFE exists</a>
+  <a href="#dfe" class="sb-link sub">↳ Forward filter</a>
+  <a href="#dfe" class="sb-link sub">↳ Feedback filter</a>
+  <a href="#dfe" class="sb-link sub">↳ Error propagation</a>
+  <a href="#dfe" class="sb-link sub">↳ DFE vs ZF/Linear</a>
+  <div class="sb-sep"></div>
+  <a href="#adaptive" class="sb-link">§7.3/7.8 Adaptive Eq.</a>
+  <a href="#adaptive" class="sb-link sub">↳ Why adaptive?</a>
+  <a href="#adaptive" class="sb-link sub">↳ LMS algorithm</a>
+  <a href="#adaptive" class="sb-link sub">↳ LMS step-by-step</a>
+  <a href="#adaptive" class="sb-link sub">↳ RLS algorithm</a>
+  <a href="#adaptive" class="sb-link sub">↳ Training vs tracking</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 11 · Andrea Goldsmith</div>
+    <h1>Equalization —<br><span>Fighting Intersymbol Interference</span></h1>
+    <p>From why delay spread creates ISI, to noise enhancement, equalizer types, the folded spectrum, ZF and MMSE equalizer designs, DFE structure, and adaptive equalization algorithms. Every concept built from zero.</p>
+    <div class="ph-chips">
+      <a href="#isi-intro" class="ph-chip">ISI Intro</a>
+      <a href="#noise-enhance" class="ph-chip">Noise Enhancement</a>
+      <a href="#eq-types" class="ph-chip">Equalizer Types</a>
+      <a href="#folded" class="ph-chip">Folded Spectrum</a>
+      <a href="#zf" class="ph-chip">ZF Equalizer</a>
+      <a href="#mmse" class="ph-chip">MMSE</a>
+      <a href="#dfe" class="ph-chip">DFE</a>
+      <a href="#adaptive" class="ph-chip">Adaptive</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     §11 INTRO — ISI & EQUALIZATION
+══════════════════════════════════════ -->
+<section class="section" id="isi-intro">
+  <div class="sec-badge"><span class="dot"></span>Chapter 11 — Introduction</div>
+  <h2>Why Equalization? — Delay Spread and ISI</h2>
+  <p class="lead">Before we study any equalizer design, we need to deeply understand the problem being solved. This section builds the story from the very beginning.</p>
+
+  <h3>Step 1 — The Problem That Starts Everything: Multipath</h3>
+  <p>In wireless communication, a signal transmitted from an antenna does <em>not</em> travel to the receiver through only one path. Instead, it travels through many paths because it reflects from buildings, walls, trees, vehicles, and the ground.</p>
+  <p>This is called <strong>multipath propagation</strong>. Because each path has a different length, the copies of the signal arrive at the receiver at different times.</p>
+
+  <div class="const-wrap"><pre>Transmitter
+     |
+     ├──── direct path ──────────────────► Receiver
+     |
+     └── reflection 1 (longer path) ─────► Receiver (delayed)
+     |
+     └── reflection 2 (even longer) ──────► Receiver (more delayed)
+
+Each copy arrives at a different time!</pre>
+    <div class="const-label">Multipath propagation — the root cause of all ISI problems</div>
+  </div>
+
+  <p>The spread between these arrival times is called the <strong>delay spread</strong> of the channel.</p>
+
+  <h3>Step 2 — What Delay Spread Does to Symbols: ISI</h3>
+  <p>Digital communication sends symbols one after another, each lasting a duration called the <strong>symbol time Ts</strong>. Because of delay spread, the delayed copy of Symbol 1 may still be arriving when Symbol 2 is already being transmitted. At the receiver:</p>
+
+  <div class="const-wrap"><pre>Transmitted:  [Symbol 1]  [Symbol 2]  [Symbol 3]
+                   ↓           ↓           ↓
+At Receiver:  [Symbol 1][delayed1+Symbol2][delayed2+Symbol3]
+                         ↑↑↑
+                    These overlap! Receiver gets confused.</pre>
+    <div class="const-label">Intersymbol Interference (ISI) — previous symbols spill into the current one</div>
+  </div>
+
+  <div class="card bl-a">
+    <h4>Definition — Intersymbol Interference (ISI)</h4>
+    <p>ISI occurs when previous symbols interfere with the current symbol due to channel delay spread. In simple terms: one symbol "spills" into the next.</p>
+  </div>
+
+  <h3>Step 3 — When Does ISI Become Serious?</h3>
+  <p>ISI becomes problematic when the symbol time and the delay spread are on the same order:</p>
+  <div class="fbox">
+    <span class="fb big">Ts ≈ σ_Tm</span>
+    <span class="fl">Ts = symbol duration · σ_Tm = RMS delay spread of the channel</span>
+  </div>
+
+  <table>
+    <tr><th>Condition</th><th>Effect</th><th>ISI?</th></tr>
+    <tr><td><code>Ts ≫ σ_Tm</code></td><td>Symbol lasts much longer than delay spread — delayed copies finish before next symbol begins</td><td><span class="pill p-a">Negligible</span></td></tr>
+    <tr><td><code>Ts ≈ σ_Tm</code></td><td>Delayed signals overlap the next symbol significantly</td><td><span class="pill p-r">Severe</span></td></tr>
+  </table>
+
+  <h3>Step 4 — Why High Data Rate Systems Have More ISI</h3>
+  <div class="why"><div class="wi">📡</div><div>
+    <strong>The key relationship:</strong> Symbol time and data rate are inversely related: Ts = 1/Rs. If data rate increases, symbol duration shrinks. If symbols become very short, the delay spread easily overlaps multiple symbols. This is why the textbook says: <em>"Mitigating delay spread is one of the most challenging hurdles for high-speed wireless data systems."</em>
+  </div></div>
+
+  <div class="example">
+    <div class="ex-head">Real-World Examples from the Textbook</div>
+    <div class="cmp">
+      <div class="cmp-box c1">
+        <h5>Cordless Phones ✓</h5>
+        <p>Indoor, small delay spread, low data rate. Ts ≫ σ_Tm → ISI negligible. <strong>Equalization NOT needed.</strong></p>
+      </div>
+      <div class="cmp-box c2">
+        <h5>IS-136 Digital Cellular ✗</h5>
+        <p>Outdoor, buildings, large delay spread. σ_Tm ≈ Ts → severe ISI. <strong>Equalization REQUIRED.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Step 5 — The Solution: Equalization</h3>
+  <div class="card bl-b">
+    <p><strong>Equalization</strong> is defined as: any signal processing technique used <em>at the receiver</em> to alleviate the ISI problem caused by delay spread.</p>
+    <p>Think of the wireless channel as a distorting filter. The equalizer applies another filter to reverse that distortion:</p>
+  </div>
+  <div class="flow">
+    <div class="flow-box">Clean symbols</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Channel (distorts)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Equalizer (un-distorts)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Recovered symbols</div>
+  </div>
+
+  <h3>Step 6 — Signal Processing at the Transmitter (Alternative Approaches)</h3>
+  <p>Instead of fixing the problem at the receiver, we can also design the transmitted signal more cleverly:</p>
+  <table>
+    <tr><th>Technique</th><th>Idea</th><th>Where studied</th></tr>
+    <tr><td><span class="pill p-a">Equalization</span></td><td>Receiver-side filter to undo channel distortion</td><td>Chapter 11 (this chapter)</td></tr>
+    <tr><td><span class="pill p-b">Multicarrier (OFDM)</span></td><td>Split data into many slow streams → longer symbol time → less ISI</td><td>Chapter 12</td></tr>
+    <tr><td><span class="pill p-g">Spread Spectrum</span></td><td>Spread signal across wide bandwidth → multipath effects less harmful</td><td>Chapter 13</td></tr>
+  </table>
+
+  <h3>Step 7 — The New Problem: Noise Enhancement</h3>
+  <div class="warn">
+    <strong>Critical trade-off:</strong> The received signal contains signal + noise. When the equalizer processes the received signal to remove ISI, it processes the noise too — and can amplify it. This is called <strong>noise enhancement</strong>. Equalizer design must always balance ISI removal against noise amplification.
+  </div>
+
+  <h3>Step 8 — The Channel Must Be Learned: Training and Tracking</h3>
+  <p>An equalizer must know how the channel distorts the signal (the channel impulse or frequency response). But wireless channels change over time due to user movement and environment changes.</p>
+
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Training</h5>
+      <p>Transmitter sends <em>known symbols</em>. Receiver compares sent vs received to estimate the channel. Like a calibration step.</p>
+    </div>
+    <div class="cmp-box c3">
+      <h5>Tracking</h5>
+      <p>After training, the equalizer continuously updates its channel estimate as the channel changes.</p>
+    </div>
+  </div>
+
+  <p>When the equalizer automatically updates itself based on changing channel conditions, it is called <strong>Adaptive Equalization</strong>.</p>
+
+  <h3>Step 9 — Where Is the Equalizer Implemented?</h3>
+  <p>An equalizer can operate at baseband, carrier frequency, or intermediate frequency (IF). Most modern equalizers are <strong>implemented digitally after A/D conversion</strong> because such filters are:</p>
+  <ul class="nice">
+    <li>Small and cheap in hardware</li>
+    <li>Easily tunable (just change tap weights in software)</li>
+    <li>Very power efficient</li>
+    <li>Programmable — same hardware, different algorithms</li>
+  </ul>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11 Introduction</div>
+    <ol>
+      <li>A system operates outdoors where σ_Tm = 5 μs. If the symbol rate is 200 kbps, does equalization seem necessary? What about at 10 Mbps?</li>
+      <li>Explain the difference between equalizer training and equalizer tracking. When would tracking be harder than training?</li>
+      <li>Why is OFDM an alternative to equalization for handling ISI? What property of OFDM reduces ISI?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> At 200 kbps: Ts = 1/200,000 = 5 μs. σ_Tm = Ts → ISI is significant, equalization likely needed. At 10 Mbps: Ts = 0.1 μs ≪ σ_Tm = 5 μs → severe ISI, equalization absolutely required (delay spread is 50× longer than symbol time).</p>
+      <p><strong>2.</strong> Training: transmitter sends pilot (known) symbols; receiver uses the known sequence to estimate H once. Tracking: after training, the channel may change (user moves, environment changes) so the equalizer must keep updating its estimate using decision-directed feedback. Tracking is harder when the channel changes faster than the equalizer can update (high mobility or high Doppler).</p>
+      <p><strong>3.</strong> OFDM splits one high-speed data stream into many parallel low-speed streams transmitted on different subcarriers. Each subcarrier has a much longer symbol time (N times longer for N subcarriers). Since Ts ≫ σ_Tm per subcarrier, each experiences flat fading (no ISI) rather than frequency-selective fading. A simple one-tap equalizer per subcarrier is then sufficient instead of a complex time-domain equalizer.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §11.1 NOISE ENHANCEMENT
+══════════════════════════════════════ -->
+<section class="section" id="noise-enhance">
+  <div class="sec-badge"><span class="dot"></span>Section 11.1</div>
+  <h2>Equalizer Noise Enhancement</h2>
+  <p class="lead">The goal of equalization is to remove ISI — but trying too hard creates a new problem. Removing ISI can amplify noise so severely that the system performs worse than with ISI.</p>
+
+  <h3>Step 1 — The Received Signal Model</h3>
+  <p>The transmitted signal <code>s(t)</code> passes through a channel with frequency response <code>H(f)</code>. At the receiver, white Gaussian noise <code>n(t)</code> is added. So the received signal in the frequency domain is:</p>
+  <div class="fbox">
+    <span class="fb big">Y(f) = S(f)·H(f) + N(f)</span>
+    <span class="fl">Received = (signal distorted by channel) + noise · N(f) = white noise with PSD N₀/2</span>
+  </div>
+  <p>If the bandwidth of <code>s(t)</code> is B, the noise power within the signal bandwidth is:</p>
+  <div class="fbox">
+    <span class="fb">Noise power (before equalization) = N₀ · B</span>
+    <span class="fl">Total noise power = PSD × bandwidth = (N₀/2) × 2B = N₀B (two-sided to one-sided)</span>
+  </div>
+
+  <h3>Step 2 — The Ideal (Perfect) Equalizer</h3>
+  <p>To completely remove ISI, we want to undo the channel distortion. If the channel applies <code>H(f)</code>, we design an equalizer that applies the inverse:</p>
+  <div class="fbox">
+    <span class="fb big">H_eq(f) = 1 / H(f)</span>
+    <span class="fl">Channel inverse equalizer — perfectly cancels H(f) since H(f) × (1/H(f)) = 1</span>
+  </div>
+
+  <h3>Step 3 — What Happens After Equalization</h3>
+  <p>Multiply the received signal Y(f) by the equalizer:</p>
+  <div class="card bl-b">
+    <p>[S(f)·H(f) + N(f)] × (1/H(f))</p>
+    <p>= S(f)·H(f)/H(f) + N(f)/H(f)</p>
+    <div class="fbox"><span class="fb">= S(f) + N'(f) &nbsp;&nbsp; where N'(f) = N(f)/H(f)</span><span class="fl">Eq. (11.1) — ISI is completely removed ✓ but noise is modified!</span></div>
+    <p>The new noise N'(f) is now <strong>colored noise</strong> with power spectral density:</p>
+    <div class="fbox"><span class="fb">PSD of N'(f) = (N₀/2) / |H(f)|²</span></div>
+  </div>
+
+  <div class="why"><div class="wi">🎨</div><div>
+    <strong>Why "colored" noise?</strong> Original noise N(f) had equal power at all frequencies — that's white noise. After dividing by H(f), the noise power varies with frequency — different "colors" at different frequencies. Where |H(f)| is small, the noise power 1/|H(f)|² becomes large.
+  </div></div>
+
+  <h3>Step 4 — The Spectral Null Disaster</h3>
+  <p>Suppose the channel has a <strong>spectral null</strong> at some frequency f₀:</p>
+  <div class="fbox">
+    <span class="fb">H(f₀) = 0 for some f₀ within signal bandwidth</span>
+    <span class="fl">A spectral null means the channel completely kills that frequency</span>
+  </div>
+  <p>Then the equalizer at that frequency becomes:</p>
+  <div class="fbox">
+    <span class="fb">H_eq(f₀) = 1/H(f₀) = 1/0 = ∞</span>
+  </div>
+  <div class="warn">
+    <strong>Catastrophe:</strong> The equalizer must amplify f₀ infinitely to "restore" it. But the original signal at f₀ is zero — there's nothing to restore. What gets amplified to infinity? <strong>Noise.</strong> The noise power becomes infinite. Even without a full spectral null, if H(f) is just very small at some frequency, the equalizer amplifies noise enormously there.
+  </div>
+
+  <h3>Step 5 — The Fundamental Trade-off</h3>
+  <div class="hl">
+    <strong>★ The core principle of all equalizer design:</strong> The goal of equalization is NOT simply to remove all ISI. It is to <em>balance</em> ISI mitigation with maximising the SNR of the post-equalization signal. Complete channel inversion = zero ISI but potentially infinite noise → terrible performance.
+  </div>
+
+  <table>
+    <tr><th>Equalizer Type</th><th>ISI removal</th><th>Noise enhancement</th><th>Practical performance</th></tr>
+    <tr><td>Perfect channel inverse</td><td>Complete</td><td>Potentially infinite</td><td>Can be terrible</td></tr>
+    <tr><td>Linear (partial inversion)</td><td>Good</td><td>Significant</td><td>Moderate</td></tr>
+    <tr><td>Nonlinear (DFE)</td><td>Good</td><td>Much less</td><td>Better</td></tr>
+    <tr><td>MLSE</td><td>Optimal</td><td>Does not invert</td><td>Best</td></tr>
+  </table>
+
+  <div class="example">
+    <div class="ex-head">Example 11.1 — How Bad Can Noise Enhancement Get? (Textbook)</div>
+    <p>Channel: <code>H(f) = 1/√|f|</code> for |f| &lt; B, B = 30 kHz. Noise PSD = N₀/2.</p>
+    <p><strong>Without equalization:</strong> Noise power = N₀·B = N₀ × 30,000 = <strong>3×10⁴·N₀</strong></p>
+    <p><strong>With channel-inverse equalizer:</strong> H_eq(f) = 1/H(f) = √|f|. New noise PSD = (N₀/2)·|H_eq(f)|² = (N₀/2)·|f|.</p>
+    <p>Total noise power = ∫₋B^B (N₀/2)·|f| df = (N₀/2)·B² = (N₀/2)·(30000)² = <strong>4.5×10⁸·N₀</strong></p>
+    <div class="hl"><strong>Noise increased by more than 10,000× (four orders of magnitude)!</strong> The equalizer amplified noise by a factor of 4.5×10⁸ / 3×10⁴ = 15,000. This system would perform catastrophically worse with the equalizer than without it — despite having zero ISI.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11.1</div>
+    <ol>
+      <li>A channel has H(f) = 0.1 at frequency f = 5 kHz (within signal bandwidth). What is the noise amplification factor at that frequency from a channel-inverse equalizer?</li>
+      <li>Explain why nonlinear equalizers (like DFE) suffer less from noise enhancement than linear equalizers. What is the key difference in their approach?</li>
+      <li>If a channel has a spectral null at f₀ = 3 kHz, a channel-inverse equalizer would amplify noise to infinity there. What practical solutions exist for this problem?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> H_eq(f) = 1/0.1 = 10. Noise power amplification = |H_eq|² = 100 (20 dB). The equalizer amplifies noise 100× at that frequency.</p>
+      <p><strong>2.</strong> Linear equalizers work by approximately inverting H(f). Where H(f) is small, the inverse is large → noise amplification. Nonlinear equalizers (like DFE) don't directly invert H(f). Instead they use already-decided symbols to cancel known ISI. They don't need to amplify the received signal at weakened frequencies — they subtract the known ISI contribution directly, avoiding the noise amplification problem.</p>
+      <p><strong>3.</strong> Practical solutions: (a) MMSE equalizer — instead of 1/H(f), use H*(f)/(|H(f)|² + N₀/signal_power), which "regularises" the inversion and prevents infinite amplification. (b) Decision Feedback Equalizer — avoids inversion entirely. (c) Constrain equalizer taps to limit maximum gain at any frequency. (d) Diversity techniques to avoid deep fades causing spectral nulls.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §11.2 EQUALIZER TYPES
+══════════════════════════════════════ -->
+<section class="section" id="eq-types">
+  <div class="sec-badge"><span class="dot"></span>Section 11.2</div>
+  <h2>Equalizer Types</h2>
+  <p class="lead">There are many kinds of equalizers. This section gives the full map — what they are, how they differ, and the key trade-offs between them.</p>
+
+  <h3>The Big Picture — Two Main Categories</h3>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Linear Equalizers</h5>
+      <p>Use a linear filter. Simplest to implement and understand. Output is a weighted sum of received samples. Trade-off: suffer more noise enhancement than nonlinear methods.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>Nonlinear Equalizers</h5>
+      <p>Use additional processing (decision feedback, sequence estimation). More complex but much less noise enhancement. Better BER performance.</p>
+    </div>
+  </div>
+
+  <div class="const-wrap"><pre>EQUALIZER TAXONOMY
+══════════════════════════════════
+         Equalizers
+              │
+    ┌─────────┴────────┐
+  Linear           Nonlinear
+    │                   │
+Transversal         ┌───┴───┐
+Lattice            DFE    MLSE
+    │
+ Tap update algorithms:
+  LMS / RLS / Fast-RLS / √-RLS
+══════════════════════════════════</pre>
+    <div class="const-label">Figure 11.2 from the textbook — equalizer types, structures and algorithms</div>
+  </div>
+
+  <h3>Linear Equalizers — Details</h3>
+  <p>A linear equalizer uses a linear filter: the output is simply a weighted sum of delayed received samples:</p>
+  <div class="fbox">
+    <span class="fb">output = w₀·y(k) + w₁·y(k−1) + w₂·y(k−2) + ···</span>
+    <span class="fl">y(k) = received sample · wᵢ = tap weights (tunable)</span>
+  </div>
+  <p>They are: ✓ simple to implement, ✓ easy to understand, ✓ computationally light. But: they try to invert the channel → significant noise enhancement.</p>
+
+  <h3>DFE — Decision Feedback Equalizer</h3>
+  <p>DFE is the most widely used nonlinear equalizer. Instead of inverting the channel, it:</p>
+  <ol style="padding-left:1.2rem; color:var(--text); margin-bottom:1rem;">
+    <li>Detects (decides) previous symbols</li>
+    <li>Uses those decisions to subtract their interference from the current sample</li>
+  </ol>
+  <div class="const-wrap"><pre>Received signal
+       │
+ Forward filter (removes pre-cursor ISI)
+       │
+ Decision device → detected symbol
+       │                   │
+       │          Feedback filter
+       │      (subtracts post-cursor ISI)
+       └─────────────────────┘</pre>
+    <div class="const-label">DFE structure — forward filter + feedback loop through decision device</div>
+  </div>
+
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>DFE Advantages</h5>
+      <p>Much less noise enhancement than linear equalizers. Good BER performance. Moderate complexity — widely used in practice.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>DFE Weakness: Error Propagation</h5>
+      <p>If a symbol is detected incorrectly, that wrong value is fed back → creates new interference → next symbol may also be wrong → chain reaction. Especially bad at low SNR.</p>
+    </div>
+  </div>
+
+  <h3>MLSE — Maximum Likelihood Sequence Estimation</h3>
+  <div class="card bl-g">
+    <p><strong>MLSE</strong> is the optimal equalizer. Instead of detecting symbols one-by-one, MLSE detects the <em>entire sequence</em> of symbols. It finds the sequence that most likely produced the received signal, considering ISI + noise + channel behaviour together.</p>
+    <p>Result: <strong>The best possible BER</strong> — it cannot be beaten by any other equalizer.</p>
+    <p>However: complexity grows <strong>exponentially</strong> with delay spread length. If channel length = L and alphabet size = M, complexity = M^L. This makes MLSE impractical for most real channels. It is used as a <strong>performance benchmark</strong> — other equalizers are compared against MLSE BER.</p>
+  </div>
+
+  <h3>Second Classification: SBS vs Sequence Estimators</h3>
+  <table>
+    <tr><th>Type</th><th>How it detects</th><th>Examples</th></tr>
+    <tr><td><span class="pill p-a">Symbol-by-Symbol (SBS)</span></td><td>Removes ISI from each symbol, then detects each symbol individually</td><td>All linear equalizers, DFE</td></tr>
+    <tr><td><span class="pill p-b">Sequence Estimators (SE)</span></td><td>Detects entire sequences of symbols — ISI is part of the estimation process</td><td>MLSE</td></tr>
+  </table>
+
+  <h3>Equalizer Structures</h3>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Transversal (Tapped Delay Line)</h5>
+      <p>N−1 delay elements + N tunable weights. Simple, flexible, easy to implement digitally. Used in most real systems. <strong>This chapter focuses on transversal.</strong></p>
+    </div>
+    <div class="cmp-box c3">
+      <h5>Lattice Filter</h5>
+      <p>More complex recursive structure. Better numerical stability and faster convergence. More flexible length changes. Higher complexity — less common in practice.</p>
+    </div>
+  </div>
+
+  <div class="const-wrap"><pre>Transversal Filter (Tapped Delay Line):
+
+y(k) → [z⁻¹] → [z⁻¹] → [z⁻¹] → ...
+  │        │        │        │
+  w₀       w₁       w₂       w₃
+   \        \        \       /
+    ─────────────────────────
+                   SUM
+                    │
+                 output</pre>
+    <div class="const-label">z⁻¹ = unit delay · wᵢ = tap weight coefficient</div>
+  </div>
+
+  <h3>Tap Update Algorithms</h3>
+  <p>Adaptive equalizers update tap weights continuously as the channel changes. Different algorithms trade off complexity, convergence speed, and numerical stability:</p>
+  <table>
+    <tr><th>Algorithm</th><th>Complexity</th><th>Convergence Rate</th><th>Stability</th></tr>
+    <tr><td><span class="pill p-a">LMS</span> (Least Mean Squares)</td><td>Low — O(N)</td><td>Slower</td><td>Good</td></tr>
+    <tr><td><span class="pill p-b">RLS</span> (Recursive Least Squares)</td><td>High — O(N²)</td><td>Much faster</td><td>Can have issues</td></tr>
+    <tr><td><span class="pill p-g">Fast RLS</span></td><td>Medium — O(N)</td><td>Fast</td><td>Moderate</td></tr>
+    <tr><td><span class="pill p-p">Square-Root LS</span></td><td>Higher</td><td>Fast</td><td>Excellent</td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11.2</div>
+    <ol>
+      <li>Compare ZF linear equalizer vs DFE in terms of noise enhancement and error propagation. Under what channel conditions would you prefer each?</li>
+      <li>Why is MLSE considered optimal? Why is it usually not used in practical systems?</li>
+      <li>A channel has delay spread equivalent to L=5 symbol periods. Alphabet size M=4 (QPSK). What is the MLSE complexity? At what point does this become impractical?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> ZF: inverts channel completely → potentially large noise enhancement, especially at attenuated frequencies. No error propagation (no feedback). Prefer when SNR is high and channel is well-behaved. DFE: uses decisions to cancel ISI — much less noise enhancement. But error propagation occurs at low SNR when decisions are wrong. Prefer DFE at moderate-high SNR for typical wireless channels.</p>
+      <p><strong>2.</strong> MLSE is optimal because it uses all available information — it considers the entire sequence jointly with the channel model and noise statistics, not just isolated symbols. In practice: MLSE complexity = M^L. For L=10 taps and M=4: 4^10 = ~1 million states to evaluate per received sample, for every sample in real time. For a 1 Mbps system processing 10^6 samples/second, this is 10^12 operations/second — far beyond real-time capability.</p>
+      <p><strong>3.</strong> MLSE complexity = M^L = 4^5 = 1024 states. For comparison: L=10 → 4^10 ≈ 1 million. L=15 → 4^15 ≈ 10^9. Practical limit is usually L ≤ 5–6 for MLSE. Beyond that, reduced-state MLSE or DFE is used instead.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §11.3 FOLDED SPECTRUM
+══════════════════════════════════════ -->
+<section class="section" id="folded">
+  <div class="sec-badge"><span class="dot"></span>Section 11.3</div>
+  <h2>Folded Spectrum and ISI-Free Transmission</h2>
+  <p class="lead">Before designing equalizers, we ask: when is a system naturally free from ISI? This section derives the exact condition — in both time and frequency domains. It leads to the famous Nyquist criterion.</p>
+
+  <h3>Step 1 — The End-to-End System Model</h3>
+  <p>The full signal path from transmitter to receiver (equivalent lowpass representation) looks like this:</p>
+
+  <div class="flow">
+    <div class="flow-box">d_k symbols</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Pulse shape g(t)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Channel c(t)</div>
+    <div class="flow-arrow">+n(t)</div>
+    <div class="flow-box">Matched filter g*_m(−t)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Sampler (A/D)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Equalizer</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Decision device</div>
+  </div>
+
+  <h4>Each Block Explained</h4>
+  <table>
+    <tr><th>Block</th><th>Symbol</th><th>Purpose</th><th>Controlled by</th></tr>
+    <tr><td>Input symbols</td><td>d_k</td><td>Information to send</td><td>—</td></tr>
+    <tr><td>Pulse shaping filter</td><td>g(t)</td><td>Controls bandwidth, reduces adjacent-channel interference</td><td>System designer ✓</td></tr>
+    <tr><td>Channel</td><td>c(t)</td><td>Introduces multipath, fading, delay spread</td><td>Nature — NOT controllable ✗</td></tr>
+    <tr><td>Matched filter</td><td>g*_m(−t)</td><td>Maximises SNR before sampling</td><td>Designer (ideally matches h(t)=g*c)</td></tr>
+    <tr><td>Sampler</td><td>A/D at rate 1/Ts</td><td>Converts continuous to discrete time</td><td>—</td></tr>
+  </table>
+
+  <h4>Combined Channel Response</h4>
+  <p>The combined channel = pulse shape + physical channel: <code>h(t) = g(t) * c(t)</code>. The composite response including matched filter:</p>
+  <div class="fbox">
+    <span class="fb">f(t) ≜ g(t) * c(t) * g*_m(−t)</span>
+    <span class="fl">Eq. (11.2) — f(t) is the total system response from symbol input to equalizer input · * = convolution</span>
+  </div>
+
+  <h4>Why Not Always Match to h(t)?</h4>
+  <p>Ideally, <code>g_m(t) = h(t)</code> maximises SNR. But since c(t) changes over time and analog filters aren't easily tunable, designers often set <code>g_m(t) = g(t)</code> (matched to the pulse only). This is suboptimal when <code>c(t) ≠ δ(t)</code> — it can cause sensitivity to timing errors. One solution: <strong>fractionally spaced equalization</strong> — sample at rate faster than 1/Ts, then let the digital equalizer handle the mismatch.</p>
+
+  <h3>Step 2 — The Discrete-Time Signal y[n]</h3>
+  <p>The matched filter output: <code>y(t) = Σ_k d_k · f(t − kTs) + n_g(t)</code> (Eq. 11.3)</p>
+  <p>Sampling at rate 1/Ts gives the discrete-time signal:</p>
+  <div class="fbox">
+    <span class="fb big">y[n] = d_n·f[0] + Σ_{k≠n} d_k·f[n−k] + ν[n]</span>
+    <span class="fl">Eq. (11.4) — Three terms: desired symbol, ISI, noise · f[n] = f(nTs) = samples of f(t)</span>
+  </div>
+
+  <table>
+    <tr><th>Term</th><th>Expression</th><th>What it is</th></tr>
+    <tr><td>1st</td><td>d_n · f[0]</td><td>The desired symbol we want to detect</td></tr>
+    <tr><td>2nd</td><td>Σ_{k≠n} d_k · f[n−k]</td><td>ISI — interference from all other symbols</td></tr>
+    <tr><td>3rd</td><td>ν[n]</td><td>Sampled noise</td></tr>
+  </table>
+
+  <h3>Step 3 — The Condition for Zero ISI</h3>
+  <p>ISI disappears when the second term = 0. This requires f[n−k] = 0 for all k ≠ n, i.e.:</p>
+  <div class="fbox">
+    <span class="fb big">f[k] = δ[k] · f[0]</span>
+    <span class="fl">ISI-free time-domain condition: f[0] is nonzero, f[k] = 0 for all k ≠ 0</span>
+  </div>
+  <p>When this holds, y[n] = d_n · f[0] + ν[n] — only the desired symbol plus noise. No ISI!</p>
+
+  <div class="const-wrap"><pre>Ideal f[k] for zero ISI:
+
+... 0   0   f[0]   0   0   0 ...
+           (only one nonzero sample)
+
+Impulse response samples at Ts, 2Ts, 3Ts... must ALL be zero!</pre></div>
+
+  <h3>Step 4 — The Folded Spectrum</h3>
+  <p>The frequency-domain equivalent of the ISI-free condition is much more intuitive to work with:</p>
+  <div class="fbox">
+    <span class="fb big">F̃(f) ≜ (1/Ts) · Σ_{n=−∞}^{∞} F(f + n/Ts)</span>
+    <span class="fl">Eq. (11.5) — The Folded Spectrum · F(f) = Fourier transform of f(t) · periodic with period 1/Ts</span>
+  </div>
+
+  <div class="why"><div class="wi">📂</div><div>
+    <strong>Why "folded"?</strong> The spectrum F(f) is shifted by multiples of 1/Ts and added together — like folding a piece of paper repeatedly. The result is periodic with period 1/Ts.
+  </div></div>
+
+  <div class="card bl-a">
+    <h4>The Key Theorem: Flat Folded Spectrum ↔ No ISI</h4>
+    <p>A transmission is ISI-free <strong>if and only if</strong> the folded spectrum is flat (constant):</p>
+    <div class="fbox"><span class="fb big">F̃(f) = f[0] (constant) ↔ f[k] = δ[k]·f[0]</span></div>
+    <p>This is the <strong>Nyquist ISI-free condition</strong> in the frequency domain. It forms the foundation of all Nyquist pulse shaping (raised cosine, root raised cosine filters).</p>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 11.2 — Sinc Pulse Is ISI-Free (Textbook)</div>
+    <p>Given: <code>f(t) = sinc(t/Ts)</code>. Is this ISI-free?</p>
+    <p><strong>Step 1 — Find F(f):</strong> Using the Fourier transform pair sinc(t) ↔ rect(f) and the time-scaling property:</p>
+    <div class="fbox"><span class="fb">F(f) = Ts · rect(f·Ts)</span><span class="fl">Rectangle of height Ts, width 1/Ts, centred at f=0</span></div>
+    <p>Explicitly (applying the rect definition):</p>
+    <div class="fbox">
+      <span class="fb">F(f) = Ts for |f| &lt; 0.5/Ts · F(f) = Ts/2 for |f| = 0.5/Ts · F(f) = 0 for |f| &gt; 0.5/Ts</span>
+      <span class="fl">The 0.5Ts boundary value comes from rect(x)=1/2 at |x|=1/2 (Dirichlet convention)</span>
+    </div>
+    <p><strong>Step 2 — Compute folded spectrum:</strong></p>
+    <p>F(f) has width exactly 1/Ts and the shifts are by 1/Ts — so shifted copies tile the frequency axis perfectly with no gaps and no overlaps. At any frequency f, exactly ONE shifted rectangle contributes value Ts:</p>
+    <div class="fbox"><span class="fb">F̃(f) = (1/Ts) × Ts = 1 = constant ✓</span><span class="fl">Folded spectrum is flat → system is ISI-free!</span></div>
+    <p><strong>Time-domain verification:</strong> <code>f(nTs) = sinc(n) = 1 for n=0, 0 for n≠0</code> → f[k] = δ[k] ✓</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11.3 Folded Spectrum</div>
+    <ol>
+      <li>A system has combined response f(t) = sinc(t/Ts)·cos(πt/Ts). Without computing the full Fourier transform, explain why this might NOT be ISI-free. (Hint: what does multiplication by cosine do in frequency domain?)</li>
+      <li>Explain in simple terms: why does a rectangular frequency spectrum (bandlimited to 1/(2Ts)) lead to zero ISI at all sampling instants?</li>
+      <li>A channel response f(t) has F(f) = 2Ts·rect(2f·Ts) (twice as wide). Compute the folded spectrum and determine if the system is ISI-free.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Multiplying by cos(πt/Ts) in time = convolution with two shifted delta functions in frequency. F_new(f) = (1/2)[F(f − 1/(2Ts)) + F(f + 1/(2Ts))]. This shifts the rectangular spectrum to centre at ±1/(2Ts). Now the shifted copies in the folded spectrum may not tile perfectly — they likely overlap or have gaps. If they don't tile to a constant, the folded spectrum isn't flat → ISI exists.</p>
+      <p><strong>2.</strong> If F(f) is a rectangle of width 1/Ts, then when we shift it by 1/Ts, 2/Ts, 3/Ts... each shifted copy exactly fills the gap left by the previous one. One copy covers [-1/(2Ts), 1/(2Ts)], the next covers [1/(2Ts), 3/(2Ts)], etc. Their sum is constant everywhere — a perfect tiling of the frequency axis. This flatness means each symbol's contribution at other sampling instants is zero (Nyquist criterion).</p>
+      <p><strong>3.</strong> F(f) = 2Ts·rect(2fTs) → width = 1/Ts (same as before, just shifted scaling). At any f, computing F̃(f) = (1/Ts)·ΣF(f+n/Ts): Each shifted copy has height 2Ts and width 1/(2Ts)·2 = 1/Ts... actually F(f) = 2Ts for |f| &lt; 1/(4Ts). Width = 1/(2Ts). Shifts are by 1/Ts. Since 1/(2Ts) &lt; 1/Ts, there are gaps between copies → F̃(f) is NOT constant (= 2Ts·(1/(2Ts))/(1/Ts) ×(1/Ts) = ... need numerical check). Width 1/(2Ts) &lt; shift 1/Ts → gaps → NOT ISI-free.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SINC DEEP DIVE
+══════════════════════════════════════ -->
+<section class="section" id="sinc-deep">
+  <div class="sec-badge"><span class="dot"></span>Deep Dive</div>
+  <h2>Understanding sinc, rect, and Why sinc(n) = 0</h2>
+  <p class="lead">These are the most frequently asked follow-up questions about Section 11.3. Every step explained clearly.</p>
+
+  <h3>Why sinc(n) = 0 for n ≠ 0</h3>
+  <p>The sinc function is defined as:</p>
+  <div class="fbox">
+    <span class="fb">sinc(x) = sin(πx) / (πx)</span>
+  </div>
+  <p>Substitute x = n (an integer):</p>
+  <div class="fbox">
+    <span class="fb">sinc(n) = sin(πn) / (πn)</span>
+  </div>
+  <p><strong>Numerator:</strong> sin(πn) = 0 for ALL integers n. This is because sin(kπ) = 0 for any integer k.</p>
+  <p>Examples: sin(π) = 0, sin(2π) = 0, sin(3π) = 0, sin(−2π) = 0.</p>
+  <p><strong>Denominator:</strong> πn ≠ 0 when n ≠ 0.</p>
+  <p>So: sinc(n) = 0/πn = 0 for all n ≠ 0. ✓</p>
+
+  <h4>What About n = 0?</h4>
+  <div class="fbox">
+    <span class="fb">sinc(0) = lim_{x→0} sin(πx)/(πx) = 1</span>
+    <span class="fl">Using L'Hôpital's rule or the standard limit lim_{θ→0} sin(θ)/θ = 1</span>
+  </div>
+  <div class="const-wrap"><pre>sinc(n) values:
+  n = -3: sinc(-3) = 0
+  n = -2: sinc(-2) = 0
+  n = -1: sinc(-1) = 0
+  n =  0: sinc( 0) = 1  ← only nonzero value
+  n =  1: sinc( 1) = 0
+  n =  2: sinc( 2) = 0
+  n =  3: sinc( 3) = 0</pre>
+    <div class="const-label">The sinc function is zero at ALL integer sampling instants except n=0</div>
+  </div>
+  <div class="hl"><strong>★ Why this eliminates ISI:</strong> If f(t) = sinc(t/Ts), then at each sampling instant nTs, the pulse from symbol k contributes f((n−k)Ts) = sinc(n−k) = 0 whenever n≠k. So every other symbol contributes ZERO at the sampling instant of symbol k. No ISI!</div>
+
+  <div class="why"><div class="wi">📊</div><div>
+    <strong>Important clarification:</strong> The sinc graph is NOT zero everywhere! It oscillates with side lobes. It is only zero at the specific integer sampling points. This is the key trick — the sampling instants happen to align perfectly with the zeros.
+  </div></div>
+
+  <h3>How the Fourier Transform of sinc(t/Ts) Gives rect(fTs)</h3>
+  <h4>Step 1 — Start from the known pair</h4>
+  <div class="fbox">
+    <span class="fb">sinc(t) ↔ rect(f)</span>
+    <span class="fl">Standard Fourier transform pair — sinc in time, rectangle in frequency</span>
+  </div>
+  <h4>Step 2 — Apply the time-scaling property</h4>
+  <p>If x(t) ↔ X(f), then x(at) ↔ (1/|a|)·X(f/a). Here a = 1/Ts:</p>
+  <div class="fbox">
+    <span class="fb">sinc(t/Ts) ↔ Ts · rect(f·Ts)</span>
+    <span class="fl">Scaling by 1/Ts in time → multiply by Ts and stretch rect by Ts in frequency</span>
+  </div>
+  <h4>Step 3 — Unpack the rect definition</h4>
+  <p>The rectangle function: rect(x) = 1 for |x| &lt; 1/2, rect(x) = 1/2 for |x| = 1/2, rect(x) = 0 for |x| &gt; 1/2. Substitute x = f·Ts:</p>
+  <table>
+    <tr><th>Condition</th><th>Translates to</th><th>F(f) = Ts·rect(fTs)</th></tr>
+    <tr><td>|fTs| &lt; 1/2</td><td>|f| &lt; 1/(2Ts) = 0.5/Ts</td><td>Ts × 1 = <strong>Ts</strong></td></tr>
+    <tr><td>|fTs| = 1/2</td><td>|f| = 0.5/Ts</td><td>Ts × 1/2 = <strong>Ts/2 = 0.5Ts</strong></td></tr>
+    <tr><td>|fTs| &gt; 1/2</td><td>|f| &gt; 0.5/Ts</td><td>Ts × 0 = <strong>0</strong></td></tr>
+  </table>
+  <p>The <strong>0.5Ts</strong> at the boundary comes from rect(x) = 1/2 at its exact edge. In practice, this boundary point has zero measure and doesn't affect results — engineers usually just write F(f) = Ts for |f| &lt; 0.5/Ts.</p>
+
+  <h3>Why the Folded Spectrum of sinc(t/Ts) Becomes 1</h3>
+  <p>The rectangle F(f) has height Ts and width 1/Ts. The folded spectrum shifts copies by 1/Ts:</p>
+  <div class="const-wrap"><pre>F(f) copies at n·(1/Ts) for n = ..., -2, -1, 0, 1, 2, ...
+
+|   Ts  |   Ts  |   Ts  |   Ts  |   Ts  |
+|_______|_______|_______|_______|_______|
+-3/2Ts -1/2Ts  1/2Ts  3/2Ts  5/2Ts
+
+Each rectangle of height Ts and width 1/Ts.
+They tile the axis perfectly — no gaps, no overlaps!</pre>
+  </div>
+  <p>At any frequency f, exactly ONE shifted copy contributes: value = Ts. Multiplying by 1/Ts:</p>
+  <div class="fbox">
+    <span class="fb big">F̃(f) = (1/Ts) × Ts = 1 for all f</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §11.4 LINEAR EQUALIZERS
+══════════════════════════════════════ -->
+<section class="section" id="linear-eq">
+  <div class="sec-badge"><span class="dot"></span>Section 11.4</div>
+  <h2>Linear Equalizers</h2>
+  <p class="lead">When the folded spectrum is not flat, we add an equalizer. This section designs two practical linear equalizers: the Zero-Forcing (ZF) equalizer and the MMSE equalizer.</p>
+
+  <h3>Structure of a Linear Equalizer</h3>
+  <p>A linear equalizer is implemented as a <strong>transversal filter</strong> with 2L+1 = N taps:</p>
+  <div class="fbox">
+    <span class="fb big">H_eq(z) = Σ_{i=−L}^{L} wᵢ · z^(−i)</span>
+    <span class="fl">Eq. (11.9) · N = 2L+1 taps · wᵢ = tap weights · z^(−i) = i-step delay</span>
+  </div>
+
+  <h4>Design Decisions for Any Linear Equalizer</h4>
+  <ol style="padding-left:1.2rem;color:var(--text);margin-bottom:1rem;">
+    <li><strong>Tap weights {wᵢ}</strong> — what values do the taps take for a given channel?</li>
+    <li><strong>Update algorithm</strong> — how do tap weights adapt as the channel changes?</li>
+  </ol>
+  <p><strong>Ideal goal:</strong> choose wᵢ to minimise BER. In practice: BER minimisation is mathematically intractable, so we use indirect criteria that balance ISI removal and noise enhancement.</p>
+  <p><strong>Causal equalizer:</strong> wᵢ = 0 for i &lt; 0 (cannot use future samples — only past and present).</p>
+</section>
+
+<!-- ══════════════════════════════════════
+     ZF EQUALIZER
+══════════════════════════════════════ -->
+<section class="section" id="zf">
+  <div class="sec-badge"><span class="dot"></span>Section 11.4.1</div>
+  <h2>Zero-Forcing (ZF) Equalizer</h2>
+  <p class="lead">The simplest idea: completely invert the channel. All ISI disappears. But watch out — noise can explode.</p>
+
+  <h3>The Signal Model in Z-domain</h3>
+  <p>From Eq. (11.4), the received signal samples can be written in the z-domain as:</p>
+  <div class="fbox">
+    <span class="fb big">Y(z) = D(z)·F(z) + Ng(z)</span>
+    <span class="fl">Eq. (11.10) · D(z) = transmitted symbols · F(z) = combined channel response · Ng(z) = noise</span>
+  </div>
+  <p>where F(z) = H(z)·G*_m(1/z*) combines the channel H(z) and matched filter response.</p>
+
+  <h3>The ZF Design</h3>
+  <p>To remove all ISI from F(z), we need an equalizer that inverts it exactly:</p>
+  <div class="fbox">
+    <span class="fb big">H_ZF(z) = 1 / F(z)</span>
+    <span class="fl">Eq. (11.12) — Zero-forcing equalizer: discrete-time equivalent of the analog 1/H(f) equalizer</span>
+  </div>
+  <p>After applying ZF: output = D(z) + noise. All ISI removed ✓.</p>
+
+  <h3>Noise After ZF Equalization</h3>
+  <p>The power spectrum of noise at the ZF equalizer output:</p>
+  <div class="fbox">
+    <span class="fb">N(z) = N₀ · |G*_m(1/z*)|² · |H_ZF(z)|² = N₀ / |H(z)|²</span>
+    <span class="fl">Eq. (11.13) — Noise power spectrum after ZF equalization · Directly inversely proportional to |H(z)|²</span>
+  </div>
+  <div class="warn">
+    <strong>The ZF noise problem:</strong> On frequency-selective fading channels, |H(z)| can be very small at some frequencies (deep fades). Then 1/|H(z)|² becomes very large → significant noise amplification. This is the fundamental weakness of the ZF equalizer.
+  </div>
+
+  <h3>Practical Issue: ZF May Not Be FIR</h3>
+  <p>The ideal ZF equalizer H_ZF(z) = 1/F(z) may require an <strong>infinite number of taps</strong> (IIR filter). But real equalizers have finite taps (FIR). So we must approximate:</p>
+
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Method 1 — IIR Truncation</h5>
+      <p>Expand 1/F(z) = Σcᵢz^(−i) as an infinite series, then set wᵢ = cᵢ for the available taps. Minimises distance between the ideal IIR and the FIR approximation.</p>
+    </div>
+    <div class="cmp-box c3">
+      <h5>Method 2 — Peak Distortion Minimisation</h5>
+      <p>Find tap weights that minimise worst-case ISI (peak distortion). This is a convex optimisation problem solvable by steepest descent method.</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 11.3 — Two-Tap ZF Equalizer (Textbook)</div>
+    <p>Channel: <code>h(t) = e^(−t/τ)</code> for t ≥ 0.</p>
+    <p><strong>Step 1 — Sample the channel:</strong></p>
+    <p><code>h[n] = e^(−nTs/τ)</code> for n ≥ 0. So: h[0]=1, h[1]=e^(−Ts/τ), h[2]=e^(−2Ts/τ), ...</p>
+    <p><strong>Step 2 — Find H(z):</strong></p>
+    <div class="fbox">
+      <span class="fb">H(z) = Σ_{n=0}^{∞} (e^(−Ts/τ) z^(−1))^n = 1/(1 − e^(−Ts/τ)z^(−1)) = z/(z − e^(−Ts/τ))</span>
+      <span class="fl">Geometric series: Σa^n = 1/(1−a) for |a| &lt; 1</span>
+    </div>
+    <p><strong>Step 3 — ZF Equalizer = 1/H(z):</strong></p>
+    <div class="fbox">
+      <span class="fb big">H_ZF(z) = 1/H(z) = 1 − e^(−Ts/τ)·z^(−1)</span>
+      <span class="fl">Only TWO taps needed for this exponential channel!</span>
+    </div>
+    <p><strong>Step 4 — Read off tap weights:</strong></p>
+    <table>
+      <tr><th>Tap</th><th>Weight</th><th>Value</th></tr>
+      <tr><td>w₀</td><td>coefficient of z⁰</td><td><strong>1</strong></td></tr>
+      <tr><td>w₁</td><td>coefficient of z^(−1)</td><td><strong>e^(−Ts/τ)</strong></td></tr>
+    </table>
+    <p>The equalizer subtracts a delayed, attenuated copy of the received signal from itself — exactly cancelling the exponential tail of the channel!</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11.4.1 ZF Equalizer</div>
+    <ol>
+      <li>For the channel H(z) = 1 + 0.5z^(−1), find the ZF equalizer H_ZF(z). Write out the first 4 tap coefficients of the IIR expansion. What do you notice about the coefficients?</li>
+      <li>A channel has H(f) = 0.5 at f = 1 kHz and H(f) = 2 at f = 5 kHz (within signal bandwidth). What is the noise power amplification at each frequency after ZF equalization? Which frequency dominates?</li>
+      <li>If Ts/τ = 1 in Example 11.3, what are the exact tap weight values w₀ and w₁? What happens to w₁ as τ → ∞ (very slow channel)?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> H(z) = 1 + 0.5z^(−1). H_ZF(z) = 1/(1+0.5z^(−1)) = Σ(−0.5)^n z^(−n). Coefficients: c₀=1, c₁=−0.5, c₂=0.25, c₃=−0.125. Pattern: alternating signs, geometrically decreasing (ratio −0.5). The equalizer is a stable IIR that decays exponentially.</p>
+      <p><strong>2.</strong> At f=1 kHz: |H_eq|² = 1/|H|² = 1/0.25 = 4 (6 dB amplification). At f=5 kHz: |H_eq|² = 1/4 = 0.25 (−6 dB, actually attenuates). The 1 kHz frequency dominates — noise amplified 4× there vs reduced at 5 kHz. ZF hurts most where channel is weakest.</p>
+      <p><strong>3.</strong> Ts/τ=1: w₀=1, w₁=e^(−1)≈0.368. As τ→∞: e^(−Ts/τ)→e^0=1 and e^(−Ts/τ)→0 slowly... actually as τ→∞, Ts/τ→0, so e^(−Ts/τ)→1. Wait — as τ→∞, the channel time constant becomes very long, meaning h[1]=e^(−Ts/τ)→1. The channel tail remains significant. Conversely as τ→0 (fast decay), w₁=e^(−Ts/τ)→0 — the equalizer reduces to just w₀=1 (no ISI correction needed since channel decays before next symbol).</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MMSE EQUALIZER
+══════════════════════════════════════ -->
+<section class="section" id="mmse">
+  <div class="sec-badge"><span class="dot"></span>Section 11.4.2</div>
+  <h2>MMSE Equalizer — Balancing ISI and Noise</h2>
+  <p class="lead">Instead of forcing ISI to zero (and letting noise explode), the MMSE equalizer finds the optimal balance between ISI removal and noise control.</p>
+
+  <h3>What MMSE Minimises</h3>
+  <div class="fbox">
+    <span class="fb big">Minimise: E[(d_n − d̂_n)²]</span>
+    <span class="fl">Mean Squared Error between transmitted symbol d_n and equalizer output d̂_n · Balances both ISI and noise effects</span>
+  </div>
+
+  <div class="why"><div class="wi">⚖️</div><div>
+    <strong>Why MMSE is better than ZF:</strong> ZF completely eliminates ISI but ignores noise. MMSE accepts a tiny bit of residual ISI in exchange for not amplifying noise explosively. The net result is a higher SNR at the equalizer output and better BER performance.
+  </div></div>
+
+  <h3>MMSE Equalizer Frequency Response</h3>
+  <p>The optimal MMSE equalizer solution (derived via Wiener filter theory):</p>
+  <div class="fbox">
+    <span class="fb big">H_MMSE(f) = H*(f) / (|H(f)|² + N₀/Ps)</span>
+    <span class="fl">MMSE equalizer · H*(f) = conjugate of channel · N₀ = noise PSD · Ps = signal power</span>
+  </div>
+
+  <h3>Comparison: ZF vs MMSE</h3>
+  <table>
+    <tr><th>Property</th><th>ZF</th><th>MMSE</th></tr>
+    <tr><td>Design criterion</td><td>Force all ISI to zero</td><td>Minimise mean squared error</td></tr>
+    <tr><td>Equalizer form</td><td>1/H(f)</td><td>H*(f)/(|H(f)|²+N₀/Ps)</td></tr>
+    <tr><td>At high SNR</td><td>—</td><td>Approaches ZF (N₀/Ps → 0)</td></tr>
+    <tr><td>At low SNR</td><td>Noise blows up</td><td>Smoothly limits gain</td></tr>
+    <tr><td>Noise enhancement</td><td>Can be very large</td><td>Controlled — never infinite</td></tr>
+    <tr><td>Residual ISI</td><td>Zero</td><td>Small but nonzero</td></tr>
+    <tr><td>BER performance</td><td>Good at high SNR</td><td>Better overall</td></tr>
+  </table>
+
+  <div class="card bl-a">
+    <h4>Key Insight: N₀/Ps Acts as a Regulariser</h4>
+    <p>In the MMSE formula, the term N₀/Ps in the denominator prevents the equalizer from becoming infinite, even when |H(f)| → 0. Compare:</p>
+    <ul class="nice">
+      <li>ZF: 1/H(f) → ∞ as H(f) → 0</li>
+      <li>MMSE: H*(f)/(0 + N₀/Ps) = finite value even at spectral nulls</li>
+    </ul>
+    <p>This is why MMSE is robust against spectral nulls while ZF is not.</p>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example — ZF vs MMSE at a Weak Frequency</div>
+    <p>Channel H(f₀) = 0.01 (very attenuated). Signal power Ps = 1, noise PSD N₀ = 0.001.</p>
+    <p><strong>ZF at f₀:</strong> H_ZF = 1/0.01 = 100. Noise amplification = 100² = 10,000.</p>
+    <p><strong>MMSE at f₀:</strong> H_MMSE = 0.01/(0.01² + 0.001) = 0.01/(0.0001 + 0.001) = 0.01/0.0011 ≈ 9.09.</p>
+    <p>MMSE amplification ≈ 9.09² ≈ 83 vs ZF = 10,000. <strong>MMSE reduces noise amplification by a factor of ~120 at this frequency!</strong></p>
+    <p>At the cost of: small residual ISI. But the SNR gain far outweighs the residual ISI → better overall BER.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §11.4.2 MMSE + Comprehensive</div>
+    <ol>
+      <li>A channel has H(f) = 0.05 at f = 2 kHz. Signal power = 1, N₀ = 0.01. Find the ZF and MMSE equalizer gains at f = 2 kHz. By what factor does MMSE reduce noise compared to ZF?</li>
+      <li>As SNR → ∞ (N₀ → 0), show that MMSE equalizer → ZF equalizer. What does this mean practically?</li>
+      <li>(Comprehensive) A 2-tap ZF equalizer is designed for channel H(z) = 1 + 0.8z^(−1). (a) Find the ZF equalizer. (b) Is it FIR? (c) Find the first 3 taps of the IIR expansion. (d) If we approximate with only w₀ and w₁, what residual distortion remains?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> ZF gain = 1/|H| = 1/0.05 = 20. ZF noise amp = 400. MMSE gain = H*(f)/(|H|²+N₀) = 0.05/(0.0025+0.01) = 0.05/0.0125 = 4. MMSE noise amp = 16. Ratio: 400/16 = 25×. MMSE reduces noise amplification by 25× at this frequency!</p>
+      <p><strong>2.</strong> As N₀→0: H_MMSE = H*(f)/(|H(f)|²+0) = H*(f)/|H(f)|² = 1/H(f) = H_ZF. So at very high SNR, noise is already negligible, so the MMSE doesn't need to protect against it — it defaults to the ZF solution which perfectly cancels ISI. Practically: at very high SNR, ZF and MMSE give the same result, so the choice doesn't matter much.</p>
+      <p><strong>3.</strong> (a) H(z) = 1+0.8z^(−1). H_ZF(z) = 1/(1+0.8z^(−1)). (b) Not FIR — 1/(1+az^(−1)) requires infinite taps. (c) Expand: 1/(1+0.8z^(−1)) = Σ(−0.8)^n z^(−n). c₀=1, c₁=−0.8, c₂=0.64, c₃=−0.512. (d) With only w₀=1 and w₁=−0.8: H_ZF_approx = 1−0.8z^(−1). H_ZF_approx × H(z) = (1−0.8z^(−1))(1+0.8z^(−1)) = 1−0.64z^(−2). Residual: −0.64 at lag ±2 (wait, 1−0.64z^(−2) means f[0]=1, f[2]=−0.64, others=0 — residual ISI at 2 symbol delays).</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- FINAL SUMMARY -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 11 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Received signal (freq domain)</td><td>Y(f) = S(f)H(f) + N(f)</td></tr>
+    <tr><td>Channel inverse equalizer</td><td>H_eq(f) = 1/H(f)</td></tr>
+    <tr><td>Equalized noise PSD</td><td>0.5N₀/|H(f)|²</td></tr>
+    <tr><td>Discrete sampled output</td><td>y[n] = d_n·f[0] + Σ_{k≠n}d_k·f[n−k] + ν[n]</td></tr>
+    <tr><td>ISI-free condition (time)</td><td>f[k] = δ[k]·f[0]</td></tr>
+    <tr><td>Folded spectrum</td><td>F̃(f) = (1/Ts)·Σ F(f+n/Ts)</td></tr>
+    <tr><td>ISI-free condition (freq)</td><td>F̃(f) = f[0] (constant = flat)</td></tr>
+    <tr><td>Linear equalizer</td><td>H_eq(z) = Σ wᵢz^(−i)</td></tr>
+    <tr><td>ZF equalizer</td><td>H_ZF(z) = 1/F(z)</td></tr>
+    <tr><td>ZF noise power</td><td>N(z) = N₀/|H(z)|²</td></tr>
+    <tr><td>MMSE equalizer</td><td>H_MMSE(f) = H*(f)/(|H(f)|²+N₀/Ps)</td></tr>
+    <tr><td>sinc zeros</td><td>sinc(n) = 0 for all integers n≠0</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 11 Topics Covered</h4>
+    <div class="prog-row"><span>ISI from delay spread, Ts vs σ_Tm, real-world examples</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>Noise enhancement, Y(f) model, spectral nulls, Example 11.1</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>Equalizer types: linear, DFE, MLSE, SBS vs SE</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>Transversal vs lattice structure, LMS/RLS algorithms</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>End-to-end system, f(t), y[n] three-term equation</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>ISI-free condition f[k]=δ[k]f[0], folded spectrum definition</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>Example 11.2 sinc pulse, sinc(n)=0 proof, rect/Fourier derivation</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>ZF equalizer, noise analysis, FIR approximation, Example 11.3</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>MMSE equalizer, ZF vs MMSE comparison, regularisation insight</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §7.7 DFE — DECISION FEEDBACK EQUALIZER
+══════════════════════════════════════ -->
+<section class="section" id="dfe">
+  <div class="sec-badge"><span class="dot"></span>§7.7 Rappaport — DFE</div>
+  <h2>Decision Feedback Equalizer (DFE)</h2>
+  <p class="lead">The most widely used nonlinear equalizer. DFE avoids noise enhancement by using previously detected symbols to cancel ISI — instead of amplifying the signal to invert the channel.</p>
+
+  <h3>Step 1 — Why DFE Was Invented</h3>
+  <p>Recall the problem with linear equalizers:</p>
+  <ul class="nice">
+    <li>ZF equalizer inverts the channel completely → large noise enhancement at attenuated frequencies</li>
+    <li>MMSE limits this but still applies a linear filter to the received signal</li>
+  </ul>
+  <p>The key insight that leads to DFE:</p>
+  <div class="why"><div class="wi">💡</div><div>
+    <strong>If we already know what previous symbols were, we can subtract their ISI contribution directly — without ever amplifying noise!</strong> We don't need to boost weak frequencies if we can just remove the ISI caused by past symbols using known values.
+  </div></div>
+
+  <h3>Step 2 — The ISI Problem, Revisited</h3>
+  <p>From the sampled output equation: <code>y[n] = d_n·f[0] + Σ_{k≠n} d_k·f[n−k] + ν[n]</code></p>
+  <p>The ISI term has two parts:</p>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Pre-cursor ISI (k &gt; n)</h5>
+      <p>Interference from <em>future</em> symbols — symbols not yet transmitted or detected. Can only be removed by filtering.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>Post-cursor ISI (k &lt; n)</h5>
+      <p>Interference from <em>past</em> symbols — already detected! We know these values (or have estimates), so we can subtract them directly.</p>
+    </div>
+  </div>
+  <p>DFE exploits this split: use a <strong>forward filter</strong> for pre-cursor ISI and a <strong>feedback filter</strong> for post-cursor ISI.</p>
+
+  <h3>Step 3 — DFE Structure</h3>
+  <div class="const-wrap"><pre>
+  ┌──────────────────────────────────────────────────────┐
+  │                   DFE STRUCTURE                      │
+  │                                                      │
+  │  y[n] ──► [Forward Filter Hff(z)] ──► (+) ──► Decision ──► d̂[n]
+  │                                        ↑              │
+  │                                        │              │
+  │                               [−] ◄── [Feedback Filter Hfb(z)]
+  │                                        ↑
+  │                                   past decisions d̂[n-1], d̂[n-2]...
+  └──────────────────────────────────────────────────────┘
+  </pre><div class="const-label">DFE = Forward Filter (handles pre-cursor ISI) + Feedback Filter (cancels post-cursor ISI)</div></div>
+
+  <h4>Forward Filter — Hff(z)</h4>
+  <div class="card bl-b">
+    <p>A linear (FIR) filter applied to the received signal y[n]. It handles the <em>pre-cursor</em> ISI — the interference from symbols that haven't been detected yet. This filter is similar to a linear equalizer but shorter, since it only needs to handle future-symbol interference.</p>
+    <div class="fbox"><span class="fb">Hff(z) = Σ_{i=0}^{Nf−1} cᵢ·z^(−i)</span><span class="fl">Nf taps · cᵢ = forward filter tap weights · processes received signal y[n]</span></div>
+  </div>
+
+  <h4>Feedback Filter — Hfb(z)</h4>
+  <div class="card bl-a">
+    <p>Uses previously detected symbols <code>d̂[n−1], d̂[n−2], ...</code> to compute and subtract the post-cursor ISI they cause. Since these symbols are already decided, their ISI contribution is known — we subtract it directly, adding no noise!</p>
+    <div class="fbox"><span class="fb">Hfb(z) = Σ_{k=1}^{Nb} bₖ·z^(−k)</span><span class="fl">Nb taps · bₖ = feedback tap weights · fed by past decision outputs d̂[n−k]</span></div>
+    <p>The DFE output before the decision device:</p>
+    <div class="fbox"><span class="fb big">ẑ[n] = Σ cᵢ·y[n−i] − Σ bₖ·d̂[n−k]</span><span class="fl">Forward filter output minus feedback filter output (subtraction removes post-cursor ISI)</span></div>
+  </div>
+
+  <h3>Step 4 — Why DFE Has Much Less Noise Enhancement</h3>
+  <div class="hl">
+    <strong>The key reason:</strong> The feedback filter operates on <em>detected symbols</em> (binary or M-ary values like ±1, ±3), NOT on the noisy received signal. Detected symbols have no noise attached to them (assuming correct detection). So the feedback path introduces <em>zero additional noise</em>. Only the forward filter processes the noisy received signal — and it's a shorter, less aggressive filter.
+  </div>
+
+  <h3>Step 5 — Error Propagation: DFE's Weakness</h3>
+  <div class="warn">
+    <strong>Error Propagation:</strong> DFE assumes past decisions are correct. But if a symbol is detected incorrectly (which happens when SNR is low), the wrong value is fed into the feedback filter. This wrong value creates incorrect ISI cancellation — actually adding new interference — which may cause the next symbol to also be detected incorrectly. This chain reaction is called <strong>error propagation</strong>.
+  </div>
+
+  <div class="const-wrap"><pre>Error Propagation Example:
+
+Symbol 5 detected wrong → d̂[5] = +1 (should be −1)
+    ↓
+Feedback filter uses wrong d̂[5]
+    ↓
+Incorrect ISI cancellation at symbol 6
+    ↓
+Symbol 6 also detected wrong!
+    ↓
+Chain reaction continues...</pre>
+    <div class="const-label">Error propagation — worst at low SNR where initial errors are frequent</div>
+  </div>
+
+  <h3>Step 6 — When to Use DFE vs Linear vs MLSE</h3>
+  <table>
+    <tr><th>Condition</th><th>Best Choice</th><th>Reason</th></tr>
+    <tr><td>High SNR, moderate delay spread</td><td><span class="pill p-a">DFE</span></td><td>Low error probability → minimal error propagation, much less noise enhancement than ZF</td></tr>
+    <tr><td>Very high SNR, simple channel</td><td><span class="pill p-b">ZF or MMSE</span></td><td>Noise is negligible anyway, simple implementation</td></tr>
+    <tr><td>Low SNR</td><td><span class="pill p-g">MMSE</span></td><td>DFE suffers error propagation; MMSE controls noise without feedback</td></tr>
+    <tr><td>Short delay spread (small L)</td><td><span class="pill p-p">MLSE</span></td><td>Optimal; complexity manageable for small L</td></tr>
+    <tr><td>Long delay spread</td><td><span class="pill p-a">DFE</span></td><td>MLSE complexity exponential in L; DFE scales linearly</td></tr>
+  </table>
+
+  <h3>Step 7 — DFE Performance Comparison</h3>
+  <p>At high SNR, DFE performance approaches MLSE. At moderate SNR it significantly outperforms linear equalizers. The performance gap vs. MLSE is mainly due to error propagation and the fact that forward filter still causes some noise enhancement (just much less than a full linear equalizer).</p>
+
+  <div class="example">
+    <div class="ex-head">Intuitive Example — Why DFE Outperforms Linear EQ</div>
+    <p>Suppose the channel has strong post-cursor ISI: <code>f[0]=1, f[1]=0.9, f[2]=0.8</code>.</p>
+    <p><strong>Linear ZF equalizer:</strong> Must invert this long channel → needs many taps → the 1/F(z) filter has large high-frequency gain → large noise amplification.</p>
+    <p><strong>DFE:</strong> Forward filter only needs to handle f[0] (current symbol effects). Once d̂[n−1] and d̂[n−2] are decided, the feedback filter subtracts <code>0.9·d̂[n−1]</code> and <code>0.8·d̂[n−2]</code> directly — no noise added by these operations. The forward filter is much simpler → much less noise enhancement.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §7.7 DFE</div>
+    <ol>
+      <li>A channel has impulse response f[0]=1, f[1]=0.7, f[2]=0.4 (all others zero). Design a DFE with 1-tap forward filter and 2-tap feedback filter. Write out the DFE output equation for symbol n=5.</li>
+      <li>Explain why error propagation is worse at low SNR. If BER without feedback = 10⁻², roughly how many symbols in a burst of 100 might suffer from error propagation?</li>
+      <li>Compare the number of multiplications per symbol for: (a) ZF equalizer with 10 taps, (b) DFE with 3-tap forward + 5-tap feedback filter, (c) MLSE with L=4 channel length and QPSK (M=4). Which is most computationally efficient?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Forward filter: c₀=1 (1 tap, just passes y[n]). Feedback filter taps: b₁=0.7, b₂=0.4 (cancel post-cursor ISI). DFE output: ẑ[5] = y[5] − 0.7·d̂[4] − 0.4·d̂[3]. Interpretation: take received sample, subtract estimated ISI from symbols 4 and 3.</p>
+      <p><strong>2.</strong> At low SNR, BER is high, meaning many symbols are detected incorrectly. Each wrong decision feeds back incorrect ISI cancellation, potentially corrupting the next symbol too. With BER=10⁻²: roughly 1 error per 100 symbols directly. But each error triggers a propagation event that may cause 2–5 additional errors. So ~100 symbols → ~1 initial error → potentially 3–6 total errors from propagation. Error propagation multiplies the effective BER.</p>
+      <p><strong>3.</strong> (a) ZF 10 taps: 10 multiplications/symbol. (b) DFE: 3 (forward) + 5 (feedback) = 8 multiplications/symbol. (c) MLSE: M^L = 4^4 = 256 state evaluations/symbol. DFE is most efficient at 8 mult/symbol. MLSE is 32× more expensive. ZF is similar to DFE for this tap count.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §7.3/7.8 ADAPTIVE EQUALIZATION
+══════════════════════════════════════ -->
+<section class="section" id="adaptive">
+  <div class="sec-badge"><span class="dot"></span>§7.3 / §7.8 Rappaport — Adaptive</div>
+  <h2>Adaptive Equalization</h2>
+  <p class="lead">Wireless channels change over time. An equalizer designed for yesterday's channel fails today. Adaptive equalization continuously updates the equalizer coefficients to track the changing channel.</p>
+
+  <h3>Step 1 — Why Adaptation Is Necessary</h3>
+  <p>In a static channel (like a wired link), you design the equalizer once and it works forever. Wireless channels are never static:</p>
+  <ul class="nice">
+    <li><strong>User mobility</strong> — moving phone changes the multipath geometry</li>
+    <li><strong>Moving scatterers</strong> — vehicles, people change reflections</li>
+    <li><strong>Doppler shift</strong> — motion changes signal frequency</li>
+    <li><strong>Handover</strong> — switching between base stations changes channel entirely</li>
+  </ul>
+  <div class="analogy"><strong>📻 Analogy:</strong> Imagine tuning a radio station manually while driving. The signal drifts as you move — you keep turning the dial to stay on frequency. Adaptive equalization is the same idea: the equalizer keeps "retuning" its coefficients as the channel drifts.</div>
+
+  <h3>Step 2 — The Two Phases of Adaptive Equalization</h3>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Phase 1: Training</h5>
+      <p>Transmitter sends a known sequence (pilot/training symbols). Receiver knows the exact transmitted data, so it can compute the error between received and expected signals, and use it to set initial tap weights accurately.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>Phase 2: Tracking (Decision-Directed)</h5>
+      <p>After training, no more known pilots. The equalizer uses its own output decisions as if they were true symbols to keep updating tap weights. Works well when BER is low (decisions usually correct).</p>
+    </div>
+  </div>
+
+  <div class="const-wrap"><pre>
+  TIME →
+  |Training period | ← Data transmission (tracking) →|
+  |[known symbols] | [user data with decision-directed update]|
+  |← tap weights  →| ← tap weights continuously adapted →|
+  |   converge     |   track channel variations              |
+  </pre><div class="const-label">Training establishes initial weights; tracking keeps them current</div></div>
+
+  <h3>Step 3 — The General Adaptive Update Rule</h3>
+  <p>All adaptive algorithms share a common structure. Define:</p>
+  <table>
+    <tr><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td><code>w[n]</code></td><td>Vector of tap weights at time n</td></tr>
+    <tr><td><code>y[n]</code></td><td>Vector of recent received samples (equalizer input)</td></tr>
+    <tr><td><code>ẑ[n] = w[n]ᴴ·y[n]</code></td><td>Equalizer output at time n</td></tr>
+    <tr><td><code>d[n]</code></td><td>Desired output (known pilot or hard decision)</td></tr>
+    <tr><td><code>e[n] = d[n] − ẑ[n]</code></td><td>Error signal — how wrong the equalizer output is</td></tr>
+  </table>
+  <p>The tap update rule uses the error signal to adjust weights in the direction that reduces error:</p>
+  <div class="fbox">
+    <span class="fb big">w[n+1] = w[n] + μ · e[n] · y*[n]</span>
+    <span class="fl">Generic adaptive update · μ = step size · e[n] = error · y*[n] = conjugate of input vector</span>
+  </div>
+
+  <h3>Step 4 — LMS Algorithm (Least Mean Squares)</h3>
+  <div class="card bl-a">
+    <h4>What LMS Does</h4>
+    <p>LMS is the simplest and most widely used adaptive algorithm. It approximates the steepest-descent gradient of the mean squared error using just the <em>instantaneous</em> error (one sample at a time), rather than averaging over many samples.</p>
+    <div class="fbox"><span class="fb big">w[n+1] = w[n] + μ · e[n] · y*[n]</span><span class="fl">LMS update rule · identical form to generic rule — LMS IS the stochastic gradient approximation</span></div>
+  </div>
+
+  <h4>LMS Step-by-Step Algorithm</h4>
+  <div class="const-wrap"><pre>
+  LMS ALGORITHM — repeat at each time step n:
+  ════════════════════════════════════════════
+  1. Collect input:   y[n] = [y(n), y(n−1), ..., y(n−N+1)]ᵀ
+
+  2. Compute output:  ẑ[n] = w[n]ᴴ · y[n]
+
+  3. Get desired:     d[n] = known pilot (training)
+                           OR hard decision (tracking)
+
+  4. Compute error:   e[n] = d[n] − ẑ[n]
+
+  5. Update weights:  w[n+1] = w[n] + μ · e[n] · y*[n]
+
+  6. Go to step 1 for next sample.
+  ════════════════════════════════════════════
+  </pre><div class="const-label">Each iteration: O(N) operations — very efficient for real-time implementation</div></div>
+
+  <h4>The Step Size μ — The Most Critical Parameter</h4>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>μ too large</h5>
+      <p>Large updates → equalizer overshoots → oscillates around solution → never converges. Can become unstable and diverge.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>μ too small</h5>
+      <p>Tiny updates → converges very slowly → can't track fast channel changes. May not converge before channel changes again.</p>
+    </div>
+  </div>
+  <div class="fbox">
+    <span class="fb">0 &lt; μ &lt; 2/λ_max</span>
+    <span class="fl">Stability condition for LMS · λ_max = largest eigenvalue of input autocorrelation matrix R_yy</span>
+  </div>
+  <div class="fbox">
+    <span class="fb">Practical rule: μ ≈ 1/(N · P_in)</span>
+    <span class="fl">N = number of taps · P_in = average input signal power — a safe, commonly used starting value</span>
+  </div>
+
+  <h4>LMS Properties</h4>
+  <table>
+    <tr><th>Property</th><th>LMS Value</th></tr>
+    <tr><td>Computation per update</td><td>O(N) — very low</td></tr>
+    <tr><td>Convergence speed</td><td>Moderate — depends on μ and channel eigenvalue spread</td></tr>
+    <tr><td>Misadjustment (steady-state excess MSE)</td><td>≈ μ·N·σ²_n (proportional to step size)</td></tr>
+    <tr><td>Numerical stability</td><td>Good</td></tr>
+    <tr><td>Memory required</td><td>O(N)</td></tr>
+    <tr><td>Used in</td><td>Most practical systems — GSM, IS-136, LTE</td></tr>
+  </table>
+
+  <h3>Step 5 — RLS Algorithm (Recursive Least Squares)</h3>
+  <div class="card bl-g">
+    <p>RLS minimises the <em>sum of all past squared errors</em> (weighted by a forgetting factor λ), not just the current error. It solves the least-squares problem exactly at every step using a recursive update.</p>
+    <div class="fbox">
+      <span class="fb">Minimise: Σ_{i=1}^{n} λ^(n−i) · |e[i]|²</span>
+      <span class="fl">λ = forgetting factor (0 &lt; λ &lt; 1) · older samples receive exponentially less weight</span>
+    </div>
+  </div>
+
+  <h4>RLS Update Equations</h4>
+  <div class="fbox">
+    <span class="fb">k[n] = P[n−1]·y[n] / (λ + y[n]ᴴ·P[n−1]·y[n])</span>
+    <span class="fl">Kalman gain vector k[n]</span>
+  </div>
+  <div class="fbox">
+    <span class="fb">w[n] = w[n−1] + k[n] · e*[n]</span>
+    <span class="fl">Tap weight update · e[n] = d[n] − w[n−1]ᴴ·y[n]</span>
+  </div>
+  <div class="fbox">
+    <span class="fb">P[n] = (1/λ)(P[n−1] − k[n]·y[n]ᴴ·P[n−1])</span>
+    <span class="fl">Inverse autocorrelation matrix update · P[n] = (R_yy[n])^(−1)</span>
+  </div>
+
+  <h4>RLS vs LMS — Detailed Comparison</h4>
+  <table>
+    <tr><th>Property</th><th>LMS</th><th>RLS</th></tr>
+    <tr><td>Computation/update</td><td>O(N) — cheap</td><td>O(N²) — expensive</td></tr>
+    <tr><td>Convergence speed</td><td>Moderate (depends on μ)</td><td>Fast — typically N steps</td></tr>
+    <tr><td>Convergence behaviour</td><td>Depends on eigenvalue spread of R_yy</td><td>Independent of eigenvalue spread</td></tr>
+    <tr><td>Steady-state MSE</td><td>Higher (misadjustment from μ)</td><td>Lower (nearly optimal)</td></tr>
+    <tr><td>Numerical stability</td><td>Good</td><td>Can have issues (matrix inversion)</td></tr>
+    <tr><td>Forgetting factor</td><td>None (implicit via μ)</td><td>λ — explicit control over memory</td></tr>
+    <tr><td>Tracks fast changes?</td><td>Moderate (tuning μ)</td><td>Better (tuning λ)</td></tr>
+    <tr><td>Use case</td><td>Standard wireless (GSM, LTE)</td><td>Rapidly changing channels, higher complexity OK</td></tr>
+  </table>
+
+  <div class="hl"><strong>Summary rule of thumb:</strong> Use LMS when complexity is the main constraint (most practical systems). Use RLS when the channel changes rapidly and fast convergence is critical (e.g. burst-mode communications, rapidly moving vehicles).</div>
+
+  <h3>Step 6 — The Forgetting Factor λ in RLS</h3>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>λ close to 1 (e.g. 0.999)</h5>
+      <p>Long memory — uses many past samples. Good for slowly varying channels. Converges to a very accurate estimate. Slow to track rapid changes.</p>
+    </div>
+    <div class="cmp-box c2">
+      <h5>λ smaller (e.g. 0.95)</h5>
+      <p>Short memory — forgets old samples quickly. Tracks fast channel changes well. But noisier estimates due to fewer effective samples.</p>
+    </div>
+  </div>
+
+  <h3>Step 7 — Training Sequence Design</h3>
+  <p>Good training sequences have special properties that make channel estimation easy and accurate:</p>
+  <ul class="nice">
+    <li><strong>Known to both transmitter and receiver</strong> — obvious requirement</li>
+    <li><strong>Good autocorrelation</strong> — ideally delta-function autocorrelation (like a pseudo-noise sequence) for easy channel identification</li>
+    <li><strong>Constant power</strong> — avoids dynamic range issues in estimation</li>
+    <li><strong>Sufficient length</strong> — must be longer than the channel impulse response length L</li>
+    <li><strong>Periodic</strong> in some systems — allows frequency-domain channel estimation efficiently</li>
+  </ul>
+  <p>In GSM, a 26-symbol training sequence is embedded in the middle of each 148-symbol burst. In LTE, pilot symbols are scattered across time-frequency resource elements for continuous tracking.</p>
+
+  <h3>Step 8 — Adaptive Equalization in Real Systems</h3>
+  <div class="example">
+    <div class="ex-head">How GSM Uses Adaptive Equalization</div>
+    <p>GSM uses a <strong>burst structure</strong>: each transmission burst contains 148 bits, with a 26-bit training sequence in the middle.</p>
+    <div class="const-wrap"><pre>GSM Burst Structure:
+[3 tail][57 data bits][1 flag][26 training][1 flag][57 data bits][3 tail]
+                               ↑
+                         Known to receiver
+                    Used to estimate channel H
+                    Then MLSE (Viterbi) equalizer
+                    processes entire burst</pre></div>
+    <p>The 26-bit Barker-like sequence has ideal autocorrelation properties. The receiver uses it with a least-squares algorithm to estimate the channel impulse response, then runs an MLSE equalizer on the full burst.</p>
+    <p>In LTE/4G: pilot symbols are scattered in the time-frequency grid. The receiver interpolates between pilots to estimate H at all resource elements, then applies MMSE equalization per subcarrier (1 complex multiplication per subcarrier).</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §7.3/7.8 Adaptive Equalization</div>
+    <ol>
+      <li>An LMS equalizer has N=5 taps, step size μ=0.01, and current weights w=[1, 0, 0, 0, 0]ᵀ. At time n, the received signal vector is y=[0.8, 0.3, −0.2, 0.1, 0.05]ᵀ and the known training symbol is d=+1. (a) Compute the equalizer output ẑ[n]. (b) Compute the error e[n]. (c) Compute the updated weight vector w[n+1].</li>
+      <li>A mobile user is travelling at 120 km/h at 900 MHz. The coherence time Tc ≈ 9/(16πf_D) where f_D = v·f_c/c. Find f_D and Tc. If the symbol rate is 270 kbps (GSM), how many symbols fit in one coherence time? Does the channel change significantly during one GSM burst (148 symbols)?</li>
+      <li>Compare LMS and RLS for a channel with 8 taps. If convergence in 20 symbol times is required: (a) What step size μ might achieve this for LMS? (b) What forgetting factor λ might achieve this for RLS? (c) Which is computationally cheaper?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) ẑ[n] = wᴴ·y = 1×0.8 + 0×0.3 + 0×(−0.2) + 0×0.1 + 0×0.05 = 0.8. (b) e[n] = d − ẑ = 1 − 0.8 = 0.2. (c) w[n+1] = w[n] + μ·e·y* = [1,0,0,0,0] + 0.01×0.2×[0.8,0.3,−0.2,0.1,0.05] = [1,0,0,0,0] + [0.0016, 0.0006, −0.0004, 0.0002, 0.0001] = [1.0016, 0.0006, −0.0004, 0.0002, 0.0001]. The weights moved slightly toward the correct values.</p>
+      <p><strong>2.</strong> f_D = v·f_c/c = (120/3.6)×900×10⁶/(3×10⁸) = 33.33×3×10⁶/10⁸ = 100 Hz. Tc = 9/(16π×100) = 9/5027 ≈ 1.79 ms. At 270 kbps: symbols per coherence time = 270,000 × 0.00179 ≈ 483 symbols. A GSM burst is 148 symbols × (1/270,000) ≈ 0.548 ms. Since 0.548 ms ≪ 1.79 ms, the channel is approximately constant within one burst → a single channel estimate per burst is sufficient!</p>
+      <p><strong>3.</strong> (a) LMS convergence: roughly need μ × λ_max > convergence threshold. For fast convergence in ~N=8 iterations (minimum possible), need larger μ, e.g. μ ≈ 1/(10·P_in). But faster convergence means more misadjustment. There's no single answer — it depends on eigenvalue spread. Typical: μ ≈ 0.05/P_in gives moderate convergence. (b) RLS with λ=0.95 effectively uses about 1/(1−0.95)=20 samples worth of data → converges in ~20 iterations. Tune λ ≈ 1−1/20 = 0.95. (c) LMS: 2N=16 multiply-adds/step. RLS: N²=64 multiply-adds/step. LMS is 4× cheaper per update.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- FINAL SUMMARY -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 11 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Received signal (freq domain)</td><td>Y(f) = S(f)H(f) + N(f)</td></tr>
+    <tr><td>Channel inverse equalizer</td><td>H_eq(f) = 1/H(f)</td></tr>
+    <tr><td>Equalized noise PSD</td><td>0.5·N₀ / |H(f)|²</td></tr>
+    <tr><td>Discrete sampled output</td><td>y[n] = d_n·f[0] + Σ_{k≠n}d_k·f[n−k] + ν[n]</td></tr>
+    <tr><td>ISI-free condition (time)</td><td>f[k] = δ[k]·f[0]</td></tr>
+    <tr><td>Folded spectrum definition</td><td>F̃(f) = (1/Ts)·Σ F(f+n/Ts)</td></tr>
+    <tr><td>ISI-free condition (freq)</td><td>F̃(f) = f[0] = constant (flat)</td></tr>
+    <tr><td>Linear equalizer structure</td><td>H_eq(z) = Σ wᵢ·z^(−i)</td></tr>
+    <tr><td>ZF equalizer</td><td>H_ZF(z) = 1/F(z)</td></tr>
+    <tr><td>ZF noise power spectrum</td><td>N(z) = N₀/|H(z)|²</td></tr>
+    <tr><td>MMSE equalizer</td><td>H_MMSE(f) = H*(f)/(|H(f)|²+N₀/Ps)</td></tr>
+    <tr><td>DFE output</td><td>ẑ[n] = Σcᵢ·y[n−i] − Σbₖ·d̂[n−k]</td></tr>
+    <tr><td>LMS update rule</td><td>w[n+1] = w[n] + μ·e[n]·y*[n]</td></tr>
+    <tr><td>LMS stability condition</td><td>0 &lt; μ &lt; 2/λ_max</td></tr>
+    <tr><td>RLS forgetting factor</td><td>Minimise Σλ^(n−i)|e[i]|², 0 &lt; λ &lt; 1</td></tr>
+    <tr><td>sinc zeros at integers</td><td>sinc(n) = sin(πn)/(πn) = 0 for n≠0</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 11 — Complete Coverage</h4>
+    <div class="prog-row"><span>ISI from delay spread, Ts vs σ_Tm, real-world examples (cordless, IS-136)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.1 Noise enhancement, Y(f) model, spectral nulls, Example 11.1 (10,000× noise)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.2 All equalizer types: linear, DFE, MLSE, SBS vs SE, transversal vs lattice</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.2 LMS / RLS / Fast-RLS / √-RLS tap update algorithms</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.3 End-to-end system model, f(t), y[n] three-term equation</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.3 ISI-free condition f[k]=δ[k]f[0] ↔ flat folded spectrum</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.3 Example 11.2 sinc pulse, full sinc/rect Fourier derivation, 0.5Ts boundary</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.4 / 11.4.1 Linear equalizer structure, ZF design, noise analysis, Example 11.3</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§11.4.2 MMSE equalizer, ZF vs MMSE comparison, regularisation at spectral nulls</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§7.7 / 7.7.1 DFE structure, forward filter, feedback filter, error propagation</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§7.3 / 7.8 Adaptive equalization, LMS step-by-step, RLS equations, training vs tracking</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>GSM burst structure, LTE pilot grid — real-world adaptive equalizer examples</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 11 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

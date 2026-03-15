@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WCN Study Hub — Wireless Communications</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--border:#1e2d47;
+  --accent:#00d4ff;--gold:#ffc940;--green:#00e5a0;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.8;min-height:100vh;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(8,12,20,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:54px;
+}
+.nav-logo{font-family:var(--serif);font-weight:900;font-size:1rem;color:var(--accent);}
+.nav-links{display:flex;gap:.3rem;}
+.nav-links a{
+  color:var(--muted);text-decoration:none;font-size:.75rem;letter-spacing:.06em;
+  text-transform:uppercase;padding:.3rem .7rem;border-radius:5px;transition:all .15s;
+}
+.nav-links a:hover{color:var(--accent);background:rgba(0,212,255,.08);}
+.nav-links a.active{color:var(--accent);background:rgba(0,212,255,.1);}
+
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:6rem 2rem 4rem;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 20%, rgba(0,212,255,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,201,64,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(180,126,255,.04) 0%,transparent 60%),
+    var(--bg);
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),
+    repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);
+  pointer-events:none;
+}
+.hero-inner{max-width:860px;margin:0 auto;text-align:center;position:relative;}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);
+  color:var(--accent);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.3rem 1rem;border-radius:30px;margin-bottom:1.8rem;
+}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{
+  font-family:var(--serif);font-size:clamp(2.4rem,6vw,4.2rem);font-weight:900;
+  line-height:1.1;margin-bottom:1.2rem;
+  background:linear-gradient(140deg,#fff 20%,var(--accent) 55%,var(--gold) 90%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:560px;margin:0 auto 3rem;}
+
+/* COURSE CARDS */
+.cards-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:1.5rem;max-width:900px;margin:0 auto;
+}
+.course-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:2rem;text-decoration:none;color:var(--text);
+  transition:all .25s;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.course-card::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity .25s;border-radius:16px;
+}
+.course-card:hover{transform:translateY(-4px);border-color:var(--card-accent,var(--accent));}
+.course-card:hover::before{opacity:1;}
+.card-ch6{--card-accent:var(--accent);}
+.card-ch6::before{background:linear-gradient(135deg,rgba(0,212,255,.06),transparent 60%);}
+.card-ch10{--card-accent:var(--gold);}
+.card-ch10::before{background:linear-gradient(135deg,rgba(255,201,64,.06),transparent 60%);}
+.card-ch11{--card-accent:var(--green);}
+.card-ch11::before{background:linear-gradient(135deg,rgba(0,229,160,.06),transparent 60%);}
+.card-ch12{--card-accent:var(--purple);}
+.card-ch12::before{background:linear-gradient(135deg,rgba(180,126,255,.06),transparent 60%);}
+.card-ch14{--card-accent:var(--gold);}
+.card-ch14::before{background:linear-gradient(135deg,rgba(255,201,64,.06),transparent 60%);}
+.card-ch8{--card-accent:var(--red);}
+.card-ch8::before{background:linear-gradient(135deg,rgba(255,79,110,.06),transparent 60%);}
+.card-ch2{--card-accent:#00d4ff;}
+.card-ch2::before{background:linear-gradient(135deg,rgba(0,212,255,.06),transparent 60%);}
+.card-ch3{--card-accent:var(--purple);}
+.card-ch3::before{background:linear-gradient(135deg,rgba(180,126,255,.06),transparent 60%);}
+.card-num{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--card-accent,var(--accent));margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.card-num::before{content:'';width:20px;height:1px;background:currentColor;}
+.card h2{font-family:var(--serif);font-size:1.5rem;font-weight:900;margin-bottom:.6rem;color:#fff;}
+.card-desc{font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;flex:1;}
+.card-topics{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem;}
+.topic-pill{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  color:var(--muted);font-size:.7rem;padding:.15rem .6rem;border-radius:20px;
+}
+.card-cta{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.82rem;font-weight:700;color:var(--card-accent,var(--accent));
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.card-cta::after{content:'→';transition:transform .2s;}
+.course-card:hover .card-cta::after{transform:translateX(4px);}
+
+/* STATS ROW */
+.stats{
+  display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;
+  padding:3rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:var(--surface);margin-top:5rem;
+}
+.stat{text-align:center;}
+.stat-num{font-family:var(--serif);font-size:2rem;font-weight:900;color:var(--accent);}
+.stat-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+
+/* SYLLABUS TABLE */
+.syllabus{max-width:860px;margin:5rem auto;padding:0 2rem;}
+.syllabus h2{
+  font-family:var(--serif);font-size:1.6rem;font-weight:900;
+  color:#fff;margin-bottom:.5rem;text-align:center;
+}
+.syl-sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:2rem;}
+.syl-table{width:100%;border-collapse:collapse;font-size:.84rem;}
+.syl-table th{
+  background:var(--card);color:var(--gold);font-weight:700;
+  padding:.7rem 1rem;text-align:left;border-bottom:2px solid var(--border);
+}
+.syl-table td{padding:.6rem 1rem;border-bottom:1px solid var(--border);color:var(--text);}
+.syl-table tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+.syl-table .ch-link{
+  color:var(--accent);text-decoration:none;font-weight:600;
+  transition:color .15s;
+}
+.syl-table .ch-link:hover{color:#fff;}
+.badge{
+  display:inline-block;font-size:.65rem;padding:.15rem .5rem;border-radius:20px;
+  font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+}
+.badge-cyan{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.25);}
+.badge-gold{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+
+/* HOW TO USE */
+.how{max-width:860px;margin:0 auto 5rem;padding:0 2rem;}
+.how h2{font-family:var(--serif);font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:2rem;text-align:center;}
+.steps-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem;}
+.step-box{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1.4rem;text-align:center;
+}
+.step-n{
+  width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.12);
+  border:1px solid rgba(0,212,255,.25);color:var(--accent);
+  font-family:var(--mono);font-size:.85rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;
+}
+.step-box h4{font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.4rem;}
+.step-box p{font-size:.8rem;color:var(--muted);}
+
+footer{
+  text-align:center;padding:2.5rem 2rem;background:var(--surface);
+  border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;
+}
+@media(max-width:600px){
+  .nav-links{display:none;}
+  .cards-grid{grid-template-columns:1fr;}
+  .stats{gap:2rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="chapter2.html">Ch.2</a>
+    <a href="chapter3.html">Ch.3</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter8.html">Ch.8</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html">Ch.12</a>
+    <a href="chapter14.html">Ch.14</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">23ECE311 / 23CCE312 · Andrea Goldsmith</div>
+    <h1>Wireless Communications<br>Study Hub</h1>
+    <p class="hero-sub">Every concept explained from zero — what, why, how. With examples, formulas, and practice problems after every topic.</p>
+
+    <div class="cards-grid">
+
+      <!-- CH6 CARD -->
+      <a href="chapter6.html" class="course-card card-ch6">
+        <div class="card-num">Chapter 6</div>
+        <h2>Digital Modulation Performance</h2>
+        <p class="card-desc">BER analysis over AWGN and fading channels. From BPSK fundamentals to Rayleigh fading outage probability.</p>
+        <div class="card-topics">
+          <span class="topic-pill">AWGN & SNR</span>
+          <span class="topic-pill">BPSK / QPSK</span>
+          <span class="topic-pill">MPSK</span>
+          <span class="topic-pill">MPAM / MQAM</span>
+          <span class="topic-pill">FSK & CPFSK</span>
+          <span class="topic-pill">Craig's Q</span>
+          <span class="topic-pill">Fading BER</span>
+          <span class="topic-pill">Outage Prob.</span>
+        </div>
+        <div class="card-cta">Open Chapter 6</div>
+      </a>
+
+      <!-- CH10 CARD -->
+      <a href="chapter10.html" class="course-card card-ch10">
+        <div class="card-num" style="color:var(--gold)">Chapter 10</div>
+        <h2>MIMO & Space-Time Communications</h2>
+        <p class="card-desc">Multiple antenna systems, SVD decomposition, channel capacity, water-filling, and uniform power allocation.</p>
+        <div class="card-topics">
+          <span class="topic-pill">MIMO Model</span>
+          <span class="topic-pill">y = Hx + n</span>
+          <span class="topic-pill">SVD</span>
+          <span class="topic-pill">Parallel Channels</span>
+          <span class="topic-pill">Shannon Capacity</span>
+          <span class="topic-pill">Water-Filling</span>
+          <span class="topic-pill">CSIT / CSIR</span>
+          <span class="topic-pill">Linear Growth</span>
+        </div>
+        <div class="card-cta" style="color:var(--gold)">Open Chapter 10</div>
+      </a>
+
+      <!-- CH11 CARD -->
+      <a href="chapter11.html" class="course-card card-ch11">
+        <div class="card-num" style="color:var(--green)">Chapter 11</div>
+        <h2>Equalization</h2>
+        <p class="card-desc">ISI mitigation from delay spread. Noise enhancement trade-off, linear and nonlinear equalizers, folded spectrum, ZF and MMSE design.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Delay Spread & ISI</span>
+          <span class="topic-pill">Noise Enhancement</span>
+          <span class="topic-pill">Equalizer Types</span>
+          <span class="topic-pill">ZF Equalizer</span>
+          <span class="topic-pill">MMSE Equalizer</span>
+          <span class="topic-pill">DFE</span>
+          <span class="topic-pill">MLSE</span>
+          <span class="topic-pill">Folded Spectrum</span>
+        </div>
+        <div class="card-cta" style="color:var(--green)">Open Chapter 11</div>
+      </a>
+
+      <!-- CH12 CARD -->
+      <a href="chapter12.html" class="course-card card-ch12">
+        <div class="card-num" style="color:var(--purple)">Chapter 12</div>
+        <h2>Multicarrier Modulation & OFDM</h2>
+        <p class="card-desc">Dividing wideband channels into many flat-fading narrowband subchannels. Overlapping subcarriers, cyclic prefix, IFFT/FFT implementation, and frequency equalization.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Multicarrier Idea</span>
+          <span class="topic-pill">Coherence Bandwidth</span>
+          <span class="topic-pill">Orthogonal Subcarriers</span>
+          <span class="topic-pill">Overlapping Channels</span>
+          <span class="topic-pill">OFDM</span>
+          <span class="topic-pill">IFFT / FFT</span>
+          <span class="topic-pill">Cyclic Prefix</span>
+          <span class="topic-pill">Freq. Equalization</span>
+        </div>
+        <div class="card-cta" style="color:var(--purple)">Open Chapter 12</div>
+      </a>
+
+      <!-- CH14 CARD -->
+      <a href="chapter14.html" class="course-card card-ch14">
+        <div class="card-num" style="color:var(--gold)">Chapter 14</div>
+        <h2>Multiple Access — TDMA, FDMA, CDMA, SDMA</h2>
+        <p class="card-desc">How multiple users share limited wireless spectrum. Orthogonal channelisation, near-far effect, power control, signal space dimension, and real-system examples.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Multiple Access</span>
+          <span class="topic-pill">FDMA</span>
+          <span class="topic-pill">TDMA</span>
+          <span class="topic-pill">CDMA</span>
+          <span class="topic-pill">SDMA</span>
+          <span class="topic-pill">Signal Space 2BT</span>
+          <span class="topic-pill">Near-Far Effect</span>
+          <span class="topic-pill">OFDMA</span>
+        </div>
+        <div class="card-cta" style="color:var(--gold)">Open Chapter 14</div>
+      </a>
+
+      <!-- CH8 CARD -->
+      <a href="chapter8.html" class="course-card card-ch8">
+        <div class="card-num" style="color:var(--red)">Chapter 8</div>
+        <h2>Coding for Wireless Channels</h2>
+        <p class="card-desc">Error detection and correction from first principles. Block codes, convolutional codes, Viterbi decoding, and coding for fading channels.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Coding Gain</span>
+          <span class="topic-pill">Block Codes (n,k)</span>
+          <span class="topic-pill">Hamming Distance</span>
+          <span class="topic-pill">Generator Matrix</span>
+          <span class="topic-pill">Convolutional Codes</span>
+          <span class="topic-pill">Trellis Diagram</span>
+          <span class="topic-pill">Viterbi Algorithm</span>
+          <span class="topic-pill">Interleaving</span>
+        </div>
+        <div class="card-cta" style="color:var(--red)">Open Chapter 8</div>
+      </a>
+
+      <!-- CH2 CARD -->
+      <a href="chapter2.html" class="course-card card-ch2">
+        <div class="card-num" style="color:var(--accent2)">Chapter 2</div>
+        <h2>Path Loss & Shadowing</h2>
+        <p class="card-desc">How wireless signals weaken with distance. Free-space loss, two-ray model, simplified path-loss model, and log-normal shadow fading.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Path Loss</span>
+          <span class="topic-pill">Shadowing</span>
+          <span class="topic-pill">Free-Space Model</span>
+          <span class="topic-pill">Two-Ray Model</span>
+          <span class="topic-pill">Inverse-Square Law</span>
+          <span class="topic-pill">d⁻⁴ Law</span>
+          <span class="topic-pill">Simplified Model γ</span>
+          <span class="topic-pill">Log-Normal Fading</span>
+        </div>
+        <div class="card-cta" style="color:var(--accent2)">Open Chapter 2</div>
+      </a>
+
+      <!-- CH3 CARD -->
+      <a href="chapter3.html" class="course-card card-ch3">
+        <div class="card-num" style="color:var(--purple)">Chapter 3</div>
+        <h2>Statistical Multipath Channel Models</h2>
+        <p class="card-desc">Time-varying impulse response, narrowband vs wideband fading, power delay profile, delay spread, Doppler spread, coherence bandwidth, and coherence time.</p>
+        <div class="card-topics">
+          <span class="topic-pill">Multipath Fading</span>
+          <span class="topic-pill">c(τ,t) Impulse Response</span>
+          <span class="topic-pill">Narrowband vs Wideband</span>
+          <span class="topic-pill">Power Delay Profile</span>
+          <span class="topic-pill">RMS Delay Spread</span>
+          <span class="topic-pill">WSSUS Model</span>
+          <span class="topic-pill">Doppler Spread</span>
+          <span class="topic-pill">Coherence Time</span>
+        </div>
+        <div class="card-cta" style="color:var(--purple)">Open Chapter 3</div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">8</div>
+    <div class="stat-label">Chapters</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">80+</div>
+    <div class="stat-label">Topics</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">150+</div>
+    <div class="stat-label">Practice Problems</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">40+</div>
+    <div class="stat-label">Worked Examples</div>
+  </div>
+</div>
+
+<!-- SYLLABUS TABLE -->
+<div class="syllabus">
+  <h2>What's Inside</h2>
+  <p class="syl-sub">Every section from your syllabus, explained from first principles</p>
+  <table class="syl-table">
+    <tr>
+      <th>Unit</th><th>Topic</th><th>Sections</th><th>Book</th>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>Unit 1</strong></td>
+      <td><a href="chapter6.html#s61" class="ch-link">SNR, Eb/N₀, AWGN</a></td>
+      <td>6.1, 6.1.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter6.html#bpsk" class="ch-link">BER Performance — BPSK, QPSK, MPSK, MPAM, MQAM, FSK</a></td>
+      <td>6.1.2 – 6.1.7</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter6.html#fading" class="ch-link">Fading BER, Outage Probability, Avg BER</a></td>
+      <td>6.2, 6.3.1, 6.3.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>Unit 2</strong></td>
+      <td><a href="chapter10.html#mimo-intro" class="ch-link">Narrowband MIMO Model</a></td>
+      <td>10.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter10.html#mimo-svd" class="ch-link">Parallel Decomposition (SVD)</a></td>
+      <td>10.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter10.html#mimo-cap" class="ch-link">MIMO Channel Capacity, Water-Filling, No CSIT</a></td>
+      <td>10.3, 10.3.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Unit 1</strong></td>
+      <td><a href="chapter3.html#ch3-intro" class="ch-link">Multipath Fading — Intro, Constructive/Destructive Addition</a></td>
+      <td>3.0</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter3.html#ch3-impulse" class="ch-link">Time-Varying Impulse Response c(τ,t), Resolvability, Example 3.1</a></td>
+      <td>3.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter3.html#wideband" class="ch-link">Wideband Fading, ISI, Scattering Function, WSSUS Model</a></td>
+      <td>3.3</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter3.html#pdp" class="ch-link">Power Delay Profile, Delay Spread, Doppler Spectrum, Coherence Time</a></td>
+      <td>3.3.1, 3.3.3</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Unit 1</strong></td>
+      <td><a href="chapter2.html#intro" class="ch-link">Wireless Channel — Path Loss & Shadowing Overview</a></td>
+      <td>2.0–2.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter2.html#signal-model" class="ch-link">Transmit/Receive Signal Model, Doppler, Path Loss dB</a></td>
+      <td>2.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter2.html#free-space" class="ch-link">Free-Space Path Loss, Two-Ray Model, Example 2.1–2.2</a></td>
+      <td>2.3, 2.4.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter2.html#simplified" class="ch-link">Simplified Path-Loss Model, Shadow Fading, Example 2.3–2.4</a></td>
+      <td>2.6, 2.7</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Unit 1</strong></td>
+      <td><a href="chapter8.html#coding-intro" class="ch-link">Coding Overview — Pb, Coding Gain, Waterfall, Fading</a></td>
+      <td>8.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter8.html#block-codes" class="ch-link">Linear Block Codes — (n,k), Hamming Distance, dmin</a></td>
+      <td>8.2, 8.2.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter8.html#generator" class="ch-link">Generator Matrix — Systematic Codes, Example 8.2</a></td>
+      <td>8.2.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter8.html#conv-codes" class="ch-link">Convolutional Codes — Trellis, Viterbi Algorithm</a></td>
+      <td>8.3, 8.3.1, 8.3.3</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+      <td>14.2 intro</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter14.html#fdma" class="ch-link">FDMA — Guard Bands, Flat Fading, Example 14.1</a></td>
+      <td>14.2.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter14.html#tdma" class="ch-link">TDMA — Sync, ISI, GSM Example 14.2</a></td>
+      <td>14.2.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter14.html#cdma" class="ch-link">CDMA — Codes, Near-Far, Power Control, SDMA</a></td>
+      <td>14.2.3, 14.2.4</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+      <td>12.1 intro</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter12.html#mc-data" class="ch-link">Data Transmission Using Multiple Carriers</a></td>
+      <td>12.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter12.html#mc-overlap" class="ch-link">Overlapping Subchannels & Orthogonality</a></td>
+      <td>12.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter12.html#ofdm" class="ch-link">OFDM — IFFT/FFT, Cyclic Prefix, Freq. Equalization</a></td>
+      <td>12.4.3</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter11.html#noise-enhance" class="ch-link">Equalizer Noise Enhancement</a></td>
+      <td>11.1</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter11.html#eq-types" class="ch-link">Equalizer Types — Linear, DFE, MLSE</a></td>
+      <td>11.2</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+    <tr>
+      <td><a href="chapter11.html#folded" class="ch-link">Folded Spectrum, ISI-Free Condition, ZF Equalizer</a></td>
+      <td>11.3, 11.4</td>
+      <td><span class="badge badge-cyan">AG</span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- HOW TO USE -->
+<div class="how">
+  <h2>How to Use This Site</h2>
+  <div class="steps-row">
+    <div class="step-box">
+      <div class="step-n">1</div>
+      <h4>Pick a Chapter</h4>
+      <p>Use the cards above or the nav bar to open Chapter 6 or Chapter 10.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-n">2</div>
+      <h4>Read Each Topic</h4>
+      <p>Every concept is explained from scratch — what it is, why it exists, and how it works.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-n">3</div>
+      <h4>Try the Problems</h4>
+      <p>Practice problems appear after every topic. Click "Show Solution" to check your work.</p>
+    </div>
+    <div class="step-box">
+      <div class="step-n">4</div>
+      <h4>Use the Sidebar</h4>
+      <p>Jump to any section instantly using the sidebar on each chapter page.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Based on <strong>Andrea Goldsmith, Wireless Communications, Cambridge University Press</strong></p>
+  <p style="margin-top:.4rem;">23ECE311 / 23CCE312 · Chapter 6 · Chapter 10</p>
+</footer>
+
+</body>
+</html>

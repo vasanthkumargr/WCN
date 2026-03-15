@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 — Statistical Multipath Channel Models | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#b47eff;--accent2:#00d4ff;--gold:#ffc940;--green:#00e5a0;--red:#ff4f6e;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.67rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .5rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(180,126,255,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(180,126,255,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(180,126,255,.07) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(180,126,255,.1);border:1px solid rgba(180,126,255,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-gr{border-left:3px solid var(--green);}
+.card.bl-r{border-left:3px solid var(--red);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(180,126,255,.05);border:1px solid rgba(180,126,255,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(180,126,255,.04);border:1px solid rgba(180,126,255,.18);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(180,126,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--accent2);}
+.cmp-box.c3 h5{color:var(--gold);}
+.cmp-box.c4 h5{color:var(--green);}
+.hl{background:linear-gradient(135deg,rgba(180,126,255,.07),rgba(0,212,255,.04));border:1px solid rgba(180,126,255,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(180,126,255,.12);color:var(--accent);border:1px solid rgba(180,126,255,.25);}
+.p-b{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-gr{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.dual-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.2rem 0;}
+.dual-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;}
+.dual-item .di-top{font-size:.78rem;color:var(--muted);margin-bottom:.3rem;}
+.dual-item .di-main{font-family:var(--mono);color:var(--accent);font-size:.95rem;font-weight:700;}
+.dual-item .di-bot{font-size:.75rem;color:var(--muted);margin-top:.2rem;}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp,.dual-box{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter2.html">Ch.2</a>
+    <a href="chapter3.html" class="active">Ch.3</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter8.html">Ch.8</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html">Ch.12</a>
+    <a href="chapter14.html">Ch.14</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 3 · Multipath</div>
+  <a href="#ch3-intro" class="sb-link">§3 Introduction</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ What is fading?</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ Multipath propagation</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ Constructive/destructive</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ Why statistical models</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ Delay spread intro</a>
+  <a href="#ch3-intro" class="sb-link sub">↳ Narrowband vs wideband</a>
+  <div class="sb-sep"></div>
+  <a href="#ch3-impulse" class="sb-link">§3.1 Time-Varying Impulse Response</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Transmitted signal s(t)</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Received signal r(t) — sum of paths</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ αn, τn, φDn parameters</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Resolvable vs non-resolvable</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ c(τ,t) impulse response</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Convolution with channel</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Delta function sum</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Example 3.1 conveyor belt</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Why small delay → large phase</a>
+  <a href="#ch3-impulse" class="sb-link sub">↳ Delay spread Tm values</a>
+  <div class="sb-sep"></div>
+  <a href="#wideband" class="sb-link">§3.3 Wideband Fading Models</a>
+  <a href="#wideband" class="sb-link sub">↳ Narrowband vs wideband key diff.</a>
+  <a href="#wideband" class="sb-link sub">↳ ISI from delay spread</a>
+  <a href="#wideband" class="sb-link sub">↳ ISI mitigation techniques</a>
+  <a href="#wideband" class="sb-link sub">↳ Rayleigh in wideband</a>
+  <a href="#wideband" class="sb-link sub">↳ Scattering function Sc(τ,ρ)</a>
+  <a href="#wideband" class="sb-link sub">↳ Autocorrelation Ac(τ1,τ2;Δt)</a>
+  <a href="#wideband" class="sb-link sub">↳ WSSUS channel model</a>
+  <div class="sb-sep"></div>
+  <a href="#pdp" class="sb-link">§3.3.1 Power Delay Profile</a>
+  <a href="#pdp" class="sb-link sub">↳ PDP definition Ac(τ)</a>
+  <a href="#pdp" class="sb-link sub">↳ Mean delay spread μTm</a>
+  <a href="#pdp" class="sb-link sub">↳ RMS delay spread σTm</a>
+  <a href="#pdp" class="sb-link sub">↳ ISI condition Ts vs σTm</a>
+  <a href="#pdp" class="sb-link sub">↳ Exponential PDP model</a>
+  <a href="#pdp" class="sb-link sub">↳ Example 3.4 & 3.5</a>
+  <div class="sb-sep"></div>
+  <a href="#doppler" class="sb-link">§3.3.3 Doppler & Coherence Time</a>
+  <a href="#doppler" class="sb-link sub">↳ Why channel changes with time</a>
+  <a href="#doppler" class="sb-link sub">↳ Channel autocorrelation AC(Δt)</a>
+  <a href="#doppler" class="sb-link sub">↳ Doppler power spectrum SC(ρ)</a>
+  <a href="#doppler" class="sb-link sub">↳ Doppler spread BD</a>
+  <a href="#doppler" class="sb-link sub">↳ Coherence time Tc ≈ 1/BD</a>
+  <a href="#doppler" class="sb-link sub">↳ Example 3.7</a>
+  <a href="#doppler" class="sb-link sub">↳ Four dual relationships</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 3 · Andrea Goldsmith</div>
+    <h1>Statistical Multipath<br><span>Channel Models</span></h1>
+    <p>From why wireless signals fade, to the time-varying impulse response c(τ,t), resolvable multipath, wideband ISI, the WSSUS model, power delay profile, delay spread, Doppler spread, and coherence time. Every concept from zero.</p>
+    <div class="ph-chips">
+      <a href="#ch3-intro" class="ph-chip">Intro</a>
+      <a href="#ch3-impulse" class="ph-chip">§3.1 c(τ,t)</a>
+      <a href="#wideband" class="ph-chip">§3.3 Wideband</a>
+      <a href="#pdp" class="ph-chip">§3.3.1 PDP</a>
+      <a href="#doppler" class="ph-chip">§3.3.3 Doppler</a>
+      <a href="#problems" class="ph-chip">Summary</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     INTRODUCTION
+══════════════════════════════════════ -->
+<section class="section" id="ch3-intro">
+  <div class="sec-badge"><span class="dot"></span>Chapter 3 — Introduction</div>
+  <h2>What is Fading? — The Multipath Story</h2>
+  <p class="lead">Chapter 2 explained how signal power decreases with distance (path loss and shadowing). Chapter 3 zooms in to the fast, random fluctuations that happen even when you stand still — caused by multiple signal copies arriving from different paths.</p>
+
+  <h3>Step 1 — What is Fading?</h3>
+  <p>Even when a phone doesn't move, received signal strength can fluctuate rapidly. Sometimes strong, sometimes almost zero — this random variation is called <strong>fading</strong>. It's caused by multipath propagation.</p>
+
+  <h3>Step 2 — Multipath Propagation</h3>
+  <p>A transmitted signal reaches the receiver via many different paths:</p>
+  <div class="const-wrap"><pre>
+  📡 Transmitter
+       │
+       ├─────────────────────────── direct path (LOS)
+       │
+       ├──→ building → reflected ──→  📱 Receiver
+       │
+       ├──→ car → scattered ─────────→ 📱 Receiver
+       │
+       └──→ tree → diffracted ───────→ 📱 Receiver
+
+  Receiver gets: copy1 + copy2 + copy3 + copy4
+  Each copy has different: time delay, amplitude, phase</pre>
+    <div class="const-label">Multipath propagation — receiver gets many delayed copies of the same transmitted signal</div>
+  </div>
+
+  <h3>Step 3 — Constructive and Destructive Addition</h3>
+  <div class="cmp">
+    <div class="cmp-box c4">
+      <h5>Constructive Addition → Strong signal</h5>
+      <p>Signal copies arrive in phase — they add together. The combined signal is stronger than any individual component.</p>
+      <code>+1 + 1 = +2 → strong</code>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Destructive Addition → Weak signal</h5>
+      <p>Signal copies arrive out of phase — they cancel each other. The combined signal nearly disappears.</p>
+      <code>+1 + (−1) = 0 → deep fade</code>
+    </div>
+  </div>
+  <p>Since the receiver moves (or objects move), the relative phases constantly change → signal randomly fluctuates between strong and weak. This is <strong>small-scale fading</strong>.</p>
+
+  <h3>Step 4 — Why Statistical Models Are Needed</h3>
+  <p>In Chapter 2 we used ray-tracing for deterministic channels — we knew exactly where every reflector was. In practice:</p>
+  <ul class="nice">
+    <li>Objects (buildings, cars, people) move constantly</li>
+    <li>Channel changes in unpredictable ways</li>
+    <li>Exact reflector positions are unknown</li>
+  </ul>
+  <p>So instead of exact calculations, we characterize the channel using <strong>probability distributions</strong> — describing the random amplitude, phase, and delay of each multipath component.</p>
+
+  <h3>Step 5 — Delay Spread and Its Effects</h3>
+  <div class="const-wrap"><pre>
+  Transmit one pulse:
+
+  |█|  ← transmitted pulse (duration T)
+
+  Receive pulse train:
+  |█|   |█|   |█|    ← multiple delayed copies
+   t1    t2    t3
+
+  Delay spread Tm = t3 − t1 (last arrival − first arrival)</pre></div>
+  <p>The impact depends on the ratio of delay spread to symbol duration:</p>
+  <table>
+    <tr><th>Condition</th><th>Channel type</th><th>Effect</th></tr>
+    <tr><td>Tm ≪ T (symbol duration)</td><td><span class="pill p-b">Narrowband</span></td><td>All multipath overlaps → amplitude/phase fading only, no time spreading</td></tr>
+    <tr><td>Tm ≈ T or Tm ≫ T</td><td><span class="pill p-a">Wideband</span></td><td>Multipath components are resolvable → ISI between symbols</td></tr>
+  </table>
+
+  <h3>Step 6 — Scale of Variations</h3>
+  <table>
+    <tr><th>Effect</th><th>Distance scale</th><th>Cause</th><th>Chapter</th></tr>
+    <tr><td>Path Loss</td><td>100–1000 m</td><td>Energy spreading</td><td>2</td></tr>
+    <tr><td>Shadowing</td><td>10–100 m</td><td>Obstacles blocking signal</td><td>2</td></tr>
+    <tr><td><strong>Small-scale fading</strong></td><td>~1 wavelength (cm)</td><td>Constructive/destructive multipath</td><td><strong>3</strong></td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §3 Introduction</div>
+    <ol>
+      <li>A wireless channel has 4 multipath components arriving at t = 0, 50, 150, 300 ns. (a) What is the delay spread Tm? (b) If signal bandwidth = 5 MHz, is this narrowband or wideband? (hint: compare Tm to 1/B)</li>
+      <li>Explain why two receivers at exactly the same distance from a base station can have very different received power due to small-scale fading, even though their path loss is identical.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Tm = 300 − 0 = 300 ns. (b) 1/B = 1/5×10⁶ = 200 ns. Since Tm = 300 ns > 200 ns, the delay spread exceeds the inverse bandwidth → wideband channel → multipath components are resolvable → ISI will occur.</p>
+      <p><strong>2.</strong> Even at the same distance, the specific set of reflectors between each receiver and the base station is different. One receiver might have 3 copies arriving nearly in-phase (constructive → strong signal) while the other has copies arriving out of phase (destructive → weak signal, deep fade). The path-loss model only predicts the average power at that distance; small-scale fading causes large random deviations of ±20–30 dB around this average.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §3.1 TIME-VARYING IMPULSE RESPONSE
+══════════════════════════════════════ -->
+<section class="section" id="ch3-impulse">
+  <div class="sec-badge"><span class="dot"></span>Section 3.1 — Time-Varying Channel Impulse Response</div>
+  <h2>Modelling the Multipath Channel Mathematically</h2>
+  <p class="lead">The time-varying impulse response c(τ,t) is the core mathematical tool for describing multipath channels. This section builds it from the transmitted signal all the way to the final compact expression.</p>
+
+  <h3>Step 1 — Transmitted Signal (Recap)</h3>
+  <div class="fbox">
+    <span class="fb big">s(t) = Re{u(t)·e^(j2πfct)}</span>
+    <span class="fl">Same as Chapter 2 · u(t) = complex baseband signal with bandwidth Bu · fc = carrier frequency</span>
+  </div>
+  <p>The signal u(t) contains the actual data. It is upconverted to carrier frequency fc for transmission through the antenna.</p>
+
+  <h3>Step 2 — Received Signal: Sum of All Multipath Copies</h3>
+  <div class="fbox">
+    <span class="fb big">r(t) = Re{ Σₙ αₙ(t)·u(t−τₙ(t))·e^(j(2πfc(t−τₙ(t))+φDn)) }</span>
+    <span class="fl">Eq. (3.2) · sum over n = 0 (LOS) to N(t) multipath components · each term = one signal copy</span>
+  </div>
+  <p>The receiver gets the sum of N(t)+1 copies of the signal, each delayed by a different amount and scaled by a different amplitude.</p>
+
+  <h3>Step 3 — What Each Parameter Means</h3>
+  <table>
+    <tr><th>Parameter</th><th>Symbol</th><th>Physical meaning</th><th>Changes because of…</th></tr>
+    <tr><td>Number of paths</td><td>N(t)</td><td>How many distinct signal paths exist at time t</td><td>Objects appearing/disappearing</td></tr>
+    <tr><td>Path amplitude</td><td>αₙ(t)</td><td>Strength of the n-th path — depends on path loss and reflection losses</td><td>Shadowing, reflection angle changes</td></tr>
+    <tr><td>Path delay</td><td>τₙ(t) = rₙ(t)/c</td><td>How long the n-th path takes to arrive</td><td>Receiver/reflector movement changes path length rₙ</td></tr>
+    <tr><td>Doppler phase shift</td><td>φDn(t) = ∫2πfDn dt</td><td>Phase accumulation from Doppler effect</td><td>Velocity v and arrival angle θₙ change</td></tr>
+    <tr><td>Doppler frequency</td><td>fDn = v·cosθₙ/λ</td><td>Frequency shift of n-th path due to motion</td><td>Speed and direction of motion</td></tr>
+  </table>
+
+  <h3>Step 4 — Resolvable vs Non-Resolvable Multipath</h3>
+  <div class="card bl-b">
+    <p>Two multipath components with delays τ₁ and τ₂ are <strong>resolvable</strong> if:</p>
+    <div class="fbox"><span class="fb big">|τ₁ − τ₂| ≫ 1/Bu</span><span class="fl">Their delay difference significantly exceeds the inverse signal bandwidth · Bu = signal bandwidth</span></div>
+    <div class="cmp">
+      <div class="cmp-box c2">
+        <h5>Resolvable (wideband signals)</h5>
+        <p>Receiver sees separate pulse echoes. Each component is distinguishable. Typical in wideband systems (radar, UWB, CDMA).</p>
+        <p><code>|pulse1|     |pulse2|</code></p>
+      </div>
+      <div class="cmp-box c1">
+        <h5>Non-resolvable (narrowband signals)</h5>
+        <p>Components arrive so close in time they merge into one combined signal. Their random phases cause fast fading amplitude variations.</p>
+        <p><code>|combined pulse|</code></p>
+      </div>
+    </div>
+  </div>
+  <div class="why"><div class="wi">🔍</div><div>
+    <strong>Intuition:</strong> Signal bandwidth determines time resolution: resolution ≈ 1/Bu. A 10 MHz signal resolves paths separated by 100 ns. A 10 kHz signal cannot separate paths unless they differ by 100 µs. So wideband systems see many separate echoes; narrowband systems see one fluctuating combined signal.
+  </div></div>
+
+  <h3>Step 5 — Simplified Phase Term</h3>
+  <p>Define the combined phase for each path:</p>
+  <div class="fbox">
+    <span class="fb">φₙ(t) = 2π·fc·τₙ(t) − φDn(t)</span>
+    <span class="fl">Combines the delay-induced phase (2πfcτn) and the Doppler phase shift (φDn) into one term</span>
+  </div>
+  <p>The received signal simplifies to:</p>
+  <div class="fbox">
+    <span class="fb big">r(t) = Re{ Σₙ αₙ(t)·e^(−jφₙ(t))·u(t−τₙ(t))·e^(j2πfct) }</span>
+    <span class="fl">Eq. (3.4) — each path multiplies u(t) by a complex scaling αₙe^(−jφₙ) and delays it by τₙ</span>
+  </div>
+
+  <h3>Step 6 — Channel as a Linear Filter: Convolution Form</h3>
+  <div class="fbox">
+    <span class="fb big">r(t) = Re{ [∫ c(τ,t)·u(t−τ) dτ] · e^(j2πfct) }</span>
+    <span class="fl">Eq. (3.5) — the received baseband signal = convolution of u(t) with the channel impulse response c(τ,t)</span>
+  </div>
+  <div class="why"><div class="wi">🎚️</div><div>
+    <strong>Why convolution?</strong> The channel acts exactly like a linear filter on the baseband signal u(t). A filter's output = input convolved with the filter's impulse response. Here c(τ,t) is the channel's "filter" — but unlike a fixed filter, it changes with time t.
+  </div></div>
+
+  <h3>Step 7 — The Time-Varying Impulse Response c(τ,t)</h3>
+  <div class="fbox">
+    <span class="fb big">c(τ,t) = Σₙ αₙ(t)·e^(−jφₙ(t))·δ(τ − τₙ(t))</span>
+    <span class="fl">Eq. (3.6) — sum of delta functions at each multipath delay · each delta weighted by complex amplitude αₙe^(−jφₙ)</span>
+  </div>
+  <h4>The Two Time Variables — Don't Confuse Them!</h4>
+  <table>
+    <tr><th>Variable</th><th>Meaning</th><th>Analogy</th></tr>
+    <tr><td>τ (tau)</td><td>Delay — the "age" of the impulse response (how long ago was the impulse launched?)</td><td>The x-axis showing different multipath delays</td></tr>
+    <tr><td>t</td><td>Observation time — when are we looking at the channel?</td><td>The channel changes as time goes on</td></tr>
+  </table>
+  <div class="const-wrap"><pre>
+  Visualising c(τ,t):
+
+  At time t1 (3 paths):       At time t2 (2 paths):
+  Power                        Power
+    ↑                            ↑
+    |  *                         |  *
+    |      *                     |      *
+    |          *                 |
+    +───────────→ delay τ        +───────────→ delay τ
+    τ1    τ2   τ3               τ1    τ2
+
+  Same channel — different snapshots at different times!</pre>
+    <div class="const-label">c(τ,t) is like a movie of the channel impulse response — each frame is a different time t</div>
+  </div>
+
+  <h4>Delta Function Role</h4>
+  <p>The delta function δ(τ − τₙ) is zero everywhere except at exactly τ = τₙ. Using the sifting property: ∫δ(τ−τₙ)·u(t−τ) dτ = u(t−τₙ). So each delta function "picks out" one delayed copy of the signal.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 3.1 — Conveyor Belt Channel (Textbook)</div>
+    <p>A wireless LAN near a conveyor belt. LOS path always exists (gain α₀, phase φ₀, delay τ₀). Every T₀ seconds a metal object passes, creating an extra reflected path (gain α₁, phase φ₁, delay τ₁).</p>
+    <div class="cmp">
+      <div class="cmp-box c2">
+        <h5>When NO metal object (t ≠ nT₀)</h5>
+        <p>Only LOS path. Channel has one spike:</p>
+        <code>c(τ,t) = α₀·e^(jφ₀)·δ(τ−τ₀)</code>
+      </div>
+      <div class="cmp-box c1">
+        <h5>When metal object present (t = nT₀)</h5>
+        <p>LOS + reflection. Channel has two spikes:</p>
+        <code>c(τ,t) = α₀e^(jφ₀)δ(τ−τ₀) + α₁e^(jφ₁)δ(τ−τ₁)</code>
+      </div>
+    </div>
+    <p>This is a simple but concrete illustration of a time-varying channel — the channel literally switches between two different impulse responses periodically.</p>
+  </div>
+
+  <h3>Step 8 — Why Small Delay Changes Cause Rapid Fading</h3>
+  <div class="card bl-a">
+    <p>Phase of the n-th path: <code>φₙ = 2π·fc·τₙ</code></p>
+    <p>Example: fc = 1 GHz, τₙ = 50 ns → fc·τₙ = 50 (50 complete cycles!)</p>
+    <p>A tiny change in path length by just λ/2 = 15 cm changes the delay by 0.5 ns, which changes the phase by 2π·1GHz·0.5ns = π radians (180°). That's the difference between fully constructive and fully destructive interference!</p>
+    <div class="hl"><strong>Key insight:</strong> Because fc·τₙ ≫ 1, even tiny movements (centimetres) cause phase to cycle through 0°→360°→0°... rapidly. This is why small-scale fading happens over distances of just a few wavelengths — moving 12.5 cm at 2.4 GHz changes your fading completely.</div>
+  </div>
+
+  <h3>Step 9 — Typical Delay Spread Values</h3>
+  <table>
+    <tr><th>Environment</th><th>Delay Spread Tm</th><th>Why</th></tr>
+    <tr><td>Indoor (office/home)</td><td>10–1000 ns</td><td>Small spaces, fewer reflectors, close walls</td></tr>
+    <tr><td>Suburban</td><td>200–2000 ns</td><td>Houses, trees at medium distances</td></tr>
+    <tr><td>Urban</td><td>1–30 µs</td><td>Tall buildings create very long reflection paths</td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §3.1</div>
+    <ol>
+      <li>A channel has 3 paths: (α₁=1.0, τ₁=0, φ₁=0), (α₂=0.5, τ₂=100ns, φ₂=π/2), (α₃=0.3, τ₃=250ns, φ₃=π). Write out c(τ,t) assuming the channel is time-invariant.</li>
+      <li>At fc = 2.4 GHz, a receiver moves 6 cm toward the transmitter. (a) What wavelength λ? (b) How much does the path delay change? (c) What is the phase change? Is the signal now more constructive or destructive compared to before?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Time-invariant: c(τ) = 1.0·e^(j0)·δ(τ−0) + 0.5·e^(jπ/2)·δ(τ−100ns) + 0.3·e^(jπ)·δ(τ−250ns) = δ(τ) + 0.5j·δ(τ−100ns) − 0.3·δ(τ−250ns). Three spikes at τ=0, 100ns, 250ns with complex weights 1, 0.5j, −0.3.</p>
+      <p><strong>2.</strong> (a) λ = c/fc = 3×10⁸/2.4×10⁹ = 0.125 m = 12.5 cm. (b) Moving 6 cm toward transmitter reduces path length by 6 cm, so delay decreases by 6×10⁻²/(3×10⁸) = 0.2 ns. (c) Phase change = 2π·fc·Δτ = 2π×2.4×10⁹×0.2×10⁻⁹ = 2π×0.48 = 0.96π ≈ 173°. That's almost 180° — from nearly constructive to nearly destructive (or vice versa). Just 6 cm of movement completely changes the fading condition!</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §3.3 WIDEBAND FADING
+══════════════════════════════════════ -->
+<section class="section" id="wideband">
+  <div class="sec-badge"><span class="dot"></span>Section 3.3 — Wideband Fading Models</div>
+  <h2>Wideband Fading — When Multipath Spreads the Signal in Time</h2>
+  <p class="lead">In narrowband fading, all multipath arrives simultaneously and just changes amplitude. In wideband fading, separate echoes arrive at different times — causing the signal to smear in time and interfere with subsequent symbols.</p>
+
+  <h3>Step 1 — The Core Difference: Narrowband vs Wideband</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Narrowband: Tm ≪ T</h5>
+      <p>All multipath signals arrive roughly at same time. They combine into one signal with random amplitude and phase. No time spreading. Received signal duration ≈ T.</p>
+      <div class="const-wrap" style="margin:.4rem 0;"><pre style="font-size:.72rem;">Sent:  |████|
+Recv:  |████|  (same duration, random amp)</pre></div>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Wideband: Tm ≈ T or Tm ≫ T</h5>
+      <p>Multipath arrivals are spaced apart in time. Received signal spreads to duration T + Tm. Multiple echoes visible. ISI occurs.</p>
+      <div class="const-wrap" style="margin:.4rem 0;"><pre style="font-size:.72rem;">Sent:  |████|
+Recv:  |████| |███| |██|  (spread out!)</pre></div>
+    </div>
+  </div>
+  <div class="hl"><strong>Critical boundary:</strong> When signal bandwidth B ≈ 1/Tm, the narrowband approximation u(t−τₙ) ≈ u(t) breaks down. The received signal becomes a distorted sum of delayed copies rather than a scaled/shifted version of the original.</div>
+
+  <h3>Step 2 — Inter-Symbol Interference (ISI)</h3>
+  <div class="const-wrap"><pre>
+  Transmit symbols:  |Sym1|  |Sym2|  |Sym3|
+  Each symbol duration = T
+
+  Wideband channel with Tm > T:
+  Sym1 copies:  |Sym1|  |Sym1|  |Sym1|
+                        ↑overlap ↑overlap
+  Sym2:                 |Sym2|
+  Sym3:                        |Sym3|
+
+  Received at time of Sym2: Sym1_echo2 + Sym2 + Sym1_echo3
+                                         ↑ ISI contamination!</pre>
+    <div class="const-label">ISI — previous symbols' echoes arrive during the current symbol's time slot</div>
+  </div>
+
+  <h3>Step 3 — ISI Mitigation Techniques</h3>
+  <table>
+    <tr><th>Technique</th><th>How it works</th><th>Chapter</th></tr>
+    <tr><td><span class="pill p-b">Equalization</span></td><td>Receiver filter inverts channel distortion in time domain</td><td>Ch. 11</td></tr>
+    <tr><td><span class="pill p-gr">OFDM / Multicarrier</span></td><td>Split data into many slow subcarriers — each has long symbol time Ts ≫ Tm</td><td>Ch. 12</td></tr>
+    <tr><td><span class="pill p-g">Spread Spectrum</span></td><td>Intentionally spread signal bandwidth — use rake receiver to combine copies</td><td>Ch. 13</td></tr>
+  </table>
+
+  <h3>Step 4 — Statistical Model for Wideband Channels</h3>
+  <p>When many multipath components exist with random phases, by the Central Limit Theorem, c(τ,t) is a <strong>complex Gaussian process</strong>. Its envelope is Rayleigh-distributed — same as narrowband fading, but now the multipath components are resolvable in the delay dimension τ.</p>
+
+  <h3>Step 5 — Scattering Function Sc(τ, ρ)</h3>
+  <p>To capture both delay spread and Doppler effects, we take the Fourier transform of c(τ,t) with respect to t:</p>
+  <div class="fbox">
+    <span class="fb big">Sc(τ, ρ) = ∫ c(τ,t)·e^(−j2πρt) dt</span>
+    <span class="fl">Eq. (3.49) — Scattering function · τ = multipath delay axis · ρ = Doppler frequency axis</span>
+  </div>
+  <p>The scattering function shows how signal power is distributed across both delay τ and Doppler ρ. It's a 2D picture of the channel — a typical Sc(τ,ρ) plot looks like a "cloud" of power spread in both dimensions.</p>
+
+  <h3>Step 6 — Channel Autocorrelation Ac(τ₁, τ₂; Δt)</h3>
+  <p>For random channels we use the statistical autocorrelation:</p>
+  <div class="fbox">
+    <span class="fb">Ac(τ₁,τ₂; t, t+Δt) = E[c*(τ₁;t)·c(τ₂;t+Δt)]</span>
+    <span class="fl">Eq. (3.50) — expected correlation between channel responses at two delays and two times</span>
+  </div>
+
+  <h3>Step 7 — The WSSUS Channel Model</h3>
+  <div class="card bl-a">
+    <h4>Wide-Sense Stationary Uncorrelated Scattering (WSSUS)</h4>
+    <p>Most real wireless channels satisfy two properties:</p>
+    <p><strong>WSS (Wide-Sense Stationary):</strong> Channel statistics don't change with absolute time t — only the time difference Δt matters. So Ac(τ₁,τ₂; t, t+Δt) = Ac(τ₁,τ₂; Δt).</p>
+    <p><strong>US (Uncorrelated Scattering):</strong> Multipath components from different delays are independent of each other (caused by different physical reflectors):</p>
+    <div class="fbox"><span class="fb">E[c*(τ₁;t)·c(τ₂;t+Δt)] = Ac(τ;Δt)·δ(τ₁−τ₂)</span><span class="fl">Eq. (3.52) — τ₁ ≠ τ₂ components are uncorrelated · simplifies to a function of single delay τ and Δt</span></div>
+    <p>The WSSUS model, introduced by Bello (1963), is the standard model for practical wireless channels. It means: different delay taps evolve independently, and the statistics of each tap don't drift with time.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §3.3 Wideband</div>
+    <ol>
+      <li>A channel has delay spread Tm = 5 µs. A system uses symbol duration Ts = 0.5 µs. (a) Is this narrowband or wideband? (b) Will there be ISI? (c) Approximately how many symbol periods does the ISI span?</li>
+      <li>Explain why OFDM (multicarrier) avoids ISI even in a wideband channel. What property of OFDM's subcarrier symbols makes them essentially narrowband?</li>
+      <li>Why does the WSSUS assumption "uncorrelated scattering" make physical sense? What would it mean if two different delay components WERE correlated?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) Tm/Ts = 5/0.5 = 10 ≫ 1 → definitely wideband. (b) Yes, severe ISI. (c) The ISI spans approximately Tm/Ts = 10 symbol periods — the echo of symbol k contaminates symbols k+1, k+2, ..., k+10.</p>
+      <p><strong>2.</strong> OFDM divides the data into N parallel substreams. Each subcarrier has symbol duration TN = N × Ts — much longer. If N is chosen so TN ≫ Tm, each subcarrier's symbol time exceeds the delay spread → essentially narrowband on each subcarrier → no ISI. The cyclic prefix (Chapter 12) absorbs the remaining ISI at subcarrier boundaries.</p>
+      <p><strong>3.</strong> US makes sense because multipath components at different delays τ₁ ≠ τ₂ come from physically distinct reflectors — a building on the left vs. a car on the right. Their amplitudes and phases depend on completely different physical objects, so they should be statistically independent. If they were correlated, it would mean information about one reflector tells you about another distant reflector — physically unreasonable for independent scattering objects.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §3.3.1 POWER DELAY PROFILE
+══════════════════════════════════════ -->
+<section class="section" id="pdp">
+  <div class="sec-badge"><span class="dot"></span>Section 3.3.1 — Power Delay Profile</div>
+  <h2>Power Delay Profile — How Signal Power Spreads Over Delay</h2>
+  <p class="lead">The Power Delay Profile (PDP) is the key measurement of a wideband channel. It shows how much power arrives at each delay τ, and from it we compute the delay spread that determines ISI severity.</p>
+
+  <h3>Step 1 — What is the Power Delay Profile?</h3>
+  <div class="fbox">
+    <span class="fb big">Ac(τ) ≜ Ac(τ, Δt=0)</span>
+    <span class="fl">PDP = the autocorrelation at zero time difference · = average power associated with multipath delay τ</span>
+  </div>
+  <div class="const-wrap"><pre>
+  Power
+    ↑
+    |*
+    | *
+    |  **
+    |    ***
+    |       ****
+    |           *****
+    +──────────────────→ delay τ
+    0                  Tm
+
+  Each point on the curve shows how much average power arrives at that delay.
+  Strong early arrivals (LOS + strong reflections), weaker late arrivals.</pre>
+    <div class="const-label">Power Delay Profile — power-weighted distribution of multipath delays</div>
+  </div>
+
+  <h3>Step 2 — Mean Delay Spread</h3>
+  <div class="fbox">
+    <span class="fb big">μTm = ∫₀^∞ τ·Ac(τ) dτ / ∫₀^∞ Ac(τ) dτ</span>
+    <span class="fl">Eq. (3.54) — power-weighted average delay · like the "centre of mass" of the PDP · not always a good measure of spread</span>
+  </div>
+
+  <h3>Step 3 — RMS Delay Spread</h3>
+  <div class="fbox">
+    <span class="fb big">σTm = √( ∫₀^∞ (τ−μTm)²·Ac(τ) dτ / ∫₀^∞ Ac(τ) dτ )</span>
+    <span class="fl">Eq. (3.55) — standard deviation of the delay distribution · measures how spread out the multipath delays are around the mean</span>
+  </div>
+  <div class="why"><div class="wi">⚖️</div><div>
+    <strong>Why σTm is preferred over μTm:</strong> Mean delay spread μTm can be large even when all paths arrive at roughly the same time (e.g., two paths at 9 µs and 11 µs give μ=10 µs but σ=1 µs — the actual spreading is small). σTm correctly captures the variation around the mean. Engineers typically synchronise to the mean delay, so σTm measures the residual time spreading relative to that synchronisation point.
+  </div></div>
+
+  <h3>Step 4 — Power Weighting: Why Weak Paths Don't Matter Much</h3>
+  <p>The PDP acts like a probability distribution: <code>pTm(τ) = Ac(τ) / ∫Ac(τ)dτ</code>. Weak multipath components (low Ac(τ)) contribute little to delay spread. Components below the noise floor are effectively ignored. This is physically correct — you can't be "interfered with" by a signal you can't receive.</p>
+
+  <h3>Step 5 — ISI Condition Based on σTm</h3>
+  <table>
+    <tr><th>Condition</th><th>ISI level</th><th>Practical rule</th></tr>
+    <tr><td>Ts &gt; 10·σTm</td><td>Negligible ISI ✓</td><td>Safe to transmit at this symbol rate</td></tr>
+    <tr><td>Ts ≈ σTm</td><td>Moderate ISI ⚠</td><td>May need equalization</td></tr>
+    <tr><td>Ts &lt; σTm/10</td><td>Severe ISI ✗</td><td>Must use equalization, OFDM, or spread spectrum</td></tr>
+  </table>
+  <p>Engineers typically assume Ac(τ) ≈ 0 for τ &gt; 3·σTm, so the "effective" channel length ≈ 3·σTm.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 3.4 — Exponential PDP (Textbook)</div>
+    <p><strong>Model:</strong> Ac(τ) = (1/T̄m)·e^(−τ/T̄m) for τ ≥ 0 (exponential decay — common model for many real channels)</p>
+    <p><strong>Mean delay spread:</strong> μTm = ∫₀^∞ τ·(1/T̄m)·e^(−τ/T̄m) dτ = T̄m (standard result for exponential distribution)</p>
+    <p><strong>RMS delay spread:</strong> σTm = √(∫₀^∞ (τ−T̄m)²·(1/T̄m)·e^(−τ/T̄m) dτ) = √(2T̄m² − T̄m²) = T̄m</p>
+    <div class="hl"><strong>Result:</strong> For exponential PDP: μTm = σTm = T̄m. Mean and RMS delay spread are equal — a useful property of the exponential model.</div>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 3.5 — Maximum Symbol Rate (Textbook)</div>
+    <p><strong>Given:</strong> Ac(τ) = e^(−τ/0.00001) for 0 ≤ τ ≤ 20 µs (exponential PDP, truncated).</p>
+    <p><strong>Mean delay spread:</strong> μTm = 6.87 µs (numerical integration)</p>
+    <p><strong>RMS delay spread:</strong> σTm = 5.25 µs</p>
+    <p><strong>For negligible ISI:</strong> Ts &gt; 10·σTm = 52.5 µs</p>
+    <p><strong>Maximum symbol rate:</strong> Rs = 1/Ts = 1/52.5×10⁻⁶ = <strong>19.04 kSymbols/s</strong></p>
+    <div class="warn"><strong>This is extremely low!</strong> Voice needs ~32 kbps, data needs Mbps. A channel with 5 µs RMS delay spread limits unequalized data to ~19 kbps. This is why equalization, OFDM, and spread spectrum are essential for modern wireless systems.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §3.3.1 Power Delay Profile</div>
+    <ol>
+      <li>A channel has PDP: Ac(τ) = 1 for 0 ≤ τ ≤ 4 µs, 0 otherwise (uniform PDP). Find (a) μTm, (b) σTm, (c) the maximum symbol rate for negligible ISI.</li>
+      <li>Two channels: Channel A has σTm = 1 µs; Channel B has σTm = 10 µs. Both use the same modulation. Which requires more transmit power for equalization, and why?</li>
+      <li>A system must support voice (32 kbps, BPSK → 32 ksymbols/s). What is the maximum RMS delay spread the channel can have for negligible ISI without equalization?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> For uniform Ac(τ) = 1 over [0, 4µs]: (a) μTm = ∫₀^4 τ dτ / ∫₀^4 dτ = [τ²/2]₀^4 / 4 = 8/4 = 2 µs. (b) σ²Tm = ∫₀^4 (τ−2)² dτ / 4 = [(τ−2)³/3]₋₂^2 / 4 = (8/3+8/3)/4 = (16/3)/4 = 4/3. σTm = √(4/3) ≈ 1.155 µs. (c) Ts > 10×1.155 µs = 11.55 µs. Rs = 1/11.55µs ≈ 86.6 kSymbols/s.</p>
+      <p><strong>2.</strong> Channel B (σTm = 10 µs) requires more transmit power because: (1) ISI is more severe — more symbols are contaminated by each previous symbol's echoes; (2) The equalizer must have more taps (≈ Tm/Ts more taps for Channel B); (3) The noise enhancement in the equalizer is larger for channels with deeper spectral nulls, which are more likely with greater delay spread. Channel A with σTm = 1 µs is 10× more benign.</p>
+      <p><strong>3.</strong> Rs = 32 kSymbols/s → Ts = 1/32000 = 31.25 µs. For negligible ISI: Ts > 10·σTm → σTm < Ts/10 = 31.25/10 = 3.125 µs. The channel must have σTm < 3.125 µs for unequalized voice communication. Urban channels (1–30 µs) often exceed this, which is why GSM uses an equalizer.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §3.3.3 DOPPLER & COHERENCE TIME
+══════════════════════════════════════ -->
+<section class="section" id="doppler">
+  <div class="sec-badge"><span class="dot"></span>Section 3.3.3 — Doppler Spectrum & Coherence Time</div>
+  <h2>Doppler Spectrum & Coherence Time — How Fast the Channel Changes</h2>
+  <p class="lead">The delay spread tells us about spatial spreading. Motion introduces temporal spreading — the channel varies in time. Doppler spread and coherence time characterise how fast this variation is.</p>
+
+  <h3>Step 1 — Why the Channel Changes With Time</h3>
+  <p>When any object moves (transmitter, receiver, or scatterers), the multipath geometry changes → path lengths rₙ(t) change → delays τₙ(t) change → phases φₙ(t) = 2πfc·τₙ(t) change. The result: the constructive/destructive combination changes, so received signal strength varies over time.</p>
+  <div class="analogy"><strong>🚑 Doppler effect:</strong> Moving toward a transmitter → wavefronts arrive more frequently → received frequency slightly higher. Moving away → lower. Each multipath component arriving from a different angle θ has a different Doppler shift: fDn = v·cosθₙ/λ. Since all paths have different arrival angles, the received signal contains a spread of Doppler frequencies.</div>
+
+  <h3>Step 2 — Channel Autocorrelation in Time: AC(Δt)</h3>
+  <p>How similar is the channel at two different times separated by Δt?</p>
+  <div class="fbox">
+    <span class="fb big">AC(Δt) = E[c*(τ; t)·c(τ; t+Δt)]</span>
+    <span class="fl">Autocorrelation of channel at zero delay offset · measures how correlated the channel is at times t and t+Δt</span>
+  </div>
+  <div class="const-wrap"><pre>
+  |AC(Δt)|
+    ↑
+  1 |*****
+    |    ****
+    |       ***
+    |          **
+    |            **
+  0 |______________→ Δt
+                  Tc (coherence time)
+
+  When AC(Tc) ≈ 0: channel has "forgotten" its earlier state → independent</pre>
+    <div class="const-label">Channel autocorrelation decreases as time separation Δt increases</div>
+  </div>
+
+  <h3>Step 3 — Doppler Power Spectrum SC(ρ)</h3>
+  <div class="fbox">
+    <span class="fb big">SC(ρ) = ∫ AC(Δt)·e^(−j2πρΔt) d(Δt)</span>
+    <span class="fl">Eq. (3.62) — Fourier transform of AC(Δt) · ρ = Doppler frequency · gives power spectral density of received signal vs Doppler</span>
+  </div>
+  <p>The Doppler power spectrum shows how received signal power is distributed across Doppler frequencies. It is zero outside ±BD (Doppler spread), where BD = v/λ for the maximum Doppler shift.</p>
+
+  <h3>Step 4 — Doppler Spread BD</h3>
+  <div class="fbox">
+    <span class="fb big">BD = maximum Doppler frequency = v/λ</span>
+    <span class="fl">For stationary reflectors and moving receiver at velocity v · λ = c/fc · BD is the range of Doppler frequencies in SC(ρ)</span>
+  </div>
+  <table>
+    <tr><th>Scenario</th><th>Example BD</th></tr>
+    <tr><td>Pedestrian at 5 km/h, fc=900 MHz</td><td>5/3.6 / 0.333 = 4.2 Hz</td></tr>
+    <tr><td>Car at 60 km/h, fc=900 MHz</td><td>16.67 / 0.333 = 50 Hz</td></tr>
+    <tr><td>Car at 120 km/h, fc=1800 MHz</td><td>33.33 / 0.167 = 200 Hz</td></tr>
+    <tr><td>Train at 300 km/h, fc=2.4 GHz</td><td>83.3 / 0.125 = 667 Hz</td></tr>
+  </table>
+
+  <h3>Step 5 — Coherence Time Tc</h3>
+  <div class="fbox">
+    <span class="fb big">Tc ≈ 1/BD</span>
+    <span class="fl">Coherence time = duration over which channel remains approximately constant · inverse of Doppler spread</span>
+  </div>
+  <div class="dual-box">
+    <div class="dual-item">
+      <div class="di-top">Large Doppler spread BD</div>
+      <div class="di-main">↓ Small Tc</div>
+      <div class="di-bot">Channel changes fast → hard to track</div>
+    </div>
+    <div class="dual-item">
+      <div class="di-top">Small Doppler spread BD</div>
+      <div class="di-main">↑ Large Tc</div>
+      <div class="di-bot">Channel changes slowly → easy to track</div>
+    </div>
+  </div>
+  <p>If channel samples are taken more than Tc seconds apart, they are approximately uncorrelated (and since c(τ,t) is Gaussian, uncorrelated → independent). Samples within Tc are correlated — the channel looks similar.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 3.7 — Independent Sample Spacing (Textbook)</div>
+    <p><strong>Given:</strong> Doppler spread BD = 80 Hz</p>
+    <p><strong>Coherence time:</strong> Tc ≈ 1/BD = 1/80 = 0.0125 s = <strong>12.5 ms</strong></p>
+    <p><strong>Interpretation:</strong> Samples of the received signal spaced 12.5 ms apart are approximately uncorrelated — treating them as independent is a good approximation.</p>
+    <p><strong>Practical implication:</strong> Channel estimation must be repeated at least every 12.5 ms. In GSM (270 kbps), 12.5 ms = 3375 symbols — the 26-symbol training sequence per burst (every ~4.6 ms) is more than adequate to track the channel.</p>
+  </div>
+
+  <h3>Step 6 — The Four Dual Relationships</h3>
+  <div class="hl">
+    <strong>★ The fundamental duality of wireless channels — memorise these:</strong>
+  </div>
+  <div class="dual-box">
+    <div class="dual-item">
+      <div class="di-top">RMS Delay Spread</div>
+      <div class="di-main">σTm ↔ Bc</div>
+      <div class="di-top" style="margin-top:.3rem;">Coherence Bandwidth</div>
+      <div class="di-bot">Bc ≈ 1/σTm</div>
+    </div>
+    <div class="dual-item">
+      <div class="di-top">Doppler Spread</div>
+      <div class="di-main">BD ↔ Tc</div>
+      <div class="di-top" style="margin-top:.3rem;">Coherence Time</div>
+      <div class="di-bot">Tc ≈ 1/BD</div>
+    </div>
+  </div>
+  <table>
+    <tr><th>Parameter</th><th>Domain</th><th>Related to</th><th>Formula</th><th>Physical meaning</th></tr>
+    <tr><td>Delay spread σTm</td><td>Time</td><td>Multipath geometry</td><td>From PDP</td><td>How much channel spreads signal in time</td></tr>
+    <tr><td>Coherence bandwidth Bc</td><td>Frequency</td><td>Delay spread</td><td>Bc ≈ 1/σTm</td><td>Freq range where channel is "flat"</td></tr>
+    <tr><td>Doppler spread BD</td><td>Frequency</td><td>User velocity</td><td>BD = v/λ</td><td>How much channel spreads signal in frequency</td></tr>
+    <tr><td>Coherence time Tc</td><td>Time</td><td>Doppler spread</td><td>Tc ≈ 1/BD</td><td>Duration channel stays approximately constant</td></tr>
+  </table>
+  <div class="analogy"><strong>📐 Memory trick:</strong> Delay and frequency are duals (time ↔ frequency). Spreading in delay → bandwidth effect (coherence bandwidth). Spreading in Doppler frequency → time effect (coherence time). Large spread → small coherence. Always inverse relationship.</div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §3.3.3 Doppler & Coherence Time</div>
+    <ol>
+      <li>A mobile user travels at 90 km/h with fc = 1.8 GHz. Find (a) λ, (b) max Doppler shift fD, (c) coherence time Tc. If the channel estimation period is 5 ms, is the estimate still valid?</li>
+      <li>A satellite channel has coherence time Tc = 1 hour and delay spread σTm = 0.1 ns. (a) What is the Doppler spread? (b) What is the coherence bandwidth? (c) Is this channel fast-fading or slow-fading?</li>
+      <li>Fill in the table for a mobile communication system: B = 5 MHz, fc = 2 GHz, v = 60 km/h, σTm = 2 µs. Find: coherence bandwidth, Doppler spread, coherence time. Is B &gt; Bc (frequency selective)? Is Ts &lt; Tc (slow fading)?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) λ = 3×10⁸/1.8×10⁹ = 0.167 m. (b) v = 90/3.6 = 25 m/s. fD = v/λ = 25/0.167 = 150 Hz. (c) Tc ≈ 1/BD = 1/150 ≈ 6.67 ms. Estimation period = 5 ms &lt; Tc = 6.67 ms → YES, the estimate is still approximately valid (channel hasn't changed significantly in 5 ms).</p>
+      <p><strong>2.</strong> (a) BD ≈ 1/Tc = 1/3600 ≈ 0.000278 Hz — essentially zero Doppler. (b) Bc ≈ 1/σTm = 1/0.1×10⁻⁹ = 10 GHz — enormous coherence bandwidth! (c) Satellite channels are extremely slow-fading (Tc = 1 hour) with very wide coherence bandwidth. The satellite moves slowly relative to wavelength, and the only significant path is direct LOS. Almost ideal AWGN channel — no fading concern.</p>
+      <p><strong>3.</strong> Bc ≈ 1/σTm = 1/2×10⁻⁶ = 500 kHz. B = 5 MHz &gt; Bc = 500 kHz → YES, frequency selective fading. Doppler: v=60/3.6=16.67 m/s, λ=0.15m. BD = 16.67/0.15 = 111 Hz. Tc ≈ 1/111 = 9 ms. Ts = 1/B = 0.2 µs ≪ Tc = 9 ms → slow fading (channel essentially constant during one symbol). Summary: frequency-selective slow fading — common in urban LTE.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 3 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Received signal (multipath sum)</td><td>r(t) = Re{Σₙ αₙ(t)·e^(−jφₙ(t))·u(t−τₙ(t))·e^(j2πfct)}</td></tr>
+    <tr><td>Path delay</td><td>τₙ(t) = rₙ(t)/c</td></tr>
+    <tr><td>Doppler frequency</td><td>fDn = v·cosθₙ/λ</td></tr>
+    <tr><td>Combined phase</td><td>φₙ(t) = 2π·fc·τₙ(t) − φDn(t)</td></tr>
+    <tr><td>Received via convolution</td><td>r(t) = Re{[∫c(τ,t)u(t−τ)dτ]·e^(j2πfct)}</td></tr>
+    <tr><td>Time-varying impulse response</td><td>c(τ,t) = Σₙ αₙ(t)·e^(−jφₙ(t))·δ(τ−τₙ(t))</td></tr>
+    <tr><td>Resolvability condition</td><td>|τ₁−τ₂| ≫ 1/Bu</td></tr>
+    <tr><td>Scattering function</td><td>Sc(τ,ρ) = ∫Ac(τ,Δt)·e^(−j2πρΔt) d(Δt)</td></tr>
+    <tr><td>WSSUS autocorrelation</td><td>E[c*(τ₁;t)·c(τ₂;t+Δt)] = Ac(τ;Δt)·δ(τ₁−τ₂)</td></tr>
+    <tr><td>Power Delay Profile</td><td>Ac(τ) = Ac(τ, Δt=0)</td></tr>
+    <tr><td>Mean delay spread</td><td>μTm = ∫τ·Ac(τ)dτ / ∫Ac(τ)dτ</td></tr>
+    <tr><td>RMS delay spread</td><td>σTm = √(∫(τ−μTm)²·Ac(τ)dτ / ∫Ac(τ)dτ)</td></tr>
+    <tr><td>No ISI condition</td><td>Ts &gt; 10·σTm</td></tr>
+    <tr><td>Doppler power spectrum</td><td>SC(ρ) = ∫AC(Δt)·e^(−j2πρΔt) d(Δt)</td></tr>
+    <tr><td>Coherence bandwidth</td><td>Bc ≈ 1/σTm</td></tr>
+    <tr><td>Doppler spread</td><td>BD ≤ v/λ = fD</td></tr>
+    <tr><td>Coherence time</td><td>Tc ≈ 1/BD</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 3 Complete Coverage</h4>
+    <div class="prog-row"><span>Introduction: fading, multipath, constructive/destructive, why statistical models</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.1 s(t) model, r(t) multipath sum, αn/τn/φDn parameters, Doppler fDn</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.1 Resolvable vs non-resolvable multipath (|τ1−τ2| ≫ 1/Bu)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.1 c(τ,t) definition, two-variable meaning, convolution form, delta function sum</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.1 Example 3.1 (conveyor belt) — time-varying impulse response with two modes</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.1 Why fc·τn ≫ 1 → small movement = large phase change = fast fading</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3 Narrowband vs wideband comparison, ISI mechanism, three ISI solutions</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3 Scattering function Sc(τ,ρ), channel autocorrelation, WSSUS model (WSS + US)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3.1 Power Delay Profile Ac(τ), μTm and σTm formulas, ISI condition Ts vs σTm</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3.1 Exponential PDP model, Example 3.4 (μ=σ=T̄m), Example 3.5 (max symbol rate 19 kbps)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3.3 Doppler effect, AC(Δt), SC(ρ) Doppler spectrum, BD, coherence time Tc ≈ 1/BD</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§3.3.3 Example 3.7 (BD=80Hz → Tc=12.5ms), four dual relationships table</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 3 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>

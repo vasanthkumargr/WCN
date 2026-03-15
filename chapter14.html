@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 14 — Multiple Access | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#ffc940;--accent2:#00d4ff;--green:#00e5a0;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .55rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(255,201,64,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(255,201,64,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(255,201,64,.07) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(255,201,64,.1);border:1px solid rgba(255,201,64,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--green);}
+.card.bl-r{border-left:3px solid var(--red);}
+.card.bl-p{border-left:3px solid var(--purple);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent2);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--accent);font-style:normal;}
+.why{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(255,201,64,.04);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(255,201,64,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.8rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--accent2);}
+.cmp-box.c3 h5{color:var(--green);}
+.cmp-box.c4 h5{color:var(--purple);}
+.hl{background:linear-gradient(135deg,rgba(255,201,64,.07),rgba(0,212,255,.04));border:1px solid rgba(255,201,64,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent2);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(255,201,64,.12);color:var(--accent);border:1px solid rgba(255,201,64,.25);}
+.p-b{background:rgba(0,212,255,.12);color:var(--accent2);border:1px solid rgba(0,212,255,.25);}
+.p-g{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.p-p{background:rgba(180,126,255,.12);color:var(--purple);border:1px solid rgba(180,126,255,.25);}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp,.cmp4{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html">Ch.12</a>
+    <a href="chapter14.html" class="active">Ch.14</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 14 · Multiple Access</div>
+  <a href="#ma-intro" class="sb-link">§14.2 Multiple Access Overview</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Why share spectrum?</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Dedicated channels</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Four MA techniques</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Orthogonal vs non-orthogonal</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Signal space 2BT</a>
+  <a href="#ma-intro" class="sb-link sub">↳ Random access</a>
+  <div class="sb-sep"></div>
+  <a href="#fdma" class="sb-link">§14.2.1 FDMA</a>
+  <a href="#fdma" class="sb-link sub">↳ Core idea & guard bands</a>
+  <a href="#fdma" class="sb-link sub">↳ Flat fading per channel</a>
+  <a href="#fdma" class="sb-link sub">↳ Continuous transmission</a>
+  <a href="#fdma" class="sb-link sub">↳ OFDMA connection</a>
+  <a href="#fdma" class="sb-link sub">↳ Example 14.1</a>
+  <div class="sb-sep"></div>
+  <a href="#tdma" class="sb-link">§14.2.2 TDMA</a>
+  <a href="#tdma" class="sb-link sub">↳ Time slots & frames</a>
+  <a href="#tdma" class="sb-link sub">↳ ISI mitigation needed</a>
+  <a href="#tdma" class="sb-link sub">↳ Sync uplink vs downlink</a>
+  <a href="#tdma" class="sb-link sub">↳ Guard times</a>
+  <a href="#tdma" class="sb-link sub">↳ GSM Example 14.2</a>
+  <div class="sb-sep"></div>
+  <a href="#cdma" class="sb-link">§14.2.3 CDMA</a>
+  <a href="#cdma" class="sb-link sub">↳ Spreading codes</a>
+  <a href="#cdma" class="sb-link sub">↳ DSSS & Freq Hopping</a>
+  <a href="#cdma" class="sb-link sub">↳ Orthogonal vs non-orth</a>
+  <a href="#cdma" class="sb-link sub">↳ Near-far effect</a>
+  <a href="#cdma" class="sb-link sub">↳ Power control</a>
+  <a href="#cdma" class="sb-link sub">↳ MUD</a>
+  <a href="#cdma" class="sb-link sub">↳ Example 14.3</a>
+  <div class="sb-sep"></div>
+  <a href="#sdma" class="sb-link">§14.2.4 SDMA</a>
+  <a href="#sdma" class="sb-link sub">↳ Angular separation</a>
+  <a href="#sdma" class="sb-link sub">↳ Sectorized antennas</a>
+  <a href="#sdma" class="sb-link sub">↳ Mobility & handoff</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 14 · Andrea Goldsmith</div>
+    <h1>Multiple Access —<br><span>TDMA · FDMA · CDMA · SDMA</span></h1>
+    <p>How many users share one wireless channel. Every technique explained from first principles — what it is, why it was invented, how it works, the problems it faces, and real-system examples.</p>
+    <div class="ph-chips">
+      <a href="#ma-intro" class="ph-chip">Overview</a>
+      <a href="#fdma" class="ph-chip">FDMA</a>
+      <a href="#tdma" class="ph-chip">TDMA</a>
+      <a href="#cdma" class="ph-chip">CDMA</a>
+      <a href="#sdma" class="ph-chip">SDMA</a>
+      <a href="#problems" class="ph-chip">Summary</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     §14.2 OVERVIEW
+══════════════════════════════════════ -->
+<section class="section" id="ma-intro">
+  <div class="sec-badge"><span class="dot"></span>Section 14.2 — Overview</div>
+  <h2>Multiple Access — The Big Picture</h2>
+  <p class="lead">Wireless spectrum is scarce and expensive. Many users want to communicate simultaneously. How do we fairly and efficiently divide limited wireless resources? That is the question Multiple Access answers.</p>
+
+  <h3>Step 1 — The Fundamental Problem</h3>
+  <p>Imagine a cellular network. Hundreds of users simultaneously want to make calls, stream video, and send messages. But the wireless system has fixed, limited resources:</p>
+  <ul class="nice">
+    <li><strong>Limited bandwidth</strong> — only a certain amount of radio spectrum is available</li>
+    <li><strong>Limited time</strong> — only so many transmissions possible per second</li>
+    <li><strong>Limited signal space</strong> — the number of orthogonal channels is bounded</li>
+  </ul>
+  <div class="analogy"><strong>Highway analogy:</strong> If only one car uses a 10-lane highway, it's a waste. We divide it into lanes so many cars travel simultaneously. Multiple access divides wireless resources into "lanes" for different users.</div>
+
+  <h3>Step 2 — What Multiple Access Does</h3>
+  <div class="card bl-a">
+    <p><strong>Multiple Access</strong> = techniques that divide the total signal space into channels and assign these channels to different users. Users with continuous transmission needs (voice, video) get <em>dedicated channels</em> — guaranteed access that won't be interrupted.</p>
+  </div>
+  <p>The available signal dimensions can be divided along:</p>
+  <div class="cmp4">
+    <div class="cmp-box c1"><h5>Time</h5><p>→ TDMA<br>Users take turns in time slots</p></div>
+    <div class="cmp-box c2"><h5>Frequency</h5><p>→ FDMA<br>Users get different frequency bands</p></div>
+    <div class="cmp-box c3"><h5>Code</h5><p>→ CDMA<br>Users share time+freq but differ by code</p></div>
+    <div class="cmp-box c4"><h5>Space</h5><p>→ SDMA<br>Users in different directions get same freq/time</p></div>
+  </div>
+
+  <h3>Step 3 — Orthogonal vs Non-Orthogonal Division</h3>
+  <p>How cleanly are the channels separated?</p>
+  <table>
+    <tr><th>Method</th><th>Orthogonality</th><th>Interference between users</th></tr>
+    <tr><td>TDMA</td><td>Orthogonal (different time slots)</td><td>Zero (if perfectly synchronised)</td></tr>
+    <tr><td>FDMA</td><td>Orthogonal (different frequencies)</td><td>Zero (with ideal filters)</td></tr>
+    <tr><td>CDMA (orthogonal codes)</td><td>Orthogonal</td><td>Zero</td></tr>
+    <tr><td>CDMA (non-orthogonal codes)</td><td>Non-orthogonal</td><td>Nonzero — users interfere</td></tr>
+  </table>
+
+  <h3>Step 4 — Signal Space Dimension: The Unifying Concept</h3>
+  <div class="why"><div class="wi">📐</div><div>
+    <strong>What is signal space dimension?</strong> In communication theory, the total number of orthogonal signals that can fit in a channel of bandwidth B over time T is:
+  </div></div>
+  <div class="fbox">
+    <span class="fb big">Signal space dimension = 2BT</span>
+    <span class="fl">B = bandwidth (Hz) · T = symbol duration (s) · This is the maximum number of independent signals (dimensions) available</span>
+  </div>
+  <p>If we have N users, each user gets:</p>
+  <div class="fbox">
+    <span class="fb">Dimension per user = 2BT / N</span>
+    <span class="fl">The total resource is equally split — regardless of how the split is done (time, frequency, or code)</span>
+  </div>
+  <div class="hl">
+    <strong>★ Key result:</strong> TDMA, FDMA, and orthogonal CDMA all create the <em>same number</em> of orthogonal channels from the same signal space. In AWGN channels, all three techniques have <strong>identical capacity</strong>. The difference only appears in fading channels, where multipath and Doppler affect each technique differently.
+  </div>
+
+  <h3>Step 5 — Random Access (For Bursty Traffic)</h3>
+  <p>Not all users transmit continuously. Sending a text message, loading a web page — these are <strong>bursty transmissions</strong>. For these, reserving a dedicated channel is wasteful. Instead, users <em>compete</em> for access when they need it. This is called <strong>random access</strong> (e.g., ALOHA, CSMA). Random access does not guarantee channel access — two users may transmit simultaneously causing a <em>collision</em>.</p>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §14.2 Overview</div>
+    <ol>
+      <li>A system has bandwidth B = 10 MHz and symbol duration T = 100 µs. What is the total signal space dimension? If 50 users share it, how many dimensions does each get?</li>
+      <li>Explain why TDMA, FDMA, and orthogonal CDMA have the same capacity in AWGN but may differ in fading channels. Give a specific example of how fading harms one more than another.</li>
+      <li>Why does voice require a dedicated channel but a webpage load is better served by random access?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> 2BT = 2 × 10×10⁶ × 100×10⁻⁶ = 2000 dimensions. Per user: 2000/50 = 40 dimensions each.</p>
+      <p><strong>2.</strong> In AWGN all three methods orthogonally partition the same 2BT dimensions → same capacity. In fading: TDMA users experience channel variations across time slots — if the channel deep-fades during a user's slot, their entire transmission is lost. FDMA users experience channel variations across frequency — a user assigned a frequency in a spectral null performs badly. CDMA spreads across wide bandwidth, potentially averaging out frequency-selective fading. So CDMA can be more robust to frequency-selective fading.</p>
+      <p><strong>3.</strong> Voice: constant bit rate, real-time, delay-sensitive — a 50 ms gap makes the call unintelligible. Needs guaranteed, continuous channel. Webpage: bursty, tolerates delay, needs channel only during actual data transfer (milliseconds). Reserving a full channel for idle think-time wastes spectrum. Random access assigns the channel only when data exists → much higher aggregate efficiency.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §14.2.1 FDMA
+══════════════════════════════════════ -->
+<section class="section" id="fdma">
+  <div class="sec-badge"><span class="dot"></span>Section 14.2.1</div>
+  <h2>Frequency-Division Multiple Access (FDMA)</h2>
+  <p class="lead">The simplest multiple access method: divide the spectrum into slices and give each user their own slice. Like separate radio stations, all on air simultaneously on different frequencies.</p>
+
+  <h3>Step 1 — Core Idea</h3>
+  <p>In FDMA, the total bandwidth B is divided into N non-overlapping frequency channels. Each user is assigned one channel and uses it continuously.</p>
+  <div class="const-wrap"><pre>
+  Total bandwidth B = 25 MHz
+  ┌──────┬──────┬──────┬──────┬──────┐
+  │ User1│guard │ User2│guard │ User3│  ...
+  │  Bc  │      │  Bc  │      │  Bc  │
+  └──────┴──────┴──────┴──────┴──────┘
+  ← Bc = 30 kHz → ← Bg →← Bc = 30 kHz →</pre>
+    <div class="const-label">Each user occupies a separate frequency band · Guard bands separate channels</div>
+  </div>
+
+  <h3>Step 2 — Guard Bands: Why They Exist</h3>
+  <p>Small empty frequency gaps are placed between user channels. They are necessary because:</p>
+  <ul class="nice">
+    <li><strong>Imperfect filters</strong> — real filters don't cut off sharply; signal leaks into adjacent channels</li>
+    <li><strong>Adjacent channel interference</strong> — without a gap, User 1's signal bleeds into User 2's band</li>
+    <li><strong>Doppler shift</strong> — moving users experience a frequency shift: <code>f_received = f_transmitted + f_doppler</code>. Guard bands absorb this shift.</li>
+  </ul>
+
+  <h3>Step 3 — Flat Fading Per Channel</h3>
+  <div class="why"><div class="wi">📡</div><div>
+    <strong>FDMA naturally handles frequency-selective fading:</strong> If each FDMA channel bandwidth Bc is much smaller than the channel coherence bandwidth Bc_channel, the entire FDMA channel experiences approximately the same fading (flat fading). This simplifies the receiver — no equalizer needed for each subchannel.
+  </div></div>
+
+  <h3>Step 4 — Continuous Transmission</h3>
+  <p>Once assigned a frequency channel, a user transmits <em>continuously</em> — like a radio station that's always on air. This has pros and cons:</p>
+  <div class="cmp">
+    <div class="cmp-box c3">
+      <h5>Advantage</h5>
+      <p>Simple for analog systems. No need for buffering or synchronisation. Channel estimation can track slowly over time.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Disadvantage</h5>
+      <p>Channel estimation must occur during live data — harder to insert training sequences. Requires frequency-agile radios (must tune to exact carrier). Hard to assign multiple channels to one user (needs parallel demodulators).</p>
+    </div>
+  </div>
+
+  <h3>Step 5 — OFDMA: FDMA in Modern Systems</h3>
+  <p>Modern 4G/5G systems use OFDM subcarriers. When different subcarriers are assigned to different users, this is called <strong>OFDMA (Orthogonal Frequency Division Multiple Access)</strong>:</p>
+  <div class="const-wrap"><pre>
+  OFDM subcarriers:
+  │sc1│sc2│sc3│sc4│sc5│sc6│sc7│sc8│sc9│...
+  └───────────┘ └───────────┘ └───────┘
+     User 1         User 2      User 3
+
+  User 1 → subcarriers 1–3
+  User 2 → subcarriers 4–6
+  User 3 → subcarriers 7–9</pre>
+    <div class="const-label">OFDMA = FDMA implemented using OFDM subcarriers — used in LTE, 5G, WiFi 6</div>
+  </div>
+
+  <h3>Step 6 — Number of Users Formula</h3>
+  <div class="fbox">
+    <span class="fb big">N = (B − 2·Bg) / Bc</span>
+    <span class="fl">B = total bandwidth · Bg = guard band at each band edge · Bc = bandwidth per user channel</span>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 14.1 — Analog vs Digital FDMA (Textbook)</div>
+    <p><strong>Given:</strong> Total bandwidth B = 25 MHz (uplink), each operator gets B = 25 MHz total.</p>
+    <p><strong>Analog System:</strong> Bc = 30 kHz per voice channel, edge guard bands Bg = 10 kHz each side.</p>
+    <p><code>N = (25×10⁶ − 2×10×10³) / (30×10³) = (25,000,000 − 20,000) / 30,000 = 24,980,000 / 30,000 ≈ <strong>832 users</strong></code></p>
+    <p>Per operator: 832/2 = <strong>416 users</strong>.</p>
+    <p><strong>Digital System:</strong> Bc = 10 kHz (high-level modulation, 3× more efficient), Bg = 5 kHz.</p>
+    <p><code>N = (25×10⁶ − 2×5×10³) / (10×10³) = 24,990,000 / 10,000 = <strong>2,499 users</strong></code></p>
+    <div class="hl"><strong>Digital system supports ~3× more users!</strong> Because digital modulation can encode the same voice in 3× less bandwidth. Same spectrum, 3× more users — the power of digital communications.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §14.2.1 FDMA</div>
+    <ol>
+      <li>A 5G OFDMA system has total bandwidth B = 100 MHz, subcarrier spacing = 15 kHz, and Bg = 1 subcarrier guard on each edge. How many total subcarriers are available? If each user needs 12 subcarriers (one resource block), how many simultaneous users can be served?</li>
+      <li>An FDMA system has B = 10 MHz, Bc = 25 kHz, Bg = 5 kHz. Find N. Now double the efficiency by using digital modulation (Bc = 12.5 kHz, Bg = 2.5 kHz). By how much does N increase?</li>
+      <li>Why does FDMA naturally resist frequency-selective fading better than TDMA? Connect your answer to coherence bandwidth.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> Total subcarriers = B/spacing = 100MHz/15kHz ≈ 6,667 subcarriers. Subtract 2 guard: 6,665 data subcarriers. Users = floor(6,665/12) = 555 simultaneous users.</p>
+      <p><strong>2.</strong> N₁ = (10×10⁶ − 10×10³)/(25×10³) = 9,990,000/25,000 = 399.6 → 399 users. N₂ = (10×10⁶ − 5×10³)/(12.5×10³) = 9,995,000/12,500 = 799.6 → 799 users. Increase: 799/399 ≈ 2× more users.</p>
+      <p><strong>3.</strong> FDMA assigns each user a narrow frequency channel of bandwidth Bc. If Bc &lt; coherence bandwidth Bc_chan, the user experiences flat fading (same gain across their whole channel) — no ISI, no frequency-selective distortion. TDMA assigns users the full bandwidth B, which is much larger than Bc_chan → frequency-selective fading → ISI → needs equalizer. So FDMA naturally avoids ISI per user when channels are narrow enough.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §14.2.2 TDMA
+══════════════════════════════════════ -->
+<section class="section" id="tdma">
+  <div class="sec-badge"><span class="dot"></span>Section 14.2.2</div>
+  <h2>Time-Division Multiple Access (TDMA)</h2>
+  <p class="lead">Instead of splitting frequency, TDMA splits time. Users take turns — rapidly cycling through time slots so fast that from the user's perspective it feels continuous.</p>
+
+  <h3>Step 1 — Core Idea: Time Slots and Frames</h3>
+  <p>In TDMA, the communication time is divided into small <strong>time slots</strong>. Multiple slots grouped together form a <strong>frame</strong>. Each user is assigned one (or more) slot per frame. The frame repeats cyclically:</p>
+  <div class="const-wrap"><pre>
+  Frame (cyclically repeating):
+  ┌────┬────┬────┬────┬────┬────┬────┬────┐
+  │ U1 │ U2 │ U3 │ U4 │ U5 │ U6 │ U7 │ U8 │ ← Frame 1
+  └────┴────┴────┴────┴────┴────┴────┴────┘
+  ┌────┬────┬────┬────┬────┬────┬────┬────┐
+  │ U1 │ U2 │ U3 │ U4 │ U5 │ U6 │ U7 │ U8 │ ← Frame 2
+  └────┴────┴────┴────┴────┴────┴────┴────┘
+  Each user transmits on their slot, then waits for next frame.</pre>
+    <div class="const-label">8 users share one TDMA channel — user 1 gets slot 1 in every frame</div>
+  </div>
+
+  <h3>Step 2 — TDMA Uses the Full Bandwidth</h3>
+  <p>Unlike FDMA (where each user has a narrow frequency band), in TDMA each user uses the <strong>entire channel bandwidth</strong> during their time slot. This means:</p>
+  <ul class="nice">
+    <li>Each user's signal is <strong>wideband</strong></li>
+    <li>The channel is typically frequency-selective → causes ISI</li>
+    <li>Therefore: <strong>ISI mitigation is usually required</strong> in TDMA systems</li>
+  </ul>
+
+  <h3>Step 3 — Why Digital Transmission Is Required</h3>
+  <p>Users don't transmit continuously — they transmit in bursts (one slot per frame). A voice call generates data at a constant rate, but TDMA only gives a slot every frame period. So the device must:</p>
+  <div class="const-wrap"><pre>
+  Voice generates: 8 kbps continuously
+  TDMA frame period: 20 ms, 8 users/frame
+  User gets: 1 slot every 20 ms
+  
+  So during one slot, must transmit: 8 kbps × 20 ms = 160 bits
+  But compressed into 1/8 frame = 2.5 ms slot
+  → Must transmit at 64 kbps during slot (8× faster!)
+  → Need digital buffer to store 20 ms of voice, send in 2.5 ms burst</pre>
+    <div class="const-label">Buffering: store voice data, transmit in a burst during the allocated slot</div>
+  </div>
+
+  <h3>Step 4 — Advantages of TDMA</h3>
+  <ul class="nice">
+    <li><strong>Easy multi-slot allocation:</strong> A user needing 2× data rate just gets 2 slots per frame — no hardware change needed</li>
+    <li><strong>Simpler channel estimation:</strong> When User 1 is transmitting, User 2 can use their idle slots to perform channel estimation, send pilot signals, or execute control signaling — without interrupting data</li>
+    <li><strong>Single radio frequency:</strong> All users share the same carrier — only one oscillator/filter needed at the base station per TDMA channel</li>
+  </ul>
+
+  <h3>Step 5 — The Big Challenge: Synchronisation</h3>
+  <div class="cmp">
+    <div class="cmp-box c3">
+      <h5>Downlink (Base Station → Users) — Easy</h5>
+      <p>All signals originate from the same transmitter. Travel through the same channel to each user. Timing is automatically preserved — if slots were orthogonal at the transmitter, they arrive orthogonal at the receiver.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Uplink (Users → Base Station) — Hard</h5>
+      <p>Different users are at different distances. User A at 100m and User B at 5 km have different propagation delays. Even if they transmit at exactly the "right" time, signals arrive offset at the base station → slots overlap → lose orthogonality.</p>
+    </div>
+  </div>
+  <p><strong>Solution:</strong> The base station measures each user's propagation delay and instructs them to transmit at a compensated time (timing advance). This coordination works but adds overhead. The base station handles all synchronisation centrally.</p>
+
+  <h3>Step 6 — Guard Times Between Slots</h3>
+  <p>Even with timing advance, small errors remain (multipath, Doppler, oscillator drift). Guard times are empty intervals between slots to absorb these:</p>
+  <div class="const-wrap"><pre>
+  TDMA frame with guard times:
+  │ U1 │gt│ U2 │gt│ U3 │gt│ U4 │gt│
+  
+  gt = guard time (empty interval)
+  Absorbs: timing advance errors + multipath delay spread</pre></div>
+  <p>Guard times reduce spectral efficiency but are essential for maintaining orthogonality.</p>
+
+  <h3>Step 7 — Channel Re-Estimation Every Frame</h3>
+  <p>Since each user only transmits once per frame, the channel may change between frames (especially for mobile users at high speed). The receiver must re-estimate the channel at each slot — it cannot track continuously. This is less efficient than FDMA where continuous transmission allows continuous tracking.</p>
+
+  <div class="example">
+    <div class="ex-head">Example 14.2 — GSM System Design (Textbook)</div>
+    <p><strong>Given:</strong> B = 25 MHz, 125 TDMA channels of 200 kHz each, 8 users per channel, delay spread Tm = 10 µs.</p>
+    <p><strong>Total users:</strong> 125 channels × 8 slots = <strong>1,000 users</strong></p>
+    <p><strong>Channel bandwidth:</strong> 25 MHz / 125 = <strong>200 kHz per TDMA channel</strong></p>
+    <p><strong>Check for ISI:</strong> Coherence bandwidth Bc ≈ 1/Tm = 1/10µs = <strong>100 kHz</strong></p>
+    <p>Since channel bandwidth (200 kHz) &gt; coherence bandwidth (100 kHz): <strong>frequency-selective fading → ISI present!</strong></p>
+    <div class="hl"><strong>Conclusion:</strong> GSM requires an equalizer. GSM uses an MLSE-based equalizer (Viterbi algorithm). The type is left to the designer — the GSM standard only specifies performance requirements, not the specific equalizer implementation.</div>
+    <p><strong>GSM Frame Structure (for reference):</strong> Each 200 kHz channel uses a 26-symbol training sequence embedded in each 148-symbol burst for channel estimation, exactly as studied in Chapter 11.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §14.2.2 TDMA</div>
+    <ol>
+      <li>A TDMA system has B = 30 MHz, 150 channels of 200 kHz each, 6 users per channel. (a) Find total users supported. (b) If delay spread Tm = 5 µs, find Bc. Does ISI occur? (c) What ISI mitigation would you recommend?</li>
+      <li>User A is 500 m from the base station and User B is 3 km away. Speed of light = 3×10⁸ m/s. If they both start transmitting at time t=0, what is the difference in arrival times at the base station? If each time slot is 500 µs long, is this timing error significant?</li>
+      <li>A high-speed user wants 4× the data rate of a normal TDMA user. How many slots per frame should they be assigned? What is the disadvantage of this approach?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) 150 × 6 = 900 users. (b) Bc = 1/5µs = 200 kHz. Channel BW = 200 kHz = Bc exactly → borderline frequency-selective fading → ISI present. (c) Since Bc ≈ channel bandwidth, equalization is required. An MLSE or DFE equalizer (as in Chapter 11) would be appropriate. With Bc = channel BW, the channel has mild ISI — a few-tap DFE or short MLSE would suffice.</p>
+      <p><strong>2.</strong> User A delay: 500/(3×10⁸) ≈ 1.67 µs. User B delay: 3000/(3×10⁸) = 10 µs. Timing difference: 10 − 1.67 = 8.33 µs. Slot duration = 500 µs. The timing error is 8.33/500 ≈ 1.67% of a slot — small but non-negligible. Guard times of at least 10 µs would absorb this. The base station would instruct User A to transmit 8.33 µs later (timing advance).</p>
+      <p><strong>3.</strong> Assign 4 slots per frame. The high-speed user gets 4× the bandwidth → 4× data rate. Disadvantage: that reduces available slots for other users (if 8 slots/frame, now only 4 remaining for 4 other users instead of 7). Also, the device must process data 4× faster in each slot — higher peak processing requirement.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §14.2.3 CDMA
+══════════════════════════════════════ -->
+<section class="section" id="cdma">
+  <div class="sec-badge"><span class="dot"></span>Section 14.2.3</div>
+  <h2>Code-Division Multiple Access (CDMA)</h2>
+  <p class="lead">The most conceptually different approach: all users transmit simultaneously on the same frequency. They are separated only by their unique spreading codes. Understanding CDMA requires understanding spread spectrum.</p>
+
+  <h3>Step 1 — Core Idea: Same Time, Same Frequency, Different Codes</h3>
+  <div class="const-wrap"><pre>
+  TDMA:  | User1 | User2 | User3 |  ← different TIMES
+  FDMA:  |User1||User2||User3|      ← different FREQUENCIES
+  CDMA:  all users transmit simultaneously at same frequency
+         but each user has a unique SPREADING CODE
+
+  At receiver:
+  y(t) = User1_signal + User2_signal + User3_signal + noise
+  To recover User 1: multiply y(t) by User1's code → User1 emerges,
+  User2 and User3 average to near-zero (like noise)</pre>
+    <div class="const-label">CDMA: separation happens at receiver using codes, not at transmitter using time/frequency</div>
+  </div>
+
+  <h3>Step 2 — What is a Spreading Code?</h3>
+  <p>A spreading code is a high-rate binary sequence used to encode user data before transmission. Each user has a unique code. The data rate after spreading is much higher than the original data rate:</p>
+  <div class="fbox">
+    <span class="fb">Processing Gain G = Spread bandwidth / Original signal bandwidth = Bspread / Bs</span>
+    <span class="fl">G measures how much wider the spread signal is than the original signal · Typical G = 64 to 1000+</span>
+  </div>
+  <div class="analogy"><strong>Language analogy:</strong> Many people talk simultaneously in a room, each in a different language. If you know one language, you focus on it and everything else sounds like noise. Spreading codes are like different languages — the receiver "knows" one code and can separate that user's signal.</div>
+
+  <h3>Step 3 — Two Spread Spectrum Methods</h3>
+  <div class="cmp">
+    <div class="cmp-box c2">
+      <h5>Direct Sequence (DSSS)</h5>
+      <p>Each data bit is multiplied by a high-rate chip sequence. If data bit = 1 and code = 10110101, the transmitted chip sequence is 10110101. This spreads the signal across a wide bandwidth. Used in IS-95, 3G WCDMA.</p>
+    </div>
+    <div class="cmp-box c1">
+      <h5>Frequency Hopping (FHSS)</h5>
+      <p>The transmitter rapidly hops between frequencies according to a code sequence. Time1 → 900 MHz, Time2 → 902 MHz, etc. The receiver hops synchronously. Used in Bluetooth, military systems.</p>
+    </div>
+  </div>
+
+  <h3>Step 4 — Orthogonal vs Non-Orthogonal Codes</h3>
+  <table>
+    <tr><th>Code Type</th><th>Used Where</th><th>Interference</th><th>Why</th></tr>
+    <tr><td><span class="pill p-g">Orthogonal</span> (Walsh-Hadamard)</td><td>Downlink (BS→users)</td><td>Zero between users</td><td>Base station controls all transmissions → perfect timing alignment → perfect orthogonality</td></tr>
+    <tr><td><span class="pill p-r">Non-orthogonal</span></td><td>Uplink (users→BS)</td><td>Nonzero — mutual interference</td><td>Hard to synchronise many users perfectly → codes lose orthogonality → some cross-correlation remains</td></tr>
+  </table>
+
+  <h4>Advantages of Non-Orthogonal CDMA on Uplink</h4>
+  <ul class="nice">
+    <li>Users need minimal coordination — no strict timing requirements</li>
+    <li>No hard limit on number of users (can add users gracefully, accepting more interference)</li>
+    <li>More flexible than TDMA/FDMA where adding one more user requires a whole new channel</li>
+  </ul>
+  <div class="warn">
+    <strong>Trade-off:</strong> More users → more interference → lower SNR for everyone. CDMA is an interference-limited system. The number of supportable users is determined by the required SNR, not the number of orthogonal channels.
+  </div>
+
+  <h3>Step 5 — The Near-Far Problem</h3>
+  <p>This is the most critical challenge unique to CDMA uplinks. Consider two users transmitting to the same base station:</p>
+  <div class="const-wrap"><pre>
+  User A (near) ── 50 m ──► Base Station
+                              ↑ receives User A very strong
+
+  User B (far) ──── 3 km ──► Base Station
+                              ↑ receives User B very weak
+
+  Both transmit at same power:
+  User A received power: 10 W (50 m away)
+  User B received power: 0.01 W (3 km away, 1/r² path loss)
+
+  User B's signal is BURIED under User A's interference!
+  User A appears as strong interference to User B's recovery.</pre>
+    <div class="const-label">Near-far effect: strong nearby users swamp weak distant users</div>
+  </div>
+
+  <h3>Step 6 — Power Control: The Solution to Near-Far</h3>
+  <div class="card bl-a">
+    <h4>Power Control in CDMA</h4>
+    <p>The base station measures the received power from each user and sends feedback: "User A, transmit less power. User B, transmit more power." The goal: all users arrive at the base station with equal received power.</p>
+    <div class="fbox"><span class="fb">Power control: each user adjusts Pt such that Pr (at base station) = constant for all users</span></div>
+    <p>This essentially inverts the path loss and fading — each user compensates for their channel. Result: all users appear equally strong at the base station → fair competition → near-far problem eliminated.</p>
+    <p>Challenge: power control must be fast (faster than channel fading) and accurate. In IS-95, power control updates happen 800 times per second!</p>
+  </div>
+
+  <h3>Step 7 — Multiuser Detection (MUD)</h3>
+  <p>Traditional CDMA receivers treat other users as noise. But MUD (Multiuser Detection) is smarter: it jointly detects all users simultaneously, explicitly accounting for their mutual interference.</p>
+  <ul class="nice">
+    <li>Provides significant performance improvement even under perfect power control</li>
+    <li>Works even better when MUD and power control are jointly optimised</li>
+    <li>Optimal MUD (with non-orthogonal CDMA) achieves Shannon capacity of the uplink channel</li>
+    <li>More complex receiver — typically O(2^K) for K users — but reduced-complexity approximations exist</li>
+  </ul>
+
+  <h3>Step 8 — Easy Multi-Code Allocation</h3>
+  <p>To give one user a higher data rate, simply assign them multiple codes. User 1 can have Code A, Code B, and Code C — transmitting three streams simultaneously. This is simpler than TDMA (which needs multiple slots) or FDMA (which needs multiple frequency bands).</p>
+
+  <div class="example">
+    <div class="ex-head">Example 14.3 — CDMA vs FDMA Capacity (Textbook)</div>
+    <p><strong>Given:</strong> Uplink, G = 128, bandwidth = 1.25 MHz, Bs = 1.25 MHz/128 = 9.765 kHz.</p>
+    <p><strong>SIR formula for non-orthogonal CDMA:</strong> <code>SIR = 3G/(K−1)</code></p>
+    <p><strong>Required SIR = 10 dB = 10 (linear). Find maximum K:</strong></p>
+    <p><code>K ≤ 3G/SIR + 1 = 3×128/10 + 1 = 38.4 + 1 = 39.4 → K = <strong>39 users</strong></code></p>
+    <p><strong>FDMA comparison:</strong> 1.25 MHz / 9.765 kHz = <strong>128 channels = 128 users</strong></p>
+    <table>
+      <tr><th>System</th><th>Users (theoretical)</th><th>Notes</th></tr>
+      <tr><td>Non-orthogonal CDMA</td><td>39</td><td>Limited by mutual interference</td></tr>
+      <tr><td>FDMA</td><td>128</td><td>Limited by bandwidth partition</td></tr>
+      <tr><td>IS-95 CDMA (practical)</td><td>~64</td><td>Uses voice activity, variable rate, better assumptions</td></tr>
+    </table>
+    <div class="hl"><strong>Key insight:</strong> Theoretical FDMA outperforms non-orthogonal CDMA in a single cell under the Gaussian assumption. BUT CDMA allows better <em>frequency reuse</em> across neighbouring cells (see Section 15.2), which can make the overall network capacity comparable or better. Also, IS-95 uses voice activity detection (VAF ≈ 3/8) — users aren't always talking — effectively multiplying capacity by ~2.67.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §14.2.3 CDMA</div>
+    <ol>
+      <li>A CDMA system has G = 64. What is the maximum number of users if the required SIR = 7 dB? (Use SIR = 3G/(K−1), convert 7 dB to linear first.)</li>
+      <li>Explain the near-far problem with a numerical example: User A is 100 m away and User B is 2 km away, both transmitting at 1 mW. Assume path loss ∝ 1/r². What is the ratio of received powers? Why does this destroy CDMA performance?</li>
+      <li>If a CDMA user needs 4× the data rate, how many codes do they need? How does this affect other users in the system?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> 7 dB linear = 10^(7/10) = 5.012. K ≤ 3×64/5.012 + 1 = 192/5.012 + 1 = 38.3 + 1 = 39.3 → K = 39 users.</p>
+      <p><strong>2.</strong> Path loss ∝ 1/r². Received power User A: Pt/100² = Pt/10,000. Received power User B: Pt/2000² = Pt/4,000,000. Ratio: (Pt/10,000)/(Pt/4,000,000) = 400. User A's signal is 400× stronger than User B's! At the CDMA receiver trying to decode User B: User A looks like an interference source 400× stronger than User B's signal → SIR ≈ G/400 ≈ 128/400 = 0.32 (negative dB) → complete failure. Power control must reduce User A's power by 400× (or equivalently increase User B's by 400×) to equalise received powers.</p>
+      <p><strong>3.</strong> Need 4 codes. Each code occupies the same bandwidth and adds one more interferer for everyone else. With 4 extra codes from one high-rate user, other users' SIR = 3G/(K+3) instead of 3G/(K−1) — slightly worse. The system "looks like" 3 more users were added. If near the capacity limit, this could push other users below their minimum SIR.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §14.2.4 SDMA
+══════════════════════════════════════ -->
+<section class="section" id="sdma">
+  <div class="sec-badge"><span class="dot"></span>Section 14.2.4</div>
+  <h2>Space-Division Multiple Access (SDMA)</h2>
+  <p class="lead">The fourth dimension — space. If two users are in different directions, a smart antenna can serve them simultaneously on the same frequency and time. Space becomes a reusable resource.</p>
+
+  <h3>Step 1 — Core Idea: Direction as a New Dimension</h3>
+  <div class="why"><div class="wi">🎯</div><div>
+    <strong>The SDMA insight:</strong> TDMA divides time, FDMA divides frequency, CDMA divides code space. SDMA divides <em>physical direction</em>. If User A is to the north and User B is to the south, a directional antenna can simultaneously serve both on the same frequency band and time slot — they don't interfere because their signals are spatially separated.
+  </div></div>
+
+  <div class="const-wrap"><pre>
+         User A (North)
+              ↑
+  West ←── Base ──→ East
+    Station
+              ↓
+         User B (South)
+
+  Beam A → focused North → serves User A
+  Beam B → focused South → serves User B
+  Both on same frequency, same time, no interference!
+  (as long as angular separation > antenna resolution)</pre>
+    <div class="const-label">SDMA: directional beams serve different users in different directions simultaneously</div>
+  </div>
+
+  <h3>Step 2 — When Are Spatial Channels Orthogonal?</h3>
+  <p>Spatial channels are only orthogonal (no interference) if the angular separation between users exceeds the antenna's angular resolution:</p>
+  <div class="fbox">
+    <span class="fb">Angular separation between users ≥ Angular resolution of antenna</span>
+    <span class="fl">Two users at 10° and 12° may not be separable, but users at 10° and 90° are easily separated</span>
+  </div>
+  <p>Angular resolution improves with more antenna elements. A large antenna array can resolve much finer angular differences — but a large array requires more hardware, space, and processing power.</p>
+
+  <h3>Step 3 — Practical SDMA: Sectorized Antennas</h3>
+  <p>Building and steering narrow beams for every individual user is complex. Most real systems use <strong>sectorization</strong> — divide the 360° coverage area into N fixed sectors:</p>
+  <div class="const-wrap"><pre>
+  3-Sector Base Station:
+         Sector 1 (0°–120°)
+              ↑
+  Sector 3  ← BS → Sector 2
+  (240°–360°)    (120°–240°)
+
+  Each sector has its own directional antenna.
+  High gain within sector, low interference to other sectors.
+  TDMA or FDMA applied within each sector independently.</pre>
+    <div class="const-label">Common configurations: 3 sectors (120° each) or 6 sectors (60° each)</div>
+  </div>
+  <p>Within each sector, TDMA or FDMA is used. Between sectors, the same frequencies can be reused — this is the spatial reuse benefit of SDMA.</p>
+
+  <h3>Step 4 — Mobility Challenge: Sector Handoff</h3>
+  <p>When a user moves from one sector to another, the network must transfer the connection — called a <strong>sector handoff</strong> (similar to cell handoff). The system must:</p>
+  <ul class="nice">
+    <li>Detect that the user has moved out of the original sector</li>
+    <li>Establish a connection in the new sector</li>
+    <li>Seamlessly transfer the ongoing call/data session</li>
+  </ul>
+  <p>This adds signaling overhead. For dynamic beamforming (beam follows the user), the tracking must adapt as fast as the user moves.</p>
+
+  <h3>Step 5 — SDMA in Modern Systems</h3>
+  <table>
+    <tr><th>Technology</th><th>SDMA Feature</th><th>How It Works</th></tr>
+    <tr><td>4G LTE</td><td>MU-MIMO beamforming</td><td>Base station forms beams toward different users simultaneously using antenna array</td></tr>
+    <tr><td>5G NR</td><td>Massive MIMO (64–256 antennas)</td><td>Very fine angular resolution → many simultaneous spatial streams → huge capacity gain</td></tr>
+    <tr><td>WiFi 6 (802.11ax)</td><td>MU-MIMO</td><td>Access point beams to multiple users simultaneously using 4–8 antenna arrays</td></tr>
+    <tr><td>All cellular</td><td>Sectorization (3 or 6 sectors)</td><td>Physical sector antennas reduce inter-sector interference and allow frequency reuse per sector</td></tr>
+  </table>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §14.2.4 SDMA</div>
+    <ol>
+      <li>A cellular base station uses 6-sector antennas. If each sector uses FDMA with 10 frequency channels, what is the total number of simultaneous users the base station can serve? How does this compare to an omnidirectional antenna with the same 10 channels?</li>
+      <li>A 5G Massive MIMO base station has 64 antennas. The angular resolution is approximately 180°/64 ≈ 2.8°. If two users are at angles 5° and 8° from the base station, can they be served simultaneously? What about users at 5° and 60°?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> 6 sectors × 10 channels = 60 simultaneous users. Omnidirectional: only 10 channels (can't reuse frequencies — interference from all directions). SDMA (sectorization) gives 6× more users from the same spectrum! This is the core benefit of spatial reuse.</p>
+      <p><strong>2.</strong> 5° and 8°: angular separation = 3°, resolution ≈ 2.8°. Since 3° ≈ 2.8° (barely exceeds resolution), these users are marginally separable — interference between them would be high. Not ideal, but possible with some degradation. 5° and 60°: separation = 55° ≫ 2.8° — easily and cleanly separated. The base station can form completely independent beams with near-zero inter-user interference.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SUMMARY
+══════════════════════════════════════ -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 14 — Complete Summary</h2>
+
+  <h3>The Four Multiple Access Techniques at a Glance</h3>
+  <table>
+    <tr><th>Technique</th><th>Divides</th><th>Key Advantage</th><th>Key Challenge</th><th>Real Systems</th></tr>
+    <tr><td><span class="pill p-b">FDMA</span></td><td>Frequency</td><td>Continuous tx, natural flat fading per channel</td><td>Guard bands waste spectrum; frequency-agile radios needed</td><td>AMPS, TACS, OFDMA (LTE/5G)</td></tr>
+    <tr><td><span class="pill p-a">TDMA</span></td><td>Time</td><td>Easy multi-slot allocation; simple channel estimation</td><td>Synchronisation overhead; ISI (wideband channel)</td><td>GSM, PDC, IS-136</td></tr>
+    <tr><td><span class="pill p-g">CDMA</span></td><td>Code</td><td>No hard user limit; flexible; good cellular reuse</td><td>Near-far effect; needs power control; interference-limited</td><td>IS-95, W-CDMA, CDMA2000</td></tr>
+    <tr><td><span class="pill p-p">SDMA</span></td><td>Space/angle</td><td>Spatial reuse of same frequency/time</td><td>Needs antenna arrays; mobility requires handoff</td><td>5G Massive MIMO, WiFi 6, cellular sectors</td></tr>
+  </table>
+
+  <h3>Key Formulas</h3>
+  <table>
+    <tr><th>Formula</th><th>Meaning</th></tr>
+    <tr><td>Signal space dimension = 2BT</td><td>Total orthogonal channels available in bandwidth B, duration T</td></tr>
+    <tr><td>Dimension per user = 2BT/N</td><td>Each of N users gets equal share of signal space</td></tr>
+    <tr><td>N_FDMA = (B − 2Bg) / Bc</td><td>Number of FDMA users: total BW minus edge guards, divided by channel BW</td></tr>
+    <tr><td>SIR_CDMA = 3G/(K−1)</td><td>Signal-to-interference ratio for K users, processing gain G</td></tr>
+    <tr><td>K_CDMA ≤ 3G/SIR + 1</td><td>Maximum users for required SIR in non-orthogonal CDMA uplink</td></tr>
+    <tr><td>Bc ≈ 1/Tm</td><td>Coherence bandwidth from delay spread — used to check if ISI occurs</td></tr>
+  </table>
+
+  <h3>Comprehensive Final Problem</h3>
+  <div class="problem">
+    <div class="prob-head">Comprehensive — All Four Techniques</div>
+    <ol>
+      <li><strong>[FDMA vs TDMA comparison]</strong> A spectrum of B = 20 MHz is to support voice users. Analog FDMA: Bc = 30 kHz, Bg = 10 kHz. Digital TDMA: 200 kHz channels, 8 users/channel, Bg = 0 (adjacent channels different freq so no guard needed). (a) Find users for each system. (b) Which supports more users? (c) If Tm = 15 µs, does TDMA need an equalizer?</li>
+      <li><strong>[CDMA capacity + near-far]</strong> CDMA uplink with G = 256, required SIR = 6 dB. (a) Find maximum users K. (b) User A is 200 m away, User B is 4 km away, both at 1 mW transmit. Find received power ratio (path loss ∝ r²). (c) By what factor must User A reduce power to equalize received power at the base station?</li>
+      <li><strong>[SDMA sectorization]</strong> A base station covers a cell using (a) omnidirectional antenna, (b) 3-sector antenna, (c) 6-sector antenna. Each sector/cell uses FDMA with 15 channels. Find total simultaneous users for each configuration. By what factor does 6-sector outperform omnidirectional?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) FDMA: N = (20×10⁶ − 2×10×10³)/(30×10³) = 19,980,000/30,000 = 666 users. TDMA: N_channels = 20×10⁶/200×10³ = 100 channels. Total users = 100×8 = 800 users. (b) TDMA supports more (800 vs 666). Digital compression + time-sharing enables more efficient spectrum use. (c) Bc = 1/15µs ≈ 67 kHz. TDMA channel BW = 200 kHz > 67 kHz → frequency-selective fading → YES, equalizer needed.</p>
+      <p><strong>2.</strong> (a) 6 dB linear = 10^0.6 = 3.981. K ≤ 3×256/3.981 + 1 = 768/3.981 + 1 = 192.9 + 1 = 193.9 → K = 193 users. (b) Path loss ∝ r². User A: Pr_A = 1 mW/200² = 1/(40,000) mW. User B: Pr_B = 1 mW/4000² = 1/(16,000,000) mW. Ratio: Pr_A/Pr_B = 16,000,000/40,000 = 400. User A is 400× stronger. (c) User A must reduce power by factor 400. If User B is at 1 mW, User A must transmit at 1/400 mW = 2.5 µW to equalize.</p>
+      <p><strong>3.</strong> (a) Omnidirectional: 15 users. (b) 3-sector: each sector uses same 15 channels, 3 sectors → 3×15 = 45 users. (c) 6-sector: 6×15 = 90 users. 6-sector outperforms omnidirectional by factor 6×! This is pure spatial reuse — same spectrum used 6 times.</p>
+    </div></details>
+  </div>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 14 Complete Coverage</h4>
+    <div class="prog-row"><span>§14.2 Multiple access overview, dedicated vs random, signal space 2BT</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2 Orthogonal channelisation — TDMA/FDMA/CDMA same capacity in AWGN</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2.1 FDMA — guard bands, flat fading, continuous tx, OFDMA, Example 14.1</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2.2 TDMA — time slots, frames, wideband ISI, sync problem, guard times, Example 14.2</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2.3 CDMA — spreading codes, DSSS, orthogonal vs non-orth codes, Example 14.3</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2.3 Near-far effect, power control (800 times/s in IS-95), MUD concept</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§14.2.4 SDMA — angular resolution, sectorization, mobility/handoff, 5G Massive MIMO</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 14 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>
