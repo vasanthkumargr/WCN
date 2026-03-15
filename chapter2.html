@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 — Path Loss & Shadowing | WCN</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1420;--card:#131b2e;--card2:#0f1828;--border:#1e2d47;
+  --accent:#00d4ff;--accent2:#00e5a0;--gold:#ffc940;--red:#ff4f6e;--purple:#b47eff;
+  --text:#dce8f5;--muted:#6b849e;
+  --mono:'JetBrains Mono',monospace;--serif:'Bitter',serif;--sans:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15.5px;line-height:1.85;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,12,20,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;}
+.nav-brand{font-family:var(--serif);font-size:1rem;font-weight:900;color:var(--accent);}
+.nav-links{display:flex;gap:.2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .55rem;border-radius:4px;transition:all .15s;}
+.nav-links a:hover{color:var(--accent);background:rgba(0,212,255,.07);}
+.nav-links a.active{color:var(--accent);}
+.layout{display:flex;padding-top:52px;}
+.sidebar{width:236px;flex-shrink:0;position:fixed;top:52px;bottom:0;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:1rem .75rem;}
+.sb-title{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:.4rem .5rem;margin-top:.6rem;margin-bottom:.2rem;}
+.sb-link{display:block;padding:.36rem .6rem;border-radius:5px;color:var(--muted);text-decoration:none;font-size:.78rem;transition:all .12s;margin-bottom:1px;}
+.sb-link:hover,.sb-link.active{color:var(--accent);background:rgba(0,212,255,.08);}
+.sb-link.sub{padding-left:1.1rem;font-size:.73rem;}
+.sb-sep{height:1px;background:var(--border);margin:.5rem 0;}
+.main{margin-left:236px;flex:1;min-width:0;}
+.page-hero{padding:5rem 2rem 3.5rem;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(0,212,255,.07) 0%,transparent 65%),var(--bg);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px),repeating-linear-gradient(90deg,transparent,transparent 44px,rgba(255,255,255,.015) 44px,rgba(255,255,255,.015) 45px);pointer-events:none;}
+.page-hero-inner{max-width:760px;position:relative;}
+.ph-tag{display:inline-block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .85rem;border-radius:20px;margin-bottom:1.1rem;}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:.8rem;color:#fff;}
+.page-hero h1 span{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.ph-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.3rem;}
+.ph-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:20px;font-size:.74rem;text-decoration:none;transition:all .15s;}
+.ph-chip:hover{border-color:var(--accent);color:var(--accent);}
+.section{max-width:800px;margin:0 auto;padding:4.5rem 2rem 2.5rem;border-bottom:1px solid var(--border);}
+.sec-badge{display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;}
+.sec-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+h2{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,1.9rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:.5rem;}
+h3{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--accent);margin:2rem 0 .6rem;}
+h4{font-size:.92rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .4rem;}
+p{color:var(--text);margin-bottom:.9rem;}
+.lead{font-size:.98rem;color:var(--muted);margin-bottom:1.7rem;border-left:2px solid var(--accent);padding-left:.9rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1.3rem 0;}
+.card.bl-a{border-left:3px solid var(--accent);}
+.card.bl-b{border-left:3px solid var(--accent2);}
+.card.bl-g{border-left:3px solid var(--gold);}
+.card.bl-r{border-left:3px solid var(--red);}
+.card.bl-p{border-left:3px solid var(--purple);}
+.fbox{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem 1.5rem;margin:1.3rem 0;text-align:center;font-family:var(--mono);color:var(--accent);position:relative;}
+.fbox::before{content:'FORMULA';position:absolute;top:6px;left:10px;font-size:.56rem;letter-spacing:.1em;color:var(--muted);font-family:var(--sans);}
+.fbox .fb{font-size:1.05rem;font-weight:600;line-height:2.2;}
+.fbox .fb.big{font-size:1.2rem;}
+.fbox .fl{display:block;font-size:.73rem;color:var(--muted);font-family:var(--sans);margin-top:.2rem;}
+.analogy{background:rgba(255,201,64,.05);border:1px solid rgba(255,201,64,.18);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;color:var(--muted);font-style:italic;}
+.analogy strong{color:var(--gold);font-style:normal;}
+.why{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.14);border-radius:9px;padding:1rem 1.2rem;margin:1.2rem 0;display:flex;gap:.8rem;align-items:flex-start;}
+.why .wi{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.why strong{color:var(--accent);display:block;margin-bottom:.2rem;}
+.example{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.2);border-radius:9px;padding:1.2rem;margin:1.7rem 0;}
+.ex-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.ex-head::before{content:'💡';}
+.problem{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.18);border-radius:9px;padding:1.2rem;margin:1.9rem 0;}
+.prob-head{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem;}
+.prob-head::before{content:'✏️';}
+.problem ol{padding-left:1.1rem;}
+.problem li{margin-bottom:.5rem;color:var(--text);}
+details.sol summary{cursor:pointer;color:var(--accent);font-size:.8rem;font-weight:700;padding:.4rem .65rem;background:rgba(0,212,255,.1);border-radius:5px;list-style:none;margin-top:.7rem;}
+details.sol summary::-webkit-details-marker{display:none;}
+details.sol summary::before{content:'▶  Show Solution';}
+details.sol[open] summary::before{content:'▼  Hide Solution';}
+details.sol .sc{background:#04080f;border-radius:7px;padding:.9rem;margin-top:.5rem;font-size:.85rem;}
+details.sol .sc p{margin-bottom:.45rem;}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.83rem;}
+th{background:var(--card2);color:var(--accent);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:.58rem .9rem;border-bottom:1px solid var(--border);}
+tr:nth-child(even) td{background:rgba(255,255,255,.012);}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin:1.2rem 0;}
+.cmp-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.9rem;}
+.cmp-box h5{font-size:.78rem;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;}
+.cmp-box.c1 h5{color:var(--accent);}
+.cmp-box.c2 h5{color:var(--accent2);}
+.cmp-box.c3 h5{color:var(--gold);}
+.cmp-box.c4 h5{color:var(--red);}
+.hl{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(0,229,160,.04));border:1px solid rgba(0,212,255,.12);border-radius:8px;padding:.85rem 1.1rem;margin:1.2rem 0;}
+.hl strong{color:var(--accent);}
+.warn{background:rgba(255,79,110,.05);border:1px solid rgba(255,79,110,.18);border-radius:8px;padding:.85rem 1.1rem;margin:1.1rem 0;}
+.warn strong{color:var(--red);}
+.const-wrap{background:#04080f;border:1px solid var(--border);border-radius:9px;padding:1.1rem;margin:1.2rem 0;text-align:center;}
+.const-wrap pre{font-family:var(--mono);color:var(--accent);font-size:.82rem;line-height:1.65;display:inline-block;text-align:left;}
+.const-label{font-size:.67rem;color:var(--muted);margin-top:.4rem;letter-spacing:.05em;text-transform:uppercase;}
+code{font-family:var(--mono);background:#04080f;padding:.1em .35em;border-radius:3px;font-size:.83em;color:var(--accent);}
+ul.nice{padding-left:1.1rem;}
+ul.nice li{margin-bottom:.38rem;}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:20px;font-size:.73rem;margin:.1rem;}
+.p-a{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.25);}
+.p-b{background:rgba(0,229,160,.12);color:var(--accent2);border:1px solid rgba(0,229,160,.25);}
+.p-g{background:rgba(255,201,64,.12);color:var(--gold);border:1px solid rgba(255,201,64,.25);}
+.p-r{background:rgba(255,79,110,.12);color:var(--red);border:1px solid rgba(255,79,110,.25);}
+.p-p{background:rgba(180,126,255,.12);color:var(--purple);border:1px solid rgba(180,126,255,.25);}
+.prog-row{display:flex;justify-content:space-between;font-size:.77rem;margin-bottom:.28rem;}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:.8rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;}
+footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.76rem;background:var(--surface);border-top:1px solid var(--border);}
+@media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.cmp{grid-template-columns:1fr;}.nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">WCN Study Hub</div>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="chapter2.html" class="active">Ch.2</a>
+    <a href="chapter6.html">Ch.6</a>
+    <a href="chapter8.html">Ch.8</a>
+    <a href="chapter10.html">Ch.10</a>
+    <a href="chapter11.html">Ch.11</a>
+    <a href="chapter12.html">Ch.12</a>
+    <a href="chapter14.html">Ch.14</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-title">Chapter 2 · Path Loss</div>
+  <a href="#intro" class="sb-link">§2 Introduction</a>
+  <a href="#intro" class="sb-link sub">↳ Why wireless is hard</a>
+  <a href="#intro" class="sb-link sub">↳ Path loss vs shadowing</a>
+  <a href="#intro" class="sb-link sub">↳ Large vs small scale</a>
+  <a href="#intro" class="sb-link sub">↳ Three propagation effects</a>
+  <div class="sb-sep"></div>
+  <a href="#radio-history" class="sb-link">§2.1 Radio Wave Propagation</a>
+  <a href="#radio-history" class="sb-link sub">↳ Maxwell → Hertz → Marconi</a>
+  <a href="#radio-history" class="sb-link sub">↳ First voice transmission</a>
+  <a href="#radio-history" class="sb-link sub">↳ Reflection / Scatter / Diffract</a>
+  <a href="#radio-history" class="sb-link sub">↳ Ray tracing models</a>
+  <a href="#radio-history" class="sb-link sub">↳ Empirical & statistical</a>
+  <div class="sb-sep"></div>
+  <a href="#signal-model" class="sb-link">§2.2 Signal Models</a>
+  <a href="#signal-model" class="sb-link sub">↳ UHF/SHF frequency range</a>
+  <a href="#signal-model" class="sb-link sub">↳ s(t) — transmitted signal</a>
+  <a href="#signal-model" class="sb-link sub">↳ I/Q components</a>
+  <a href="#signal-model" class="sb-link sub">↳ Complex envelope u(t)</a>
+  <a href="#signal-model" class="sb-link sub">↳ r(t) — received signal</a>
+  <a href="#signal-model" class="sb-link sub">↳ Doppler shift</a>
+  <a href="#signal-model" class="sb-link sub">↳ Path loss PL (linear & dB)</a>
+  <div class="sb-sep"></div>
+  <a href="#free-space" class="sb-link">§2.3 Free-Space Path Loss</a>
+  <a href="#free-space" class="sb-link sub">↳ LOS channel</a>
+  <a href="#free-space" class="sb-link sub">↳ Inverse-square law Pr ∝ 1/d²</a>
+  <a href="#free-space" class="sb-link sub">↳ Frequency effect Pr ∝ λ²</a>
+  <a href="#free-space" class="sb-link sub">↳ Path loss in dB (Eq 2.8)</a>
+  <a href="#free-space" class="sb-link sub">↳ Example 2.1</a>
+  <div class="sb-sep"></div>
+  <a href="#two-ray" class="sb-link">§2.4.1 Two-Ray Model</a>
+  <a href="#two-ray" class="sb-link sub">↳ LOS + ground reflection</a>
+  <a href="#two-ray" class="sb-link sub">↳ Phase difference φ</a>
+  <a href="#two-ray" class="sb-link sub">↳ Constructive/destructive</a>
+  <a href="#two-ray" class="sb-link sub">↳ d⁻⁴ law at large distance</a>
+  <a href="#two-ray" class="sb-link sub">↳ Critical distance dc</a>
+  <a href="#two-ray" class="sb-link sub">↳ Three power regions</a>
+  <a href="#two-ray" class="sb-link sub">↳ Example 2.2</a>
+  <div class="sb-sep"></div>
+  <a href="#simplified" class="sb-link">§2.6 Simplified Path-Loss Model</a>
+  <a href="#simplified" class="sb-link sub">↳ Pr = Pt·K·(d0/d)^γ</a>
+  <a href="#simplified" class="sb-link sub">↳ Parameters K, d0, γ</a>
+  <a href="#simplified" class="sb-link sub">↳ γ table by environment</a>
+  <a href="#simplified" class="sb-link sub">↳ MMSE curve fitting</a>
+  <a href="#simplified" class="sb-link sub">↳ Example 2.3</a>
+  <div class="sb-sep"></div>
+  <a href="#shadow" class="sb-link">§2.7 Shadow Fading</a>
+  <a href="#shadow" class="sb-link sub">↳ Why power varies randomly</a>
+  <a href="#shadow" class="sb-link sub">↳ Log-normal distribution</a>
+  <a href="#shadow" class="sb-link sub">↳ μ and σ parameters</a>
+  <a href="#shadow" class="sb-link sub">↳ Physical justification (CLT)</a>
+  <a href="#shadow" class="sb-link sub">↳ Autocorrelation & Xc</a>
+  <a href="#shadow" class="sb-link sub">↳ Example 2.4</a>
+  <div class="sb-sep"></div>
+  <a href="#problems" class="sb-link">✏️ Summary & Problems</a>
+</aside>
+
+<main class="main">
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="ph-tag">Chapter 2 · Andrea Goldsmith</div>
+    <h1>Path Loss &<br><span>Shadow Fading</span></h1>
+    <p>Why wireless signals weaken — from Maxwell's equations to the inverse-square law, two-ray model, simplified path-loss exponent, and log-normal shadow fading. Everything from absolute zero.</p>
+    <div class="ph-chips">
+      <a href="#intro" class="ph-chip">Intro</a>
+      <a href="#radio-history" class="ph-chip">§2.1 History</a>
+      <a href="#signal-model" class="ph-chip">§2.2 Signal Model</a>
+      <a href="#free-space" class="ph-chip">§2.3 Free-Space</a>
+      <a href="#two-ray" class="ph-chip">§2.4 Two-Ray</a>
+      <a href="#simplified" class="ph-chip">§2.6 Simplified</a>
+      <a href="#shadow" class="ph-chip">§2.7 Shadow</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     INTRODUCTION
+══════════════════════════════════════ -->
+<section class="section" id="intro">
+  <div class="sec-badge"><span class="dot"></span>Chapter 2 — Introduction</div>
+  <h2>Why Wireless Is Hard — Three Propagation Effects</h2>
+  <p class="lead">Before any formula, understand the physical story. A wireless signal leaves a transmitter and must arrive at a receiver with enough strength to be decoded. Three distinct physical effects each attack it differently.</p>
+
+  <h3>Step 1 — The Core Problem</h3>
+  <p>The wireless radio channel is not like a wire. A wire delivers almost exactly what you put in. The air between a phone and a tower introduces:</p>
+  <ul class="nice">
+    <li><strong>Noise</strong> — random electrical disturbances corrupt bits</li>
+    <li><strong>Interference</strong> — other devices' signals mix with yours</li>
+    <li><strong>Channel impairments</strong> — the physical world weakens and distorts the signal</li>
+    <li><strong>Time variation</strong> — user moves, trucks drive by, weather changes → channel constantly shifts in unpredictable ways</li>
+  </ul>
+
+  <h3>Step 2 — The Three Propagation Effects</h3>
+  <table>
+    <tr><th>Effect</th><th>Cause</th><th>Distance scale</th><th>Called</th></tr>
+    <tr><td><span class="pill p-a">Path Loss</span></td><td>Signal energy spreads out as it radiates — like a ripple in water getting weaker</td><td>100–1000 m</td><td>Large-scale</td></tr>
+    <tr><td><span class="pill p-g">Shadowing</span></td><td>Obstacles (buildings, trees) block/absorb signal through reflection, scattering, diffraction</td><td>10–100 m</td><td>Large-scale</td></tr>
+    <tr><td><span class="pill p-r">Multipath fading</span></td><td>Multiple signal copies arrive via different paths and interfere constructively or destructively</td><td>~1 wavelength (cm)</td><td>Small-scale (Ch.3)</td></tr>
+  </table>
+
+  <div class="const-wrap"><pre>
+  Received
+  Power
+  (dB)
+    |
+    |  ·Path loss trend (slow decrease)
+    |    ··
+    |      ···
+    |    /\   ···   Shadowing bumps
+    |   /  ·  ·  \··
+    |  /    \/    \··  /\  /\  /\ ← Multipath fading (fast wiggles)
+    |
+    +─────────────────────────────── log(distance)</pre>
+    <div class="const-label">Figure 2.1 — all three effects combined · Path loss = trend · Shadowing = slow bumps · Multipath = fast fluctuations</div>
+  </div>
+
+  <h3>Step 3 — Propagation Models This Chapter Covers</h3>
+  <ul class="nice">
+    <li><strong>Free-space model</strong> — simplest: no obstacles, straight line, open space</li>
+    <li><strong>Ray-tracing models</strong> — physics-based, tracks reflections (two-ray model)</li>
+    <li><strong>Empirical models</strong> — curve-fit to real measurements for specific environments</li>
+    <li><strong>Simplified path-loss model</strong> — one equation with a single exponent γ, used for system design</li>
+    <li><strong>Log-normal shadowing model</strong> — statistical model for random blockage</li>
+  </ul>
+  <p>Multipath (small-scale fading) is covered in Chapter 3. This chapter focuses on large-scale effects.</p>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.1 HISTORY
+══════════════════════════════════════ -->
+<section class="section" id="radio-history">
+  <div class="sec-badge"><span class="dot"></span>Section 2.1 — Radio Wave Propagation</div>
+  <h2>From Maxwell to 5G — The Story of Radio Waves</h2>
+  <p class="lead">Understanding where radio waves came from helps build intuition for how they behave.</p>
+
+  <h3>The Timeline</h3>
+  <table>
+    <tr><th>Year</th><th>Person</th><th>Achievement</th></tr>
+    <tr><td>1864</td><td>James Clerk Maxwell</td><td>Mathematically predicted electromagnetic waves must exist — gave us Maxwell's equations</td></tr>
+    <tr><td>1887</td><td>Heinrich Hertz</td><td>Experimentally proved radio waves exist — the unit "Hz" is named after him. He thought they had no practical use!</td></tr>
+    <tr><td>1894</td><td>Oliver Lodge</td><td>Built first wireless communication system — but only 150 m range</td></tr>
+    <tr><td>1897</td><td>Guglielmo Marconi</td><td>Transmitted radio 18 miles (Isle of Wight to a tugboat)</td></tr>
+    <tr><td>1901</td><td>Guglielmo Marconi</td><td>Crossed the Atlantic Ocean wirelessly — proved global wireless was possible</td></tr>
+    <tr><td>1906</td><td>Reginald Fessenden</td><td>First voice + music transmission using Amplitude Modulation (AM)</td></tr>
+  </table>
+  <div class="why"><div class="wi">🎵</div><div>
+    <strong>Why modulation was the key invention:</strong> Hertz was right that low-frequency signals (like voice) propagate poorly. Fessenden's solution: shift the voice signal to a high-frequency carrier wave — that's modulation. Every wireless system today (WiFi, 4G, 5G, radio) does exactly this.
+  </div></div>
+
+  <h3>How Radio Waves Interact with the Environment</h3>
+  <p>When electromagnetic waves travel in real environments, objects cause three physical effects:</p>
+  <div class="cmp">
+    <div class="cmp-box c1"><h5>Reflection</h5><p>Signal bounces off smooth surfaces (buildings, ground, water). Like light reflecting from a mirror.</p></div>
+    <div class="cmp-box c2"><h5>Scattering</h5><p>Signal hits rough or small surfaces and spreads in many directions. Trees, rough walls, lamp posts.</p></div>
+  </div>
+  <div class="cmp">
+    <div class="cmp-box c3"><h5>Diffraction</h5><p>Signal bends around sharp edges and corners. Allows signal to reach areas not in direct line-of-sight.</p></div>
+    <div class="cmp-box c4"><h5>Absorption</h5><p>Some materials absorb signal energy (wet ground, foliage, human bodies). Strong absorption = signal blocked.</p></div>
+  </div>
+  <p>These four effects combined create the complex multipath environment that makes wireless channels so challenging to model.</p>
+
+  <h3>Why Perfect Maxwell Equation Solutions Are Impossible</h3>
+  <p>Theoretically, solving Maxwell's coupled differential equations with correct boundary conditions gives the exact received signal. Practically: you'd need to know the exact shape, size, material, and dielectric constant of every building, tree, and vehicle — and re-solve whenever anything moves. Instead, engineers use three levels of approximation:</p>
+  <ul class="nice">
+    <li><strong>Ray tracing:</strong> treat wavefronts as particles, track reflections/refractions — good when environment is known and reflections are few</li>
+    <li><strong>Empirical models:</strong> go measure signal power in real environments, fit formulas to the data — practical but environment-specific</li>
+    <li><strong>Statistical models:</strong> describe the channel with probability distributions — used when environment is unknown or highly variable</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.2 SIGNAL MODEL
+══════════════════════════════════════ -->
+<section class="section" id="signal-model">
+  <div class="sec-badge"><span class="dot"></span>Section 2.2 — Transmit and Receive Signal Models</div>
+  <h2>Mathematical Signal Models</h2>
+  <p class="lead">Before computing path loss, we need a mathematical description of what is transmitted and what is received. This section builds that foundation.</p>
+
+  <h3>Step 1 — Operating Frequency Range</h3>
+  <table>
+    <tr><th>Band</th><th>Frequency</th><th>Systems</th><th>Why suitable</th></tr>
+    <tr><td>UHF</td><td>0.3–3 GHz</td><td>4G LTE, GSM, WiFi 2.4 GHz</td><td>Good propagation, practical antenna size</td></tr>
+    <tr><td>SHF</td><td>3–30 GHz</td><td>5G, WiFi 5 GHz, mmWave</td><td>More bandwidth available, smaller antennas</td></tr>
+  </table>
+  <p>Antenna size ∝ wavelength = c/f. At 1 GHz: λ = 30 cm. At 3 GHz: λ = 10 cm. Compact enough for phones and routers.</p>
+
+  <h3>Step 2 — Transmitted Signal Model</h3>
+  <div class="fbox">
+    <span class="fb big">s(t) = Re{u(t)·e^(j2πfct)}</span>
+    <span class="fl">Eq. (2.1) · fc = carrier frequency · u(t) = complex baseband (envelope) signal</span>
+  </div>
+  <p>Expanding using Euler's formula:</p>
+  <div class="fbox">
+    <span class="fb">s(t) = sI(t)·cos(2πfct) − sQ(t)·sin(2πfct)</span>
+    <span class="fl">sI(t) = Re{u(t)} = in-phase component · sQ(t) = Im{u(t)} = quadrature component</span>
+  </div>
+
+  <h4>I and Q Components — Why Two?</h4>
+  <p>Using two orthogonal carriers (cos and sin) allows sending twice the information in the same bandwidth. This is the foundation of QAM, QPSK, and all modern digital modulation:</p>
+  <div class="const-wrap"><pre>
+  I-channel: data bits → sI(t) → modulates cos(2πfct)
+  Q-channel: data bits → sQ(t) → modulates sin(2πfct)
+  Combined signal: s(t) = sI(t)cos(·) - sQ(t)sin(·)
+
+  cos and sin are orthogonal → no interference between I and Q
+  → Two independent data streams in same bandwidth!</pre></div>
+
+  <h4>Complex Envelope u(t)</h4>
+  <p><code>u(t) = sI(t) + j·sQ(t)</code> is called the <strong>complex envelope</strong> or <strong>equivalent lowpass signal</strong>. It contains all the information about the signal (amplitude, phase, data) but without the high carrier frequency. Working with u(t) is much simpler mathematically than s(t).</p>
+  <div class="fbox">
+    <span class="fb">Transmit power: Pt = Pu/2 &nbsp;&nbsp; where Pu = power of u(t)</span>
+  </div>
+
+  <h3>Step 3 — Received Signal Model</h3>
+  <div class="fbox">
+    <span class="fb big">r(t) = Re{v(t)·e^(j2πfct)} + n(t)</span>
+    <span class="fl">Eq. (2.2) · v(t) = channel-modified envelope · n(t) = additive noise from channel</span>
+  </div>
+  <p>For a time-invariant channel: <code>v(t) = u(t) * c(t)</code> (convolution with channel impulse response c(t)). The channel acts like a filter on the baseband signal.</p>
+  <p>The SNR = power of signal term / power of noise n(t). In this chapter noise is <em>neglected</em> — focus is on propagation, which determines how v(t) relates to u(t) through path loss and shadowing.</p>
+
+  <h3>Step 4 — Doppler Shift</h3>
+  <div class="fbox">
+    <span class="fb big">fD = v·cosθ / λ</span>
+    <span class="fl">Eq. (2.3) · v = receiver velocity · θ = signal arrival angle relative to direction of motion · λ = c/fc · positive if moving toward transmitter</span>
+  </div>
+  <div class="why"><div class="wi">🚑</div><div>
+    <strong>Intuition:</strong> Exactly like the ambulance siren — higher pitch when approaching, lower when receding. When moving toward the transmitter, each successive wavecrest travels slightly less distance → arrives slightly earlier → frequency appears higher. Typical value: at 75 km/h and 1 GHz, fD ≈ 69 Hz — tiny compared to GHz, so ignored in this chapter's models.
+  </div></div>
+  <p>Phase change from movement: Δφ = 2π·v·Δt·cosθ / λ. Doppler = rate of phase change / 2π.</p>
+
+  <h3>Step 5 — Path Loss Definitions</h3>
+  <div class="fbox">
+    <span class="fb big">PL = Pt / Pr &nbsp;&nbsp;&nbsp; (linear)</span>
+    <span class="fl">Eq. (2.4) — ratio of transmitted to received power (always ≥ 1 since channel only attenuates)</span>
+  </div>
+  <div class="fbox">
+    <span class="fb big">PL_dB = 10·log₁₀(Pt/Pr) &nbsp; dB</span>
+    <span class="fl">Eq. (2.5) — dB path loss · always non-negative · Path GAIN = −PL_dB (always negative)</span>
+  </div>
+  <div class="example">
+    <div class="ex-head">Quick Example — Reading Path Loss</div>
+    <p>Pt = 100 W, Pr = 0.01 W: PL = 100/0.01 = 10,000. PL_dB = 10·log₁₀(10,000) = 40 dB. Path gain = −40 dB. Physically: the signal lost 99.99% of its power.</p>
+  </div>
+  <div class="problem">
+    <div class="prob-head">Practice — §2.2</div>
+    <ol>
+      <li>A transmitter outputs 2 W. The receiver gets 0.002 W. Find (a) linear path loss, (b) path loss in dB, (c) path gain in dB.</li>
+      <li>A mobile user moves at 60 km/h toward a base station. Carrier frequency fc = 2.4 GHz. Find the Doppler shift fD.</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) PL = 2/0.002 = 1000. (b) PL_dB = 10·log₁₀(1000) = 30 dB. (c) PG = −30 dB.</p>
+      <p><strong>2.</strong> v = 60 km/h = 60/3.6 = 16.67 m/s. λ = c/fc = 3×10⁸/2.4×10⁹ = 0.125 m. θ = 0 (moving directly toward). fD = 16.67×cos(0)/0.125 = 16.67/0.125 = 133 Hz.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.3 FREE-SPACE
+══════════════════════════════════════ -->
+<section class="section" id="free-space">
+  <div class="sec-badge"><span class="dot"></span>Section 2.3 — Free-Space Path Loss</div>
+  <h2>Free-Space Path Loss — The Simplest Model</h2>
+  <p class="lead">No obstacles, no reflections, perfect open space, direct line of sight. The simplest possible wireless scenario — and still the foundation for all other models.</p>
+
+  <h3>Step 1 — What "Free Space" Means</h3>
+  <p>Free-space assumes: no obstacles, no reflections, just empty space between transmitter and receiver with a straight-line (Line-of-Sight, LOS) path. Examples: satellite links, open rural terrain, microwave towers.</p>
+
+  <h3>Step 2 — Why Signal Weakens Even in Free Space</h3>
+  <div class="analogy"><strong>🔦 Light bulb analogy:</strong> A light bulb radiates in all directions. Close to the bulb it's bright; far away it's dim. This is because the same total power spreads over the surface of a sphere of area 4πd². As d doubles, area quadruples, so power per unit area (intensity) quarters. Radio waves do exactly the same.</div>
+
+  <h3>Step 3 — Power Ratio Formula</h3>
+  <div class="fbox">
+    <span class="fb big">Pr/Pt = (√Gl · λ / 4πd)²</span>
+    <span class="fl">Eq. (2.7) · Gl = combined transmit+receive antenna gain · λ = c/fc = signal wavelength · d = distance</span>
+  </div>
+
+  <h4>The Two Key Relationships</h4>
+  <div class="cmp">
+    <div class="cmp-box c1">
+      <h5>Inverse-Square Law: Pr ∝ 1/d²</h5>
+      <p>Doubling distance → power drops 4×. Tripling distance → power drops 9×.</p>
+      <table style="margin:.5rem 0;font-size:.78rem;">
+        <tr><th>Distance</th><th>Relative power</th></tr>
+        <tr><td>d</td><td>P</td></tr>
+        <tr><td>2d</td><td>P/4 (−6 dB)</td></tr>
+        <tr><td>10d</td><td>P/100 (−20 dB)</td></tr>
+      </table>
+    </div>
+    <div class="cmp-box c4">
+      <h5>Frequency effect: Pr ∝ λ² ∝ 1/fc²</h5>
+      <p>Higher frequency = smaller wavelength = less received power. Doubling fc → Pr drops 4×. This is why 5G mmWave needs directional antennas or more transmit power.</p>
+    </div>
+  </div>
+
+  <h3>Step 4 — Path Loss in dB (Link Budget Form)</h3>
+  <div class="fbox">
+    <span class="fb">Pr_dBm = Pt_dBm + 10·log₁₀(Gl) + 20·log₁₀(λ) − 20·log₁₀(4π) − 20·log₁₀(d)</span>
+    <span class="fl">Eq. (2.8) · Each term is simply the dB version of the corresponding factor in the power ratio</span>
+  </div>
+  <div class="fbox">
+    <span class="fb">PL_dB = −10·log₁₀(Gl·λ²/(4πd)²)</span>
+    <span class="fl">Eq. (2.9) · Free-space path loss in dB · always positive · PG = −PL = 10·log₁₀(Gl·λ²/(4πd)²)</span>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 2.1 — Indoor LAN Transmit Power (Textbook)</div>
+    <p><strong>Given:</strong> fc = 900 MHz, cell radius d = 100 m, omnidirectional antennas (Gl = 1), minimum Pr = 10 µW.</p>
+    <p><strong>Find required Pt:</strong> Invert Eq. (2.7): Pt = Pr × (4πd/λ)²/Gl</p>
+    <p>λ = c/fc = 3×10⁸/900×10⁶ = 0.333 m</p>
+    <p>Pt = 10×10⁻⁶ × (4π×100/0.333)² / 1 = 10×10⁻⁶ × (3770.5)² = <strong>1.45 W</strong></p>
+    <p><strong>If fc = 5 GHz:</strong> λ = 0.06 m (much smaller). Same formula gives Pt = 10×10⁻⁶ × (4π×100/0.06)² = <strong>43.9 kW</strong> — 30,000× more power needed!</p>
+    <div class="hl"><strong>Key insight:</strong> Higher frequency → much higher transmit power needed for same coverage at same distance. This is why 5G millimetre-wave systems use highly directional (beamforming) antennas to compensate.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §2.3 Free-Space</div>
+    <ol>
+      <li>A satellite link operates at fc = 12 GHz, distance d = 36,000 km, Gl = 10⁶ (highly directional dishes). Find Pr/Pt in dB.</li>
+      <li>An outdoor WiFi hotspot at 2.4 GHz with Pt = 0.1 W, Gl = 1, d = 50 m. Find Pr in mW under free-space model.</li>
+      <li>If path loss at 100 m is 60 dB at 1 GHz, what is the path loss at 100 m at 2 GHz? (Assume same Gl, free-space model.)</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> λ = 3×10⁸/12×10⁹ = 0.025 m. d = 36,000×10³ m. Pr/Pt = Gl·λ²/(4πd)² = 10⁶ × 0.025²/(4π×3.6×10⁷)² = 625/(5.109×10¹⁷) = 1.22×10⁻¹⁵ = −119.1 dB. The dish antennas recover 60 dB of this loss.</p>
+      <p><strong>2.</strong> λ = 3×10⁸/2.4×10⁹ = 0.125 m. Pr = Pt × (λ/(4πd))² = 0.1 × (0.125/(4π×50))² = 0.1 × (3.98×10⁻⁴)² = 0.1 × 1.58×10⁻⁷ = 1.58×10⁻⁸ W = 0.0158 µW.</p>
+      <p><strong>3.</strong> Free-space path loss PL_dB = 20·log(4πd/λ) = 20·log(4πd·fc/c). Doubling fc adds 20·log(2) = 6 dB. New path loss = 60 + 6 = 66 dB.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.4.1 TWO-RAY MODEL
+══════════════════════════════════════ -->
+<section class="section" id="two-ray">
+  <div class="sec-badge"><span class="dot"></span>Section 2.4.1 — Two-Ray Model</div>
+  <h2>Two-Ray Model — Adding the Ground Reflection</h2>
+  <p class="lead">In most outdoor environments, the signal doesn't just travel through the air directly. It also reflects off the ground. Adding this one reflection changes the power law from d⁻² to d⁻⁴ at large distances.</p>
+
+  <h3>Step 1 — Two Signal Paths</h3>
+  <div class="const-wrap"><pre>
+  Transmitter (height ht)                 Receiver (height hr)
+       📡                                       📱
+        \                                      /
+         \  LOS (direct path, length l)       /
+          \────────────────────────────────  /
+           \                                /
+            \    reflected path            /
+             \   (length x + x')          /
+              \_________________________  /
+                       Ground</pre>
+    <div class="const-label">Two signal paths: direct LOS of length l, and ground reflection of length x+x'</div>
+  </div>
+  <p>The receiver gets both signals simultaneously. Their combination depends on the phase difference between them — sometimes they add (strong signal), sometimes they cancel (weak signal).</p>
+
+  <h3>Step 2 — Phase Difference</h3>
+  <div class="fbox">
+    <span class="fb">φ = 2π(x + x' − l) / λ</span>
+    <span class="fl">Phase difference between reflected and direct signal · determines whether they add or cancel</span>
+  </div>
+  <p>For large distance d (d ≫ ht + hr), using Taylor series approximation:</p>
+  <div class="fbox">
+    <span class="fb big">φ ≈ 4π·ht·hr / (λ·d)</span>
+    <span class="fl">Eq. (2.14) · Decreases as d increases · when φ = π → signals fully cancel → critical distance dc</span>
+  </div>
+
+  <h3>Step 3 — Ground Reflection Coefficient R</h3>
+  <p>At large distances, θ → 0 and R → −1. The reflected signal arrives with opposite sign — it tends to cancel the direct signal. This is why the two-ray model gives much faster power decay than free space.</p>
+
+  <h3>Step 4 — Power Law at Large Distance</h3>
+  <div class="fbox">
+    <span class="fb big">Pr ≈ Pt · Gl · (ht·hr)² / d⁴</span>
+    <span class="fl">Eq. (2.17) · valid for d ≫ dc · d⁻⁴ law instead of d⁻² · note λ disappears!</span>
+  </div>
+  <div class="fbox">
+    <span class="fb">Pr_dBm = Pt_dBm + 10·log₁₀(Gl) + 20·log₁₀(ht·hr) − 40·log₁₀(d)</span>
+    <span class="fl">Eq. (2.18) · −40·log₁₀(d) term ↔ d⁻⁴ power law</span>
+  </div>
+
+  <div class="hl"><strong>Comparison:</strong> Free-space: −20 dB/decade (power ∝ d⁻²). Two-ray large d: −40 dB/decade (power ∝ d⁻⁴). At large distances, the ground reflection makes the channel twice as lossy (in dB/decade terms) as free space. Also note λ disappears — the received power becomes frequency-independent!</div>
+
+  <h3>Step 5 — Critical Distance dc</h3>
+  <div class="fbox">
+    <span class="fb big">dc = 4·ht·hr / λ</span>
+    <span class="fl">Eq. derived from φ=π · The distance where d⁻² transitions to d⁻⁴ · Below dc: power varies (multipath fading) · Above dc: rapid d⁻⁴ decay</span>
+  </div>
+
+  <h3>Step 6 — Three Power Regions</h3>
+  <div class="const-wrap"><pre>
+  Power (dB)
+    |
+    |──── Region 1: d < ht ────|── Region 2: ht to dc ──|── Region 3: d > dc ──
+    |   Constructive add.      | Maxima and minima       | d⁻⁴ decay
+    |   Slow increase          | (multipath fading)      | −40 dB/decade
+    |   ∝ 1/(d²+ht²)          |  ←small-scale fading→  |
+    |                                                     |
+    +─────────────────────────────────────────────────── log(d)</pre>
+    <div class="const-label">Three distinct regions in the two-ray power vs distance curve</div>
+  </div>
+
+  <div class="example">
+    <div class="ex-head">Example 2.2 — Critical Distance (Textbook)</div>
+    <p><strong>Given:</strong> fc = 2 GHz → λ = 3×10⁸/2×10⁹ = 0.15 m</p>
+    <p><strong>Urban microcell:</strong> ht = 10 m, hr = 3 m. dc = 4×10×3/0.15 = 120/0.15 = <strong>800 m</strong></p>
+    <p><strong>Indoor:</strong> ht = 3 m, hr = 2 m. dc = 4×3×2/0.15 = 24/0.15 = <strong>160 m</strong></p>
+    <div class="hl"><strong>Practical insight:</strong> Urban cells today are ~100 m (much smaller than 800 m) because small cells increase capacity and reduce power. Within 100 m (below dc), power falls off as d⁻² — close to free-space. The d⁻⁴ law only kicks in beyond dc, which provides excellent interference isolation from neighbouring cells.</div>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §2.4.1 Two-Ray</div>
+    <ol>
+      <li>A rural road has ht = 20 m (transmitter), hr = 1.5 m (car antenna), fc = 900 MHz. Find dc. At d = 5 km (much greater than dc), by what additional factor does the two-ray model predict lower power than free-space?</li>
+      <li>Two receivers are both 500 m from the base station. One has direct LOS; the other has a reflected path with x+x'−l = 0.2 m at fc = 900 MHz. What is the phase difference φ? Do the two signals add or cancel?</li>
+      <li>At d = dc, the two-ray model transitions from d⁻² to d⁻⁴. What is the path loss in dB at dc and at 10·dc using the d⁻⁴ formula? (Use ht=10m, hr=3m, fc=900 MHz, Gl=1, Pt=1W.)</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> λ = 3×10⁸/900×10⁶ = 0.333 m. dc = 4×20×1.5/0.333 = 120/0.333 = 360 m. At d=5 km >> dc: two-ray power ∝ d⁻⁴ vs free-space d⁻². Additional loss factor = d² (since d⁻⁴/d⁻² = d⁻²). At d = 5000 m: additional loss = (5000)² / (constant). More precisely: free-space Pr ∝ 1/d², two-ray Pr ∝ (hthr)²/d⁴. Ratio = (hthr)²/d² = (20×1.5)²/5000² = 900/25,000,000 ≈ 3.6×10⁻⁵ = −44.4 dB lower than free-space at same d.</p>
+      <p><strong>2.</strong> φ = 2π(x+x'−l)/λ = 2π×0.2/0.333 = 2π×0.6 = 3.77 rad ≈ 216°. Since 180° < 216° < 360°, the signals are roughly out of phase (close to destructive). At exactly φ=π (180°): complete cancellation. At φ=216°: partial cancellation — received power is reduced.</p>
+      <p><strong>3.</strong> dc = 4×10×3/0.333 = 360 m. At dc=360m using d⁻⁴: Pr = Pt×Gl×(ht×hr)²/d⁴ = 1×1×(30)²/(360)⁴ = 900/(1.68×10¹⁰) = 5.36×10⁻⁸ W = −42.7 dBm. At 10dc=3600m: Pr drops by additional 40log(10) = 40 dB → −82.7 dBm.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.6 SIMPLIFIED MODEL
+══════════════════════════════════════ -->
+<section class="section" id="simplified">
+  <div class="sec-badge"><span class="dot"></span>Section 2.6 — Simplified Path-Loss Model</div>
+  <h2>Simplified Path-Loss Model — One Equation for All Environments</h2>
+  <p class="lead">Real environments are too complex for exact models. Engineers use a simple one-parameter formula that captures the essential distance dependence, calibrated to each environment type.</p>
+
+  <h3>Step 1 — The Universal Formula</h3>
+  <div class="fbox">
+    <span class="fb big">Pr = Pt · K · (d0/d)^γ</span>
+    <span class="fl">Eq. (2.39) · K = constant (antennas + average attenuation) · d0 = reference distance · γ = path-loss exponent</span>
+  </div>
+  <div class="fbox">
+    <span class="fb big">Pr_dBm = Pt_dBm + K_dB − 10γ·log₁₀(d/d0)</span>
+    <span class="fl">Eq. (2.40) — log-domain form · straight line on dB vs log(d) plot · slope = −10γ dB/decade</span>
+  </div>
+
+  <h3>Step 2 — The Three Parameters</h3>
+  <table>
+    <tr><th>Parameter</th><th>Meaning</th><th>Typical values</th><th>How to find</th></tr>
+    <tr><td>K</td><td>Constant accounting for antenna gains and average channel attenuation</td><td>K_dB = 20·log₁₀(λ/4πd0) for free-space reference</td><td>Free-space formula at d0, or empirical measurement at d0</td></tr>
+    <tr><td>d0</td><td>Reference distance — model valid for d > d0</td><td>1–10 m indoors, 10–100 m outdoors</td><td>Chosen by designer</td></tr>
+    <tr><td>γ</td><td>Path-loss exponent — how fast power decays with distance</td><td>2 (free-space) to 6.5 (dense urban)</td><td>MMSE fit to measurements</td></tr>
+  </table>
+
+  <h3>Step 3 — The γ Table</h3>
+  <table>
+    <tr><th>Environment</th><th>γ range</th><th>Interpretation</th></tr>
+    <tr><td>Free space</td><td>2.0</td><td>Ideal — no obstacles</td></tr>
+    <tr><td>Two-ray (large d)</td><td>4.0</td><td>Ground reflection dominates</td></tr>
+    <tr><td>Urban macrocells</td><td>3.7–6.5</td><td>Dense buildings, many reflections</td></tr>
+    <tr><td>Urban microcells</td><td>2.7–3.5</td><td>Short range, fewer obstacles</td></tr>
+    <tr><td>Office building (same floor)</td><td>1.6–3.5</td><td>Open plan vs partitioned</td></tr>
+    <tr><td>Store</td><td>2–6</td><td>Highly variable</td></tr>
+    <tr><td>Factory</td><td>1.8–2.2</td><td>Metallic, reflective — close to free-space!</td></tr>
+    <tr><td>Office (multiple floors)</td><td>1.6–3.3</td><td>Floor penetration adds attenuation</td></tr>
+    <tr><td>Home</td><td>3.0</td><td>Typical residential</td></tr>
+  </table>
+  <div class="why"><div class="wi">🏭</div><div>
+    <strong>Why factories have low γ (≈2)?</strong> Metal walls and equipment create many reflections — like a mirror box. Signals bounce around efficiently and actually propagate more like free space or better. In contrast, dense urban canyons have γ up to 6.5 because buildings absorb and scatter signals from all directions.
+  </div></div>
+
+  <div class="example">
+    <div class="ex-head">Example 2.3 — Finding γ by MMSE (Textbook)</div>
+    <p><strong>Indoor 900 MHz, d0 = 1 m:</strong></p>
+    <p>K_dB = 20·log₁₀(0.333/(4π×1)) = 20·log₁₀(0.02653) = <strong>−31.54 dB</strong></p>
+    <table>
+      <tr><th>d</th><th>Measured Pr/Pt</th><th>Model: K − 10γ·log(d)</th></tr>
+      <tr><td>10 m</td><td>−70 dB</td><td>−31.54 − 10γ·1 = −31.54−10γ</td></tr>
+      <tr><td>20 m</td><td>−75 dB</td><td>−31.54 − 10γ·log(20) = −31.54−13.01γ</td></tr>
+      <tr><td>50 m</td><td>−90 dB</td><td>−31.54 − 10γ·log(50) = −31.54−16.99γ</td></tr>
+      <tr><td>100 m</td><td>−110 dB</td><td>−31.54 − 20γ</td></tr>
+      <tr><td>300 m</td><td>−125 dB</td><td>−31.54 − 24.77γ</td></tr>
+    </table>
+    <p><strong>MMSE:</strong> Minimise F(γ) = Σ(measured − model)². Differentiate and set dF/dγ = 0:</p>
+    <p>→ <strong>γ = 3.71</strong></p>
+    <p><strong>Predict Pr at d = 150 m:</strong> Pr = 0 − 31.54 − 10×3.71×log₁₀(150) = 0 − 31.54 − 37.1×2.176 = <strong>−112.27 dBm</strong></p>
+    <p>The remaining scatter around the model line = shadow fading (Section 2.7).</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §2.6 Simplified Model</div>
+    <ol>
+      <li>An urban macrocell system has K_dB = −28 dB, d0 = 100 m, γ = 4.0, Pt = 2 W = 33 dBm. Find Pr in dBm at d = 1 km and d = 5 km.</li>
+      <li>Two propagation environments: (A) γ = 2.5 and (B) γ = 4.5, both with same K and d0. At d = 100·d0, what is the path loss difference between A and B in dB?</li>
+      <li>From Example 2.3 measurements: does the actual measurement at d = 100 m (−110 dB) match the model (γ = 3.71)? Compute the model prediction at d = 100 m and the error. What causes this error?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> At d = 1000 m: Pr = 33 − 28 − 40·log₁₀(1000/100) = 33 − 28 − 40 = <strong>−35 dBm</strong>. At d = 5000 m: Pr = 33 − 28 − 40·log₁₀(5000/100) = 33 − 28 − 40·log₁₀(50) = 5 − 40×1.699 = 5 − 67.96 = <strong>−62.96 dBm</strong>.</p>
+      <p><strong>2.</strong> PL_A = K_dB − 10×2.5×log(100) = K_dB − 10×2.5×2 = K_dB − 50 dB. PL_B = K_dB − 10×4.5×2 = K_dB − 90 dB. Difference: 90 − 50 = <strong>40 dB</strong>. Environment B has 40 dB more path loss at same distance — dramatic difference!</p>
+      <p><strong>3.</strong> Model at d = 100 m: −31.54 − 10×3.71×log₁₀(100) = −31.54 − 37.1×2 = −31.54 − 74.2 = −105.74 dB. Measured = −110 dB. Error = −110 − (−105.74) = −4.26 dB. This error is caused by shadow fading — a random building or obstacle reduced the signal by an extra 4.26 dB at this location compared to the average model prediction.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     §2.7 SHADOW FADING
+══════════════════════════════════════ -->
+<section class="section" id="shadow">
+  <div class="sec-badge"><span class="dot"></span>Section 2.7 — Shadow Fading</div>
+  <h2>Shadow Fading — Random Signal Blockage</h2>
+  <p class="lead">Even if two receivers are at exactly the same distance from a transmitter, their received power can differ significantly. This random variation is shadow fading — caused by unpredictable obstacles in the signal path.</p>
+
+  <h3>Step 1 — Why Shadow Fading Exists</h3>
+  <p>The simplified path-loss model gives the average power at distance d. But in reality, the received power at a given distance is random because:</p>
+  <ul class="nice">
+    <li>Buildings of different sizes and materials randomly block the path</li>
+    <li>Trees, vehicles, terrain features create varying amounts of attenuation</li>
+    <li>Reflecting surfaces change → indirect paths strengthen or weaken</li>
+  </ul>
+  <p>These obstacles are unknown and change with location, so a statistical model is needed.</p>
+
+  <h3>Step 2 — Log-Normal Distribution</h3>
+  <p>Define ψ = Pt/Pr (path loss ratio). Empirical measurements consistently show that ψ follows a <strong>log-normal distribution</strong> — meaning ψ_dB = 10·log₁₀(ψ) follows a Gaussian (normal) distribution:</p>
+  <div class="fbox">
+    <span class="fb big">ψ_dB ~ N(μ_ψdB, σ_ψdB²)</span>
+    <span class="fl">Eq. (2.46) · μ_ψdB = mean path loss in dB · σ_ψdB = standard deviation in dB · Gaussian distribution in dB scale</span>
+  </div>
+
+  <h3>Step 3 — Physical Justification (Why Log-Normal?)</h3>
+  <div class="card bl-b">
+    <h4>Central Limit Theorem Argument</h4>
+    <p>Attenuation through one object of depth d: <code>s(d) = e^(−αd)</code></p>
+    <p>Through many random objects with total depth dt = Σdᵢ: <code>s(dt) = e^(−α·dt)</code></p>
+    <p>By the Central Limit Theorem, the sum of many independent random depths dt is approximately Gaussian. Therefore <code>log s(dt) = −α·dt</code> is Gaussian → s(dt) is log-normal → path loss ψ is log-normal.</p>
+    <div class="hl"><strong>In simple words:</strong> Each object multiplies the signal attenuation. Many multiplied factors = product of random variables. Log of a product = sum of logs = sum of random variables → Gaussian by CLT. This is why log-normal appears so consistently in wireless measurements.</div>
+  </div>
+
+  <h3>Step 4 — The Two Parameters</h3>
+  <table>
+    <tr><th>Parameter</th><th>Symbol</th><th>Meaning</th><th>Typical values</th></tr>
+    <tr><td>Mean path loss (dB)</td><td>μ_ψdB</td><td>Average attenuation — same as simplified path-loss model prediction</td><td>Varies with distance and environment</td></tr>
+    <tr><td>Standard deviation (dB)</td><td>σ_ψdB</td><td>Spread of shadowing around the mean — larger = more random</td><td>4–13 dB (outdoor), typically 6–10 dB urban</td></tr>
+  </table>
+  <div class="analogy"><strong>📊 What σ = 8 dB means:</strong> About 68% of receivers at distance d will have path loss within ±8 dB of the mean. So if the model predicts −90 dBm received power, roughly 68% of actual receivers are between −98 dBm and −82 dBm. Some unlucky receivers could be 16 dB below average — completely unusable without extra transmit power margin.</div>
+
+  <h3>Step 5 — Shadowing Autocorrelation</h3>
+  <p>Shadow fading is not completely independent from location to location. If two points are close together (e.g., 10 m apart), they likely have the same obstacles nearby — their shadowing is correlated. The correlation model:</p>
+  <div class="fbox">
+    <span class="fb">A(δ) = σ_ψdB² · e^(−δ/Xc)</span>
+    <span class="fl">Eq. (2.50) · δ = separation distance · Xc = decorrelation distance · at δ=Xc: correlation drops to 1/e ≈ 37%</span>
+  </div>
+  <table>
+    <tr><th>Environment</th><th>Decorrelation distance Xc</th></tr>
+    <tr><td>Outdoor suburban macrocells (900 MHz)</td><td>~50–100 m</td></tr>
+    <tr><td>Urban microcells (2 GHz)</td><td>~10 m</td></tr>
+  </table>
+  <p>For a user moving at velocity v, the time-domain decorrelation is obtained by substituting δ = v·τ.</p>
+
+  <h3>Step 6 — How to Simulate Shadow Fading</h3>
+  <p>Generate shadow fading with the correct correlation structure:</p>
+  <ul class="nice">
+    <li>Generate white Gaussian noise with power σ²_ψdB</li>
+    <li>Pass through a first-order filter with response e^(−δ/Xc)</li>
+    <li>Output = correlated log-normal shadow fading process ψ_dB(d)</li>
+  </ul>
+
+  <div class="example">
+    <div class="ex-head">Example 2.4 — Shadow Fading Variance (Textbook)</div>
+    <p>Using γ = 3.71 and K = −31.54 dB from Example 2.3:</p>
+    <p>σ²_ψdB = (1/5) × Σ[M_measured(di) − M_model(di)]²</p>
+    <p>Compute each term:</p>
+    <table>
+      <tr><th>d</th><th>Measured</th><th>Model (−31.54−37.1·log d)</th><th>Error</th><th>Error²</th></tr>
+      <tr><td>10 m</td><td>−70 dB</td><td>−31.54−37.1 = −68.64 dB</td><td>−1.36</td><td>1.85</td></tr>
+      <tr><td>20 m</td><td>−75 dB</td><td>−31.54−48.27 = −79.81 dB</td><td>+4.81</td><td>23.14</td></tr>
+      <tr><td>50 m</td><td>−90 dB</td><td>−31.54−63.03 = −94.57 dB</td><td>+4.57</td><td>20.88</td></tr>
+      <tr><td>100 m</td><td>−110 dB</td><td>−31.54−74.2 = −105.74 dB</td><td>−4.26</td><td>18.15</td></tr>
+      <tr><td>300 m</td><td>−125 dB</td><td>−31.54−91.90 = −123.44 dB</td><td>−1.56</td><td>2.43</td></tr>
+    </table>
+    <p>σ²_ψdB = (1.85 + 23.14 + 20.88 + 18.15 + 2.43)/5 = 66.45/5 = <strong>13.29</strong></p>
+    <p>σ_ψdB = √13.29 = <strong>3.65 dB</strong> — the standard deviation of shadow fading on this indoor path.</p>
+  </div>
+
+  <div class="problem">
+    <div class="prob-head">Practice — §2.7 Shadow Fading</div>
+    <ol>
+      <li>A wireless system has mean received power −95 dBm (from path-loss model) and shadow fading σ = 8 dB. (a) What range of powers contains 68% of receivers? (b) A receiver needs at least −105 dBm to work. What fraction of receivers succeed? (c) How much extra transmit power (fade margin) is needed to cover 95% of receivers?</li>
+      <li>Why is it better to average path-loss measurements in dB rather than in linear (Watts)? Give a conceptual and a statistical reason.</li>
+      <li>A user moves at 30 km/h through an environment with decorrelation distance Xc = 50 m. How long does it take in seconds for shadow fading to decorrelate? What about at 120 km/h?</li>
+    </ol>
+    <details class="sol"><summary></summary><div class="sc">
+      <p><strong>1.</strong> (a) 68% within ±1σ = ±8 dB. Range: −95−8 to −95+8 = −103 to −87 dBm. (b) Need Pr ≥ −105 dBm, mean = −95, so need: current value ≥ −105, i.e., fading must not reduce by more than 10 dB below mean. P(ψ_dB ≤ 10 dB above mean) = P(X ≤ 10/8) = P(X ≤ 1.25) = Φ(1.25) ≈ 89.4% of receivers. (c) 95% coverage means need only 5% to fail: P(ψ_dB > margin) = 0.05, so margin = Φ⁻¹(0.95) × σ = 1.645 × 8 = 13.16 dB extra fade margin.</p>
+      <p><strong>2.</strong> Conceptual: Shadow fading is log-normal, meaning its distribution is Gaussian in dB. Averaging in dB gives the mean of the underlying Gaussian distribution — the statistically meaningful parameter. Averaging in linear Watts gives the mean of the log-normal distribution, which is shifted from the dB median and is dominated by the largest outliers. Statistical: It minimises mean-squared error in the log domain, which is what the model is fit against.</p>
+      <p><strong>3.</strong> At 30 km/h = 8.33 m/s: time to travel 50 m = 50/8.33 = 6.0 seconds. At 120 km/h = 33.33 m/s: time = 50/33.33 = 1.5 seconds. So fast-moving users experience independent fading much more rapidly — this affects handover algorithms and channel tracking.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<section class="section" id="problems">
+  <div class="sec-badge"><span class="dot"></span>Summary</div>
+  <h2>Chapter 2 — Key Formulas and Summary</h2>
+
+  <h3>Core Formulas</h3>
+  <table>
+    <tr><th>Concept</th><th>Formula</th></tr>
+    <tr><td>Transmitted signal</td><td>s(t) = Re{u(t)·e^(j2πfct)} = sI(t)cos(2πfct) − sQ(t)sin(2πfct)</td></tr>
+    <tr><td>Received signal</td><td>r(t) = Re{v(t)·e^(j2πfct)} + n(t)</td></tr>
+    <tr><td>Channel (time-invariant)</td><td>v(t) = u(t) * c(t)</td></tr>
+    <tr><td>Transmit power</td><td>Pt = Pu/2</td></tr>
+    <tr><td>Doppler shift</td><td>fD = v·cosθ/λ</td></tr>
+    <tr><td>Linear path loss</td><td>PL = Pt/Pr</td></tr>
+    <tr><td>dB path loss</td><td>PL_dB = 10·log₁₀(Pt/Pr)</td></tr>
+    <tr><td>Free-space power ratio</td><td>Pr/Pt = (√Gl·λ/4πd)²</td></tr>
+    <tr><td>Free-space dB formula</td><td>Pr_dBm = Pt_dBm + 10·log(Gl) + 20·log(λ) − 20·log(4π) − 20·log(d)</td></tr>
+    <tr><td>Two-ray large-d power</td><td>Pr ≈ Pt·Gl·(ht·hr)²/d⁴</td></tr>
+    <tr><td>Two-ray dB formula</td><td>Pr = Pt + 10·log(Gl) + 20·log(ht·hr) − 40·log(d)</td></tr>
+    <tr><td>Phase difference (two-ray)</td><td>φ ≈ 4π·ht·hr/(λ·d)</td></tr>
+    <tr><td>Critical distance</td><td>dc = 4·ht·hr/λ</td></tr>
+    <tr><td>Simplified path-loss model</td><td>Pr = Pt·K·(d0/d)^γ</td></tr>
+    <tr><td>Simplified model (dB)</td><td>Pr_dBm = Pt_dBm + K_dB − 10γ·log₁₀(d/d0)</td></tr>
+    <tr><td>K from free-space</td><td>K_dB = 20·log₁₀(λ/4πd0)</td></tr>
+    <tr><td>Shadow fading distribution</td><td>ψ_dB ~ N(μ_ψdB, σ²_ψdB)</td></tr>
+    <tr><td>Shadow fading autocorrelation</td><td>A(δ) = σ²_ψdB · e^(−δ/Xc)</td></tr>
+  </table>
+
+  <div class="card bl-a" style="margin-top:2rem;">
+    <h4>✅ Chapter 2 Complete Coverage</h4>
+    <div class="prog-row"><span>Three propagation effects: path loss, shadowing, multipath + distance scales</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.1 History: Maxwell→Hertz→Marconi→Fessenden, reflection/scatter/diffraction</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.1 Ray tracing, empirical models, statistical models — when each is used</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.2 UHF/SHF bands, s(t) model, I/Q components, complex envelope u(t)</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.2 Received signal r(t), channel convolution v(t)=u(t)*c(t), SNR</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.2 Doppler shift fD = v·cosθ/λ, path loss PL and PG in linear and dB</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.3 Free-space LOS, inverse-square law, frequency effect, Eq (2.7–2.10), Example 2.1</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.4.1 Two-ray: LOS+ground reflection, phase difference, d⁻⁴ law, dc, three regions, Example 2.2</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.6 Simplified model Pr=Pt·K·(d0/d)^γ, γ table, MMSE fitting, Example 2.3</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="prog-row"><span>§2.7 Shadow fading: log-normal, μ and σ, CLT physical justification, autocorrelation Xc, Example 2.4</span><span style="color:var(--accent)">✓</span></div><div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Andrea Goldsmith — Wireless Communications · Chapter 2 · <a href="index.html" style="color:var(--accent);text-decoration:none;">← Back to Home</a></p>
+</footer>
+</main>
+</div>
+
+<script>
+const secs=document.querySelectorAll('.section');
+const lks=document.querySelectorAll('.sb-link');
+secs.forEach(s=>new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){lks.forEach(l=>l.classList.remove('active'));const m=document.querySelector(`.sb-link[href="#${x.target.id}"]`);if(m)m.classList.add('active');}});},{threshold:.25}).observe(s));
+</script>
+</body>
+</html>
